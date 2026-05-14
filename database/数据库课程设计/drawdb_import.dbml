@@ -1,0 +1,49 @@
+Table teams {
+  team_id INT [pk, increment]
+  team_name VARCHAR(100) [not null]
+  city VARCHAR(50)
+  stadium VARCHAR(100)
+}
+
+Table seasons {
+  season_id INT [pk, increment]
+  year INT [not null]
+}
+
+Table players {
+  player_id INT [pk, increment]
+  player_name VARCHAR(100) [not null]
+  nationality VARCHAR(50)
+  position VARCHAR(20)
+  birth_date DATE
+  team_id INT
+}
+
+Table matches {
+  match_id INT [pk, increment]
+  season_id INT [not null]
+  match_number INT
+  match_date DATE
+  home_team_id INT
+  away_team_id INT
+}
+
+Table performances {
+  performance_id INT [pk, increment]
+  player_id INT [not null]
+  match_id INT [not null]
+  minutes_played INT
+  goals INT
+  assists INT
+  shots INT
+  passes_completed INT
+  tackles INT
+  rating DECIMAL(4,2)
+}
+
+Ref: players.team_id > teams.team_id
+Ref: matches.season_id > seasons.season_id
+Ref: matches.home_team_id > teams.team_id
+Ref: matches.away_team_id > teams.team_id
+Ref: performances.player_id > players.player_id
+Ref: performances.match_id > matches.match_id

@@ -1,0 +1,73 @@
+{
+  "database": "mysql",
+  "tables": [
+    {
+      "id": "table-1", "name": "teams", "x": 200, "y": 80,
+      "fields": [
+        { "id": "f-1", "name": "team_id", "type": "INT", "primary": true, "unique": false, "notNull": true, "increment": true, "default": "", "check": "", "comment": "" },
+        { "id": "f-2", "name": "team_name", "type": "VARCHAR(100)", "primary": false, "unique": false, "notNull": true, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-3", "name": "city", "type": "VARCHAR(50)", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-4", "name": "stadium", "type": "VARCHAR(100)", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" }
+      ],
+      "indices": [], "comment": "", "color": "#4A90D9"
+    },
+    {
+      "id": "table-2", "name": "players", "x": 150, "y": 350,
+      "fields": [
+        { "id": "f-5", "name": "player_id", "type": "INT", "primary": true, "unique": false, "notNull": true, "increment": true, "default": "", "check": "", "comment": "" },
+        { "id": "f-6", "name": "player_name", "type": "VARCHAR(100)", "primary": false, "unique": false, "notNull": true, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-7", "name": "nationality", "type": "VARCHAR(50)", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-8", "name": "position", "type": "VARCHAR(20)", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-9", "name": "birth_date", "type": "DATE", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-10", "name": "team_id", "type": "INT", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" }
+      ],
+      "indices": [], "comment": "", "color": "#7ED321"
+    },
+    {
+      "id": "table-3", "name": "seasons", "x": 650, "y": 80,
+      "fields": [
+        { "id": "f-11", "name": "season_id", "type": "INT", "primary": true, "unique": false, "notNull": true, "increment": true, "default": "", "check": "", "comment": "" },
+        { "id": "f-12", "name": "year", "type": "INT", "primary": false, "unique": false, "notNull": true, "increment": false, "default": "", "check": "", "comment": "" }
+      ],
+      "indices": [], "comment": "", "color": "#F5A623"
+    },
+    {
+      "id": "table-4", "name": "matches", "x": 650, "y": 300,
+      "fields": [
+        { "id": "f-13", "name": "match_id", "type": "INT", "primary": true, "unique": false, "notNull": true, "increment": true, "default": "", "check": "", "comment": "" },
+        { "id": "f-14", "name": "match_number", "type": "INT", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-15", "name": "match_date", "type": "DATE", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-16", "name": "season_id", "type": "INT", "primary": false, "unique": false, "notNull": true, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-17", "name": "home_team_id", "type": "INT", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-18", "name": "away_team_id", "type": "INT", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" }
+      ],
+      "indices": [], "comment": "", "color": "#D0021B"
+    },
+    {
+      "id": "table-5", "name": "performances", "x": 400, "y": 550,
+      "fields": [
+        { "id": "f-19", "name": "performance_id", "type": "INT", "primary": true, "unique": false, "notNull": true, "increment": true, "default": "", "check": "", "comment": "" },
+        { "id": "f-20", "name": "player_id", "type": "INT", "primary": false, "unique": false, "notNull": true, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-21", "name": "match_id", "type": "INT", "primary": false, "unique": false, "notNull": true, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-22", "name": "minutes_played", "type": "INT", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-23", "name": "goals", "type": "INT", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-24", "name": "assists", "type": "INT", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-25", "name": "shots", "type": "INT", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-26", "name": "passes_completed", "type": "INT", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-27", "name": "tackles", "type": "INT", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" },
+        { "id": "f-28", "name": "rating", "type": "DECIMAL(4,2)", "primary": false, "unique": false, "notNull": false, "increment": false, "default": "", "check": "", "comment": "" }
+      ],
+      "indices": [], "comment": "", "color": "#9013FE"
+    }
+  ],
+  "relationships": [
+    { "id": "rel-1", "name": "FK_players_teams", "startTableId": "table-2", "startFieldId": "f-10", "endTableId": "table-1", "endFieldId": "f-1", "cardinality": "many_to_one", "updateConstraint": "No action", "deleteConstraint": "Set null" },
+    { "id": "rel-2", "name": "FK_matches_seasons", "startTableId": "table-4", "startFieldId": "f-16", "endTableId": "table-3", "endFieldId": "f-11", "cardinality": "many_to_one", "updateConstraint": "No action", "deleteConstraint": "Cascade" },
+    { "id": "rel-3", "name": "FK_matches_home_team", "startTableId": "table-4", "startFieldId": "f-17", "endTableId": "table-1", "endFieldId": "f-1", "cardinality": "many_to_one", "updateConstraint": "No action", "deleteConstraint": "Cascade" },
+    { "id": "rel-4", "name": "FK_matches_away_team", "startTableId": "table-4", "startFieldId": "f-18", "endTableId": "table-1", "endFieldId": "f-1", "cardinality": "many_to_one", "updateConstraint": "No action", "deleteConstraint": "Cascade" },
+    { "id": "rel-5", "name": "FK_performances_players", "startTableId": "table-5", "startFieldId": "f-20", "endTableId": "table-2", "endFieldId": "f-5", "cardinality": "many_to_one", "updateConstraint": "No action", "deleteConstraint": "Cascade" },
+    { "id": "rel-6", "name": "FK_performances_matches", "startTableId": "table-5", "startFieldId": "f-21", "endTableId": "table-4", "endFieldId": "f-13", "cardinality": "many_to_one", "updateConstraint": "No action", "deleteConstraint": "Cascade" }
+  ],
+  "notes": [],
+  "subjectAreas": []
+}
