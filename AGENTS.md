@@ -61,3 +61,10 @@ typedef unsigned char u8;
 - 每次我改完代码后，**必须**自动执行 `git add .` + `git commit`，不需要用户提醒
 - 提交信息必须用中文，简要说明本次改动内容
 - 第一次提交时已设置好本仓库的用户信息，无需再配置
+
+## git 推送（GitHub）
+
+- 远程仓库: `origin` → `https://github.com/Gaoqiaoyou868/oc.git`
+- git 已配置全局代理 `socks5://127.0.0.1:10808`（V2Ray），开 VPN 后终端自动走代理
+- 每次用户开 VPN 时，运行 `git push` 即可推送到 GitHub
+- 如果由我提交了代码且检测到网络可达，我会自动执行 `git push`
