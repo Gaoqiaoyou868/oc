@@ -55,3 +55,9 @@ oc/
 typedef unsigned int u16;
 typedef unsigned char u8;
 ```
+
+## git 自动提交规则
+
+- 每次我改完代码后，**必须**自动执行 `git add .` + `git commit`，不需要用户提醒
+- 提交信息必须用中文，简要说明本次改动内容
+- 第一次提交时已设置好本仓库的用户信息，无需再配置
