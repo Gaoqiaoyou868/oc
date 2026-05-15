@@ -12,16 +12,27 @@ oc/
 │   │   ├── 使用手册与电路说明.md     ─ 完整文档
 │   │   └── SmartFan_backup/        ─ 早期版本存档
 │   ├── jiaotongdeng_51/            #   交通灯实验（实验二）
-│   │   ├── jiaotongdeng.c          ─ Proteus仿真程序
-│   │   ├── 交通灯实验_proteus原理图.PDF
-│   │   ├── 实验二 交通灯实验.doc
-│   │   └── 提示词.txt
+│   │   ├── Keil源码/               #     所有 Keil C 源文件 + 项目文件
+│   │   │   ├── jiaotongdeng.c      ─ Proteus仿真版
+│   │   │   ├── jiaotongdeng_board.c─ 实物版（普中A2）
+│   │   │   ├── doubao.c            ─ 备选版（豆包生成）
+│   │   │   ├── CZ2.c               ─ 备选版
+│   │   │   └── 提示词.txt
+│   │   ├── Proteus仿真/             #     仿真文件 + 原理图 PDF
+│   │   │   ├── 交通灯.pdsprj
+│   │   │   ├── 交通灯实验_proteus原理图.PDF
+│   │   │   └── 交通灯实验_proteus原理图_1.PDF
+│   │   └── 实验文档/               #     实验指导书
+│   │       └── 实验二 交通灯实验.doc
+│   ├── liushuideng_51/             #   流水灯 Proteus 仿真
+│   │   └── liushuideng.pdsprj
 │   ├── stepper_motor_51/           #   步进电机实验（已清理，尚未开始）
 │   └── password_lock_51/           #   密码锁（已放弃）v4最终版
 │         ├── main.c
 │         ├── test_lcd.c
 │         ├── test_lcd2.c
-│         └── test_lcd3.c
+│         ├── test_lcd3.c
+│         └── ...Keil 项目文件
 ├── reference/                      # 参考材料
 │   ├── 51单片机资料/               #   手册/原理图/官方62个实验
 │   └── study/

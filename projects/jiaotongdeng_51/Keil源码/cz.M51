@@ -1,0 +1,315 @@
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                    05/14/2026  12:31:10  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.2.0, INVOKED BY:
+C:\KEIL_V5\C51\BIN\BL51.EXE CZ2.obj TO cz
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  CZ2.obj (CZ2)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C_STARTUP)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  cz (CZ2)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     000DH     UNIT         ?DT?CZ2
+                    0015H     000BH                  *** GAP ***
+            BIT     0020H.0   0000H.3   UNIT         ?BI?CZ2
+                    0020H.3   0000H.5                *** GAP ***
+            IDATA   0021H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0003H     ABSOLUTE     
+            CODE    0006H     0005H     UNIT         ?PR?EXTINT0_INIT?CZ2
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     0105H     UNIT         ?PR?TIMER0_ISR?CZ2
+            CODE    0113H     008CH     UNIT         ?C_C51STARTUP
+            CODE    019FH     004AH     UNIT         ?PR?UPDATEDISPLAYBUFFER?CZ2
+            CODE    01E9H     0043H     UNIT         ?PR?MAIN?CZ2
+            CODE    022CH     003DH     UNIT         ?PR?UPDATELIGHTS?CZ2
+            CODE    0269H     001DH     UNIT         ?PR?DELAY10MS?CZ2
+            CODE    0286H     0011H     UNIT         ?PR?TIMER0_INIT?CZ2
+            CODE    0297H     000CH     UNIT         ?C_INITSEG
+            CODE    02A3H     000AH     UNIT         ?CO?CZ2
+            CODE    02ADH     0006H     UNIT         ?PR?EXTINT0_ISR?CZ2
+
+
+
+OVERLAY MAP OF MODULE:   cz (CZ2)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?PR?TIMER0_ISR?CZ2
+  +--> ?CO?CZ2
+  +--> ?PR?UPDATEDISPLAYBUFFER?CZ2
+  +--> ?PR?UPDATELIGHTS?CZ2
+
+*** NEW ROOT ***************************************************
+
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  05/14/2026  12:31:10  PAGE 2
+
+
+?C_C51STARTUP
+  +--> ?PR?MAIN?CZ2
+  +--> ?C_INITSEG
+
+?PR?MAIN?CZ2
+  +--> ?PR?TIMER0_INIT?CZ2
+  +--> ?PR?EXTINT0_INIT?CZ2
+  +--> ?PR?DELAY10MS?CZ2
+  +--> ?PR?UPDATEDISPLAYBUFFER?CZ2
+
+
+
+SYMBOL TABLE OF MODULE:  cz (CZ2)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        CZ2
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  D:00B0H         PUBLIC        P3
+  C:000EH         PUBLIC        Timer0_ISR
+  B:00A8H.7       PUBLIC        EA
+  C:0006H         PUBLIC        ExtInt0_Init
+  B:0020H.0       PUBLIC        yellow_blink
+  D:000DH         PUBLIC        saved_state
+  C:019FH         PUBLIC        UpdateDisplayBuffer
+  D:000EH         PUBLIC        state
+  C:01E9H         PUBLIC        main
+  C:0286H         PUBLIC        Timer0_Init
+  C:02A3H         PUBLIC        seg_table
+  C:0269H         PUBLIC        Delay10ms
+  D:0089H         PUBLIC        TMOD
+  D:000FH         PUBLIC        saved_time_left
+  D:0010H         PUBLIC        time_left
+  B:00A8H.1       PUBLIC        ET0
+  D:008CH         PUBLIC        TH0
+  B:0020H.1       PUBLIC        emergency_mode
+  B:00A8H.0       PUBLIC        EX0
+  B:0088H.0       PUBLIC        IT0
+  D:008AH         PUBLIC        TL0
+  D:0011H         PUBLIC        disp_buf
+  C:022CH         PUBLIC        UpdateLights
+  B:0088H.4       PUBLIC        TR0
+  B:0090H.0       PUBLIC        EW_RED
+  B:0090H.2       PUBLIC        EW_YELLOW
+  B:0090H.3       PUBLIC        NS_RED
+  C:02ADH         PUBLIC        ExtInt0_ISR
+  B:0090H.5       PUBLIC        NS_YELLOW
+  B:00A0H.1       PUBLIC        DIG_EW_ONES
+  B:0020H.2       PUBLIC        emergency_triggered
+  B:00A0H.3       PUBLIC        DIG_NS_ONES
+  B:00A0H.0       PUBLIC        DIG_EW_TENS
+  B:00B0H.2       PUBLIC        EMERGENCY_KEY
+  B:0090H.1       PUBLIC        EW_GREEN
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  05/14/2026  12:31:10  PAGE 3
+
+
+  B:00A0H.2       PUBLIC        DIG_NS_TENS
+  B:0090H.4       PUBLIC        NS_GREEN
+  -------         PROC          TIMER0_INIT
+  C:0286H         LINE#         49
+  C:0286H         LINE#         50
+  C:0289H         LINE#         51
+  C:028CH         LINE#         52
+  C:028FH         LINE#         53
+  C:0292H         LINE#         54
+  C:0294H         LINE#         55
+  C:0296H         LINE#         56
+  -------         ENDPROC       TIMER0_INIT
+  -------         PROC          EXTINT0_INIT
+  C:0006H         LINE#         59
+  C:0006H         LINE#         60
+  C:0008H         LINE#         61
+  C:000AH         LINE#         62
+  -------         ENDPROC       EXTINT0_INIT
+  -------         PROC          MAIN
+  C:01E9H         LINE#         65
+  C:01E9H         LINE#         67
+  C:01ECH         LINE#         68
+  C:01EFH         LINE#         69
+  C:01F1H         LINE#         70
+  C:01F3H         LINE#         71
+  C:01F5H         LINE#         73
+  C:01F8H         LINE#         74
+  C:01FBH         LINE#         75
+  C:01FDH         LINE#         77
+  C:01FDH         LINE#         79
+  C:0200H         LINE#         80
+  C:0203H         LINE#         81
+  C:0206H         LINE#         82
+  C:0209H         LINE#         84
+  C:020CH         LINE#         85
+  C:020FH         LINE#         86
+  C:0211H         LINE#         87
+  C:0211H         LINE#         88
+  C:0211H         LINE#         89
+  C:0213H         LINE#         90
+  C:0213H         LINE#         93
+  C:0216H         LINE#         94
+  C:0219H         LINE#         95
+  C:021CH         LINE#         96
+  C:021FH         LINE#         97
+  C:0221H         LINE#         99
+  C:0224H         LINE#         100
+  C:0227H         LINE#         101
+  C:022AH         LINE#         102
+  C:022AH         LINE#         103
+  C:022AH         LINE#         104
+  C:022AH         LINE#         105
+  -------         ENDPROC       MAIN
+  -------         PROC          TIMER0_ISR
+  -------         DO            
+  D:0008H         SYMBOL        ms_count
+  D:000AH         SYMBOL        blink_count
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  05/14/2026  12:31:10  PAGE 4
+
+
+  D:000CH         SYMBOL        scan_index
+  -------         ENDDO         
+  C:000EH         LINE#         109
+  C:002BH         LINE#         114
+  C:002EH         LINE#         115
+  C:0031H         LINE#         119
+  C:0033H         LINE#         120
+  C:0035H         LINE#         121
+  C:0037H         LINE#         122
+  C:0039H         LINE#         124
+  C:0048H         LINE#         125
+  C:0054H         LINE#         126
+  C:0060H         LINE#         127
+  C:006CH         LINE#         128
+  C:0076H         LINE#         129
+  C:0076H         LINE#         130
+  C:007DH         LINE#         133
+  C:0080H         LINE#         135
+  C:0088H         LINE#         136
+  C:0091H         LINE#         137
+  C:0097H         LINE#         138
+  C:0099H         LINE#         139
+  C:0099H         LINE#         142
+  C:00A1H         LINE#         143
+  C:00AAH         LINE#         144
+  C:00B0H         LINE#         146
+  C:00BBH         LINE#         147
+  C:00BDH         LINE#         148
+  C:00BDH         LINE#         150
+  C:00C1H         LINE#         151
+  C:00C8H         LINE#         152
+  C:00D5H         LINE#         153
+  C:00DAH         LINE#         154
+  C:00DCH         LINE#         155
+  C:00E1H         LINE#         156
+  C:00E4H         LINE#         157
+  C:00E4H         LINE#         158
+  C:00E4H         LINE#         159
+  C:00E7H         LINE#         160
+  C:00E7H         LINE#         161
+  C:00EAH         LINE#         162
+  C:00ECH         LINE#         164
+  C:00EEH         LINE#         165
+  C:00F0H         LINE#         166
+  C:00F2H         LINE#         167
+  C:00F4H         LINE#         168
+  C:00F6H         LINE#         169
+  C:00F8H         LINE#         170
+  C:00F8H         LINE#         171
+  -------         ENDPROC       TIMER0_ISR
+  -------         PROC          UPDATEDISPLAYBUFFER
+  -------         DO            
+  D:0006H         SYMBOL        ns_disp
+  D:0007H         SYMBOL        ew_disp
+  -------         ENDDO         
+  C:019FH         LINE#         174
+  C:019FH         LINE#         177
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  05/14/2026  12:31:10  PAGE 5
+
+
+  C:01AEH         LINE#         178
+  C:01AEH         LINE#         179
+  C:01B0H         LINE#         180
+  C:01B5H         LINE#         181
+  C:01B7H         LINE#         182
+  C:01B7H         LINE#         183
+  C:01B9H         LINE#         184
+  C:01BBH         LINE#         185
+  C:01BDH         LINE#         186
+  C:01BDH         LINE#         187
+  C:01BFH         LINE#         188
+  C:01C4H         LINE#         189
+  C:01C6H         LINE#         190
+  C:01C6H         LINE#         191
+  C:01C8H         LINE#         192
+  C:01CAH         LINE#         193
+  C:01CAH         LINE#         194
+  C:01CAH         LINE#         196
+  C:01D1H         LINE#         197
+  C:01D9H         LINE#         198
+  C:01E0H         LINE#         199
+  C:01E8H         LINE#         200
+  -------         ENDPROC       UPDATEDISPLAYBUFFER
+  -------         PROC          UPDATELIGHTS
+  C:022CH         LINE#         203
+  C:022CH         LINE#         205
+  C:0232H         LINE#         206
+  C:0238H         LINE#         208
+  C:0247H         LINE#         209
+  C:0247H         LINE#         210
+  C:0249H         LINE#         211
+  C:024BH         LINE#         212
+  C:024CH         LINE#         213
+  C:024CH         LINE#         214
+  C:024EH         LINE#         215
+  C:0257H         LINE#         216
+  C:0258H         LINE#         217
+  C:0258H         LINE#         218
+  C:025AH         LINE#         219
+  C:025CH         LINE#         220
+  C:025DH         LINE#         221
+  C:025DH         LINE#         222
+  C:025FH         LINE#         223
+  C:0268H         LINE#         224
+  C:0268H         LINE#         225
+  C:0268H         LINE#         226
+  -------         ENDPROC       UPDATELIGHTS
+  -------         PROC          EXTINT0_ISR
+  C:02ADH         LINE#         229
+  C:02ADH         LINE#         230
+  C:02B0H         LINE#         231
+  C:02B2H         LINE#         232
+  C:02B2H         LINE#         233
+  -------         ENDPROC       EXTINT0_ISR
+  -------         PROC          DELAY10MS
+  -------         DO            
+  D:0006H         SYMBOL        i
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  05/14/2026  12:31:10  PAGE 6
+
+
+  D:0004H         SYMBOL        j
+  -------         ENDDO         
+  C:0269H         LINE#         236
+  C:0269H         LINE#         238
+  C:026CH         LINE#         239
+  C:0285H         LINE#         240
+  -------         ENDPROC       DELAY10MS
+  -------         ENDMOD        CZ2
+
+Program Size: data=22.3 xdata=0 code=691
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

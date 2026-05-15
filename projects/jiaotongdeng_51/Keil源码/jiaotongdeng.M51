@@ -1,0 +1,336 @@
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                    05/14/2026  12:20:09  PAGE 1
+
+
+BL51 BANKED LINKER/LOCATER V6.22.2.0, INVOKED BY:
+C:\KEIL_V5\C51\BIN\BL51.EXE jiaotongdeng.obj TO jiaotongdeng
+
+
+MEMORY MODEL: SMALL
+
+
+INPUT MODULES INCLUDED:
+  jiaotongdeng.obj (JIAOTONGDENG)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C_STARTUP)
+  C:\KEIL_V5\C51\LIB\C51S.LIB (?C_INIT)
+
+
+LINK MAP OF MODULE:  jiaotongdeng (JIAOTONGDENG)
+
+
+            TYPE    BASE      LENGTH    RELOCATION   SEGMENT NAME
+            -----------------------------------------------------
+
+            * * * * * * *   D A T A   M E M O R Y   * * * * * * *
+            REG     0000H     0008H     ABSOLUTE     "REG BANK 0"
+            DATA    0008H     000FH     UNIT         ?DT?JIAOTONGDENG
+                    0017H     0009H                  *** GAP ***
+            BIT     0020H.0   0000H.5   UNIT         ?BI?JIAOTONGDENG
+                    0020H.5   0000H.3                *** GAP ***
+            IDATA   0021H     0001H     UNIT         ?STACK
+
+            * * * * * * *   C O D E   M E M O R Y   * * * * * * *
+            CODE    0000H     0003H     ABSOLUTE     
+            CODE    0003H     0003H     ABSOLUTE     
+            CODE    0006H     0005H     UNIT         ?PR?EXT0_INIT?JIAOTONGDENG
+            CODE    000BH     0003H     ABSOLUTE     
+            CODE    000EH     00DCH     UNIT         ?PR?MAIN?JIAOTONGDENG
+            CODE    00EAH     008CH     UNIT         ?C_C51STARTUP
+            CODE    0176H     0085H     UNIT         ?PR?TIMER0_ISR?JIAOTONGDENG
+            CODE    01FBH     0049H     UNIT         ?PR?_UPDATE_DISPLAY?JIAOTONGDENG
+            CODE    0244H     003DH     UNIT         ?PR?UPDATE_LIGHTS?JIAOTONGDENG
+            CODE    0281H     0025H     UNIT         ?C_INITSEG
+            CODE    02A6H     0020H     UNIT         ?PR?_DELAY_MS?JIAOTONGDENG
+            CODE    02C6H     0011H     UNIT         ?PR?TIMER0_INIT?JIAOTONGDENG
+            CODE    02D7H     000BH     UNIT         ?CO?JIAOTONGDENG
+            CODE    02E2H     0009H     UNIT         ?PR?EXT0_ISR?JIAOTONGDENG
+
+
+
+OVERLAY MAP OF MODULE:   jiaotongdeng (JIAOTONGDENG)
+
+
+SEGMENT
+  +--> CALLED SEGMENT
+---------------------
+?PR?TIMER0_ISR?JIAOTONGDENG
+  +--> ?CO?JIAOTONGDENG
+
+*** NEW ROOT ***************************************************
+
+?C_C51STARTUP
+  +--> ?PR?MAIN?JIAOTONGDENG
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  05/14/2026  12:20:09  PAGE 2
+
+
+  +--> ?C_INITSEG
+
+?PR?MAIN?JIAOTONGDENG
+  +--> ?PR?TIMER0_INIT?JIAOTONGDENG
+  +--> ?PR?EXT0_INIT?JIAOTONGDENG
+  +--> ?PR?_UPDATE_DISPLAY?JIAOTONGDENG
+  +--> ?PR?_DELAY_MS?JIAOTONGDENG
+  +--> ?PR?UPDATE_LIGHTS?JIAOTONGDENG
+
+?PR?_UPDATE_DISPLAY?JIAOTONGDENG
+  +--> ?PR?UPDATE_LIGHTS?JIAOTONGDENG
+
+
+
+SYMBOL TABLE OF MODULE:  jiaotongdeng (JIAOTONGDENG)
+
+  VALUE           TYPE          NAME
+  ----------------------------------
+
+  -------         MODULE        JIAOTONGDENG
+  C:0000H         SYMBOL        _ICE_DUMMY_
+  D:000DH         PUBLIC        state_backup
+  D:0080H         PUBLIC        P0
+  D:0090H         PUBLIC        P1
+  D:00A0H         PUBLIC        P2
+  B:00A0H.3       PUBLIC        DIG_EW1
+  D:00B0H         PUBLIC        P3
+  B:00A8H.7       PUBLIC        EA
+  B:00A0H.1       PUBLIC        DIG_NS1
+  D:000EH         PUBLIC        current_state
+  C:0006H         PUBLIC        ext0_init
+  B:0020H.0       PUBLIC        saved_once
+  B:0020H.1       PUBLIC        flag_1s
+  C:0176H         PUBLIC        timer0_ISR
+  C:000EH         PUBLIC        main
+  C:02D7H         PUBLIC        seg_table
+  B:00A0H.2       PUBLIC        DIG_EW10
+  D:0089H         PUBLIC        TMOD
+  D:000FH         PUBLIC        ew_backup
+  B:00A0H.0       PUBLIC        DIG_NS10
+  D:0010H         PUBLIC        ns_backup
+  B:00A8H.1       PUBLIC        ET0
+  D:008CH         PUBLIC        TH0
+  B:0020H.2       PUBLIC        emergency_mode
+  B:00A8H.0       PUBLIC        EX0
+  B:0088H.0       PUBLIC        IT0
+  D:008AH         PUBLIC        TL0
+  D:0011H         PUBLIC        disp_buf
+  C:02E2H         PUBLIC        ext0_ISR
+  C:02A6H         PUBLIC        _delay_ms
+  B:0088H.4       PUBLIC        TR0
+  B:0090H.0       PUBLIC        EW_RED
+  B:0090H.2       PUBLIC        EW_YELLOW
+  B:0090H.3       PUBLIC        NS_RED
+  B:0090H.5       PUBLIC        NS_YELLOW
+  C:0202H         PUBLIC        _update_display
+  D:0015H         PUBLIC        ew_count
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  05/14/2026  12:20:09  PAGE 3
+
+
+  C:02C6H         PUBLIC        timer0_init
+  B:00B0H.2       PUBLIC        EMERGENCY_KEY
+  D:0016H         PUBLIC        ns_count
+  B:0090H.1       PUBLIC        EW_GREEN
+  B:0020H.3       PUBLIC        flag_update_lights
+  B:0020H.4       PUBLIC        flag_500ms
+  B:0090H.4       PUBLIC        NS_GREEN
+  C:0244H         PUBLIC        update_lights
+  -------         PROC          _DELAY_MS
+  D:0006H         SYMBOL        ms
+  -------         DO            
+  D:0004H         SYMBOL        i
+  D:0002H         SYMBOL        j
+  -------         ENDDO         
+  C:02A6H         LINE#         61
+  C:02A6H         LINE#         63
+  C:02B0H         LINE#         64
+  C:02C5H         LINE#         65
+  -------         ENDPROC       _DELAY_MS
+  -------         PROC          UPDATE_LIGHTS
+  C:0244H         LINE#         68
+  C:0244H         LINE#         70
+  C:024AH         LINE#         71
+  C:0250H         LINE#         73
+  C:025FH         LINE#         74
+  C:025FH         LINE#         75
+  C:0261H         LINE#         76
+  C:0263H         LINE#         77
+  C:0264H         LINE#         78
+  C:0264H         LINE#         79
+  C:0266H         LINE#         80
+  C:026FH         LINE#         81
+  C:0270H         LINE#         82
+  C:0270H         LINE#         83
+  C:0272H         LINE#         84
+  C:0274H         LINE#         85
+  C:0275H         LINE#         86
+  C:0275H         LINE#         87
+  C:0277H         LINE#         88
+  C:0280H         LINE#         89
+  C:0280H         LINE#         90
+  C:0280H         LINE#         91
+  -------         ENDPROC       UPDATE_LIGHTS
+  C:01FEH         SYMBOL        L?0065
+  -------         PROC          L?0064
+  -------         ENDPROC       L?0064
+  C:01FEH         SYMBOL        L?0065
+  -------         PROC          _UPDATE_DISPLAY
+  D:0007H         SYMBOL        ns
+  D:0005H         SYMBOL        ew
+  C:0202H         LINE#         94
+  C:0202H         LINE#         95
+  C:020CH         LINE#         96
+  C:0213H         LINE#         97
+  C:021BH         LINE#         98
+  C:021DH         LINE#         99
+  C:0220H         LINE#         100
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  05/14/2026  12:20:09  PAGE 4
+
+
+  C:0223H         LINE#         101
+  C:0223H         LINE#         102
+  C:022DH         LINE#         103
+  C:0234H         LINE#         104
+  C:023CH         LINE#         105
+  C:023DH         LINE#         106
+  C:0240H         LINE#         107
+  C:0243H         LINE#         108
+  C:0243H         LINE#         109
+  -------         ENDPROC       _UPDATE_DISPLAY
+  -------         PROC          TIMER0_INIT
+  C:02C6H         LINE#         112
+  C:02C6H         LINE#         113
+  C:02C9H         LINE#         114
+  C:02CCH         LINE#         115
+  C:02CFH         LINE#         116
+  C:02D2H         LINE#         117
+  C:02D4H         LINE#         118
+  C:02D6H         LINE#         119
+  -------         ENDPROC       TIMER0_INIT
+  -------         PROC          EXT0_INIT
+  C:0006H         LINE#         122
+  C:0006H         LINE#         123
+  C:0008H         LINE#         124
+  C:000AH         LINE#         125
+  -------         ENDPROC       EXT0_INIT
+  -------         PROC          MAIN
+  C:000EH         LINE#         128
+  C:000EH         LINE#         129
+  C:0011H         LINE#         130
+  C:0014H         LINE#         131
+  C:0016H         LINE#         133
+  C:0016H         LINE#         134
+  C:0019H         LINE#         136
+  C:0019H         LINE#         138
+  C:001CH         LINE#         139
+  C:001FH         LINE#         140
+  C:0022H         LINE#         141
+  C:0025H         LINE#         142
+  C:0028H         LINE#         143
+  C:002AH         LINE#         144
+  C:002AH         LINE#         146
+  C:0030H         LINE#         147
+  C:0036H         LINE#         149
+  C:003DH         LINE#         152
+  C:0040H         LINE#         153
+  C:0047H         LINE#         154
+  C:004AH         LINE#         155
+  C:004CH         LINE#         156
+  C:004CH         LINE#         157
+  C:004EH         LINE#         159
+  C:004EH         LINE#         160
+  C:0051H         LINE#         161
+  C:0054H         LINE#         162
+  C:0057H         LINE#         163
+  C:005AH         LINE#         164
+  C:005CH         LINE#         165
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  05/14/2026  12:20:09  PAGE 5
+
+
+  C:005CH         LINE#         166
+  C:005FH         LINE#         167
+  C:005FH         LINE#         170
+  C:0062H         LINE#         171
+  C:0064H         LINE#         172
+  C:0067H         LINE#         173
+  C:0067H         LINE#         176
+  C:006AH         LINE#         177
+  C:006CH         LINE#         178
+  C:007BH         LINE#         179
+  C:007BH         LINE#         180
+  C:0088H         LINE#         181
+  C:008CH         LINE#         182
+  C:008FH         LINE#         183
+  C:0092H         LINE#         184
+  C:0094H         LINE#         185
+  C:0094H         LINE#         186
+  C:0096H         LINE#         187
+  C:0096H         LINE#         188
+  C:00A3H         LINE#         189
+  C:00A7H         LINE#         190
+  C:00AAH         LINE#         191
+  C:00ACH         LINE#         192
+  C:00AFH         LINE#         193
+  C:00AFH         LINE#         194
+  C:00B1H         LINE#         195
+  C:00B1H         LINE#         196
+  C:00BEH         LINE#         197
+  C:00C2H         LINE#         198
+  C:00C5H         LINE#         199
+  C:00C7H         LINE#         200
+  C:00CAH         LINE#         201
+  C:00CAH         LINE#         202
+  C:00CCH         LINE#         203
+  C:00CCH         LINE#         204
+  C:00D9H         LINE#         205
+  C:00DDH         LINE#         206
+  C:00DFH         LINE#         207
+  C:00E2H         LINE#         208
+  C:00E4H         LINE#         209
+  C:00E4H         LINE#         210
+  C:00E4H         LINE#         211
+  C:00E4H         LINE#         212
+  C:00E7H         LINE#         213
+  C:00E7H         LINE#         214
+  C:00E7H         LINE#         215
+  -------         ENDPROC       MAIN
+  -------         PROC          TIMER0_ISR
+  -------         DO            
+  D:0008H         SYMBOL        scan_pos
+  D:0009H         SYMBOL        ms_count
+  D:000BH         SYMBOL        half_count
+  -------         ENDDO         
+  C:0176H         LINE#         219
+  C:0183H         LINE#         224
+  C:0186H         LINE#         225
+  C:0189H         LINE#         228
+BL51 BANKED LINKER/LOCATER V6.22.2.0                                                  05/14/2026  12:20:09  PAGE 6
+
+
+  C:018CH         LINE#         229
+  C:0198H         LINE#         230
+  C:01A7H         LINE#         231
+  C:01ABH         LINE#         232
+  C:01AFH         LINE#         233
+  C:01B3H         LINE#         234
+  C:01B5H         LINE#         235
+  C:01B5H         LINE#         236
+  C:01BCH         LINE#         239
+  C:01CDH         LINE#         240
+  C:01D3H         LINE#         241
+  C:01D5H         LINE#         242
+  C:01D5H         LINE#         243
+  C:01E6H         LINE#         244
+  C:01ECH         LINE#         245
+  C:01EEH         LINE#         246
+  C:01F0H         LINE#         247
+  C:01F0H         LINE#         248
+  -------         ENDPROC       TIMER0_ISR
+  -------         PROC          EXT0_ISR
+  C:02E2H         LINE#         251
+  C:02E2H         LINE#         252
+  C:02E5H         LINE#         253
+  C:02E7H         LINE#         254
+  C:02E8H         LINE#         255
+  C:02EAH         LINE#         256
+  C:02EAH         LINE#         257
+  -------         ENDPROC       EXT0_ISR
+  -------         ENDMOD        JIAOTONGDENG
+
+Program Size: data=24.5 xdata=0 code=747
+LINK/LOCATE RUN COMPLETE.  0 WARNING(S),  0 ERROR(S)

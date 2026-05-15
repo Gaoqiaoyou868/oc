@@ -1,0 +1,286 @@
+C51 COMPILER V9.59.0.0   DOUBAO                                                            05/15/2026 08:18:15 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE DOUBAO
+OBJECT MODULE PLACED IN doubao.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE doubao.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1             #include <reg51.h>
+   2          
+   3          // --- 引脚定义（与原代码完全一致）---
+   4          // 南北方向灯 (P1.3 - P1.5)
+   5          sbit NS_RED    = P1^3;
+   6          sbit NS_YELLOW = P1^5;
+   7          sbit NS_GREEN  = P1^4;
+   8          // 东西方向灯 (P1.0 - P1.2)
+   9          sbit EW_RED    = P1^0;
+  10          sbit EW_YELLOW = P1^2;
+  11          sbit EW_GREEN  = P1^1;
+  12          
+  13          sbit EMERGENCY_KEY = P3^2;
+  14          
+  15          // 数码管位选 (高电平有效)
+  16          sbit DIG_NS10 = P2^0;
+  17          sbit DIG_NS1  = P2^1;
+  18          sbit DIG_EW10 = P2^2;
+  19          sbit DIG_EW1  = P2^3;
+  20          
+  21          // 共阳极段码表 (0~9, 全灭)
+  22          unsigned char code seg_table[] = {
+  23              0xC0, // 0
+  24              0xF9, // 1
+  25              0xA4, // 2
+  26              0xB0, // 3
+  27              0x99, // 4
+  28              0x92, // 5
+  29              0x82, // 6
+  30              0xF8, // 7
+  31              0x80, // 8
+  32              0x90, // 9
+  33              0xFF  // 全灭
+  34          };
+  35          
+  36          volatile unsigned char disp_buf[4] = {10,10,10,10};
+  37          
+  38          // --- 状态定义（与原代码一致）---
+  39          #define STATE_NS_GO    0    // 南北通行
+  40          #define STATE_NS_WARN  1    // 南北缓冲（黄灯）
+  41          #define STATE_EW_GO    2    // 东西通行
+  42          #define STATE_EW_WARN  3    // 东西缓冲（黄灯）
+  43          
+  44          unsigned char current_state = STATE_NS_GO;
+  45          
+  46          // --- 已修改为演示用时间参数 ---
+  47          #define NS_GREEN_TIME 10    // 南北绿灯纯通行时间（原20秒→现10秒）
+  48          #define EW_GREEN_TIME  5    // 东西绿灯纯通行时间（原15秒→现5秒）
+  49          #define YELLOW_TIME    3    // 黄灯缓冲时间（保持3秒不变）
+  50          
+  51          // 全局统一倒计时（两个方向显示数值完全相同）
+  52          unsigned char countdown = NS_GREEN_TIME + YELLOW_TIME;  // 初始：南北绿+黄总时间13秒
+  53          
+  54          // 紧急控制相关变量
+  55          volatile bit emergency_mode = 0;
+C51 COMPILER V9.59.0.0   DOUBAO                                                            05/15/2026 08:18:15 PAGE 2   
+
+  56          bit saved_once = 0;
+  57          unsigned char state_backup;      // 备份进入紧急前的状态
+  58          unsigned char countdown_backup;  // 备份进入紧急前的倒计时
+  59          
+  60          // 时基标志
+  61          volatile bit flag_1s = 0;
+  62          volatile bit flag_500ms = 0;
+  63          volatile bit flag_update_lights = 0;
+  64          
+  65          void delay_ms(unsigned int ms) {
+  66   1          unsigned int i, j;
+  67   1          for(i=0; i<ms; i++)
+  68   1              for(j=0; j<120; j++);
+  69   1      }
+  70          
+  71          // 更新信号灯状态
+  72          void update_lights() {
+  73   1          // 先全灭所有灯
+  74   1          NS_RED = 1; NS_YELLOW = 1; NS_GREEN = 1;
+  75   1          EW_RED = 1; EW_YELLOW = 1; EW_GREEN = 1;
+  76   1      
+  77   1          switch(current_state) {
+  78   2              case STATE_NS_GO:    // 南北通行：南北绿，东西红
+  79   2                  NS_GREEN = 0;
+  80   2                  EW_RED = 0;
+  81   2                  break;
+  82   2              case STATE_NS_WARN:  // 南北缓冲：南北黄闪烁，东西红
+  83   2                  EW_RED = 0;
+  84   2                  NS_YELLOW = flag_500ms ? 0 : 1;  // 500ms交替闪烁
+  85   2                  break;
+  86   2              case STATE_EW_GO:    // 东西通行：南北红，东西绿
+  87   2                  NS_RED = 0;
+  88   2                  EW_GREEN = 0;
+  89   2                  break;
+  90   2              case STATE_EW_WARN:  // 东西缓冲：南北红，东西黄闪烁
+  91   2                  NS_RED = 0;
+  92   2                  EW_YELLOW = flag_500ms ? 0 : 1;  // 500ms交替闪烁
+  93   2                  break;
+  94   2          }
+  95   1      }
+  96          
+  97          // 更新数码管显示缓冲区（严格遵循表格要求）
+  98          void update_display() {
+  99   1          // 南北方向：显示距离变红的时间（绿灯+黄灯总剩余/黄灯剩余）
+ 100   1          disp_buf[0] = countdown / 10;
+ 101   1          disp_buf[1] = countdown % 10;
+ 102   1          // 东西方向：显示距离变绿的时间（红灯剩余）
+ 103   1          disp_buf[2] = countdown / 10;
+ 104   1          disp_buf[3] = countdown % 10;
+ 105   1      }
+ 106          
+ 107          // 定时器0初始化（1ms中断，11.0592MHz晶振）
+ 108          void timer0_init() {
+ 109   1          TMOD &= 0xF0;
+ 110   1          TMOD |= 0x01;
+ 111   1          TH0 = 0xFC;
+ 112   1          TL0 = 0x18;
+ 113   1          ET0 = 1;
+ 114   1          TR0 = 1;
+ 115   1      }
+ 116          
+ 117          // 外部中断0初始化（下降沿触发紧急模式）
+C51 COMPILER V9.59.0.0   DOUBAO                                                            05/15/2026 08:18:15 PAGE 3   
+
+ 118          void ext0_init() {
+ 119   1          IT0 = 1;
+ 120   1          EX0 = 1;
+ 121   1      }
+ 122          
+ 123          void main() {
+ 124   1          timer0_init();
+ 125   1          ext0_init();
+ 126   1          EA = 1;
+ 127   1      
+ 128   1          update_lights();
+ 129   1          update_display();
+ 130   1      
+ 131   1          while(1) {
+ 132   2              // ==================== 紧急模式处理 ====================
+ 133   2              if(emergency_mode) {
+ 134   3                  if(!saved_once) {
+ 135   4                      state_backup = current_state;
+ 136   4                      countdown_backup = countdown;
+ 137   4                      saved_once = 1;
+ 138   4                  }
+ 139   3                  
+ 140   3                  // 强制全红灯
+ 141   3                  NS_RED = 0; NS_YELLOW = 1; NS_GREEN = 1;
+ 142   3                  EW_RED = 0; EW_YELLOW = 1; EW_GREEN = 1;
+ 143   3                  
+ 144   3                  // 数码管显示00
+ 145   3                  disp_buf[0] = 0;
+ 146   3                  disp_buf[1] = 0;
+ 147   3                  disp_buf[2] = 0;
+ 148   3                  disp_buf[3] = 0;
+ 149   3      
+ 150   3                  // 检测按键释放退出
+ 151   3                  if(EMERGENCY_KEY == 1) {
+ 152   4                      delay_ms(20);
+ 153   4                      if(EMERGENCY_KEY == 1) {
+ 154   5                          emergency_mode = 0;
+ 155   5                      }
+ 156   4                  }
+ 157   3              }
+ 158   2              // ==================== 正常模式处理 ====================
+ 159   2              else {
+ 160   3                  if(saved_once) {
+ 161   4                      current_state = state_backup;
+ 162   4                      countdown = countdown_backup;
+ 163   4                      saved_once = 0;
+ 164   4                      update_lights();
+ 165   4                      update_display();
+ 166   4                  }
+ 167   3      
+ 168   3                  if(flag_update_lights) {
+ 169   4                      flag_update_lights = 0;
+ 170   4                      update_lights();
+ 171   4                  }
+ 172   3      
+ 173   3                  if(flag_1s) {
+ 174   4                      flag_1s = 0;
+ 175   4                      if(countdown > 0) countdown--;
+ 176   4      
+ 177   4                      // 状态切换逻辑
+ 178   4                      switch(current_state) {
+ 179   5                          case STATE_NS_GO:
+C51 COMPILER V9.59.0.0   DOUBAO                                                            05/15/2026 08:18:15 PAGE 4   
+
+ 180   5                              if(countdown == YELLOW_TIME) {
+ 181   6                                  current_state = STATE_NS_WARN;
+ 182   6                              }
+ 183   5                              else if(countdown == 0) {
+ 184   6                                  current_state = STATE_EW_GO;
+ 185   6                                  countdown = EW_GREEN_TIME + YELLOW_TIME;  // 东西绿+黄总时间8秒
+ 186   6                              }
+ 187   5                              break;
+ 188   5      
+ 189   5                          case STATE_NS_WARN:
+ 190   5                              if(countdown == 0) {
+ 191   6                                  current_state = STATE_EW_GO;
+ 192   6                                  countdown = EW_GREEN_TIME + YELLOW_TIME;
+ 193   6                              }
+ 194   5                              break;
+ 195   5      
+ 196   5                          case STATE_EW_GO:
+ 197   5                              if(countdown == YELLOW_TIME) {
+ 198   6                                  current_state = STATE_EW_WARN;
+ 199   6                              }
+ 200   5                              else if(countdown == 0) {
+ 201   6                                  current_state = STATE_NS_GO;
+ 202   6                                  countdown = NS_GREEN_TIME + YELLOW_TIME;  // 南北绿+黄总时间13秒
+ 203   6                              }
+ 204   5                              break;
+ 205   5      
+ 206   5                          case STATE_EW_WARN:
+ 207   5                              if(countdown == 0) {
+ 208   6                                  current_state = STATE_NS_GO;
+ 209   6                                  countdown = NS_GREEN_TIME + YELLOW_TIME;
+ 210   6                              }
+ 211   5                              break;
+ 212   5                      }
+ 213   4      
+ 214   4                      update_display();
+ 215   4                  }
+ 216   3              }
+ 217   2          }
+ 218   1      }
+ 219          
+ 220          // 定时器0中断服务程序
+ 221          void timer0_ISR() interrupt 1 {
+ 222   1          static unsigned char scan_pos = 0;
+ 223   1          static unsigned int ms_count = 0;
+ 224   1          static unsigned int half_count = 0;
+ 225   1      
+ 226   1          TH0 = 0xFC;
+ 227   1          TL0 = 0x18;
+ 228   1      
+ 229   1          // 数码管动态扫描
+ 230   1          P2 = 0x00;
+ 231   1          P0 = seg_table[disp_buf[scan_pos]];
+ 232   1          switch(scan_pos) {
+ 233   2              case 0: DIG_NS10 = 1; break;
+ 234   2              case 1: DIG_NS1  = 1; break;
+ 235   2              case 2: DIG_EW10 = 1; break;
+ 236   2              case 3: DIG_EW1  = 1; break;
+ 237   2          }
+ 238   1          scan_pos = (scan_pos + 1) & 0x03;
+ 239   1      
+ 240   1          if(++ms_count >= 1000) {
+ 241   2              ms_count = 0;
+C51 COMPILER V9.59.0.0   DOUBAO                                                            05/15/2026 08:18:15 PAGE 5   
+
+ 242   2              flag_1s = 1;
+ 243   2          }
+ 244   1      
+ 245   1          if(++half_count >= 500) {
+ 246   2              half_count = 0;
+ 247   2              flag_500ms = ~flag_500ms;
+ 248   2              flag_update_lights = 1;
+ 249   2          }
+ 250   1      }
+ 251          
+ 252          // 外部中断0服务程序
+ 253          void ext0_ISR() interrupt 0 {
+ 254   1          emergency_mode = ~emergency_mode;
+ 255   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    465    ----
+   CONSTANT SIZE    =     11    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     13    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      5    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

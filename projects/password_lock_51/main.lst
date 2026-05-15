@@ -1,0 +1,646 @@
+C51 COMPILER V9.59.0.0   MAIN                                                              05/11/2026 13:05:59 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.obj
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE cc\51��Ŀ\password_lock_51\main.c BROWSE DEBUG OBJECTEXTEND PRINT(.\main
+                    -.lst) OBJECT(main.obj)
+
+line level    source
+
+   1          /******************************************************************************
+   2           * 智能密码锁系统  (Keil C51)  — v4 最终版
+   3           *
+   4           * 芯片    : STC89C52RC  @ 11.0592 MHz
+   5           *
+   6           *  ╔═════════════════════════════════
+             -═════════════════════════╗
+   7           *  ║  引脚映射                                               ║
+   8           *  ║  LCD1602 : RS=P2.6, RW=P2.5, EN=P2.7, D0~D7=P0       ║
+   9           *  ║  矩阵键盘: P1.0~P1.3(列), P1.4~P1.7(行)  [JP4]        ║
+  10           *  ║  步进电机: P1.0~P1.3, ULN2003  [JP8]                  ║
+  11           *  ║  蜂鸣器  : P2.5 (与LCD_RW共用, 仅在非LCD操作时发声)   ║
+  12           *  ║  红灯    : P2.1 (D2, 锁定, 共阳:0=亮)                 ║
+  13           *  ║  绿灯    : P3.4 (需外接LED, 高电平亮; 或只看LCD)      ║
+  14           *  ╚═════════════════════════════════
+             -═════════════════════════╝
+  15           *
+  16           *  ╔═════════════════════════════════
+             -═════════════════════════╗
+  17           *  ║  启动前跳线帽配置 (务必遵守!)                           ║
+  18           *  ║  段选: ✅ ON    位选: ✅ ON                            ║
+  19           *  ║  JP4(键盘): ✅ ON      JP8(电机): ❌ OFF               ║
+  20           *  ║  ★ JP8 必须先拔掉, 否则按键时电机会乱转!              ║
+  21           *  ╚═════════════════════════════════
+             -═════════════════════════╝
+  22           *
+  23           *  定时器:
+  24           *   T0 : 蜂鸣器 PWM (模式1)
+  25           *   T1 : 20ms 系统节拍
+  26           *============================================================================*/
+  27          
+  28          #include <reg51.h>
+  29          #include <intrins.h>
+  30          
+  31          /* ======================== 硬件引脚 ======================== */
+  32          
+  33          #define LCD_DATA     P0
+  34          sbit LCD_RS = P2^6;
+  35          sbit LCD_RW = P2^5;
+  36          sbit LCD_EN = P2^7;
+  37          
+  38          sbit BEEP      = P2^5;    /* 蜂鸣器=LCD_RW, 共用P2.5 */
+  39          sbit LED_RED   = P2^1;    /* D2: 红灯(锁定) */
+  40          sbit LED_GREEN = P3^4;    /* 绿灯(解锁), P3.4需外接LED */
+  41          
+  42          sbit BTN_K1 = P3^1;
+  43          sbit BTN_K2 = P3^0;
+  44          
+  45          /* ======================== 常量 ======================== */
+  46          
+  47          #define PASS_LEN      4
+  48          #define MAX_ATTEMPTS  3
+  49          #define LOCKOUT_TICK  1500       /* 30秒 = 1500×20ms */
+  50          #define UNLOCK_TICK   250        /* 5秒  = 250×20ms  */
+C51 COMPILER V9.59.0.0   MAIN                                                              05/11/2026 13:05:59 PAGE 2   
+
+  51          #define PHASE_COUNT   8
+  52          
+  53          #define S_LOCKED      0
+  54          #define S_INPUT       1
+  55          #define S_VERIFY_OK   2
+  56          #define S_UNLOCKED    3
+  57          #define S_VERIFY_FAIL 4
+  58          #define S_LOCKOUT     5
+  59          
+  60          #define BEEP_KEY      0          /* 1.0kHz */
+  61          #define BEEP_OK       1          /* 1.5kHz */
+  62          #define BEEP_ERR      2          /* 500Hz  */
+  63          
+  64          #define T1_TH         0xB7
+  65          #define T1_TL         0xFF
+  66          
+  67          /* ======================== Flash 数据表 ======================== */
+  68          
+  69          unsigned char code phase_table[PHASE_COUNT] = {
+  70              0x01, 0x03, 0x02, 0x06, 0x04, 0x0C, 0x08, 0x09
+  71          };
+  72          
+  73          unsigned char code password[PASS_LEN] = {1, 2, 3, 4};
+  74          
+  75          /*
+  76           * 蜂鸣器频率 → T0 重装值
+  77           * [0] 1.0kHz / [1] 1.5kHz / [2] 500Hz
+  78           */
+  79          unsigned char code beep_TH[3] = {0xFE, 0xFE, 0xFC};
+  80          unsigned char code beep_TL[3] = {0x33, 0xCD, 0x66};
+  81          
+  82          /* ======================== 全局变量 ======================== */
+  83          
+  84          unsigned char input_buf[PASS_LEN];
+  85          unsigned char input_count;
+  86          unsigned char state;
+  87          unsigned char attempts;
+  88          unsigned int  state_timer;
+  89          char phase_idx;
+  90          unsigned char beep_type;
+  91          unsigned int  beep_duration;
+  92          
+  93          /* ======================== 函数声明 ======================== */
+  94          
+  95          void  Delay_ms(unsigned int ms);
+  96          void  LCD_WriteCmd(unsigned char cmd);
+  97          void  LCD_WriteData(unsigned char dat);
+  98          void  LCD_Init(void);
+  99          void  LCD_SetPos(unsigned char line, unsigned char col);
+ 100          void  LCD_WriteStr(unsigned char *str);
+ 101          void  LCD_ClearLine(unsigned char line);
+ 102          void  LCD_ShowPrompt(unsigned char *line1, unsigned char *line2);
+ 103          unsigned char Key_Scan(void);
+ 104          unsigned char Key_WaitPress(void);
+ 105          void  Beep_Start(unsigned char type, unsigned int tick);
+ 106          void  Beep_Stop(void);
+ 107          void  Motor_StepCW(void);
+ 108          void  Motor_StepCCW(void);
+ 109          void  Motor_Run(unsigned int steps, unsigned char direction);
+ 110          void  Motor_Reset(void);
+ 111          void  UI_ShowLocked(void);
+ 112          void  UI_ShowInput(void);
+C51 COMPILER V9.59.0.0   MAIN                                                              05/11/2026 13:05:59 PAGE 3   
+
+ 113          void  UI_ShowCorrect(void);
+ 114          void  UI_ShowUnlocked(void);
+ 115          void  UI_ShowError(void);
+ 116          void  UI_ShowLockout(void);
+ 117          void  UI_ShowSwitchToMotor(void);
+ 118          void  UI_ShowSwitchToKeypad(void);
+ 119          
+ 120          /* ======================== 延时 ======================== */
+ 121          
+ 122          void Delay_ms(unsigned int ms)
+ 123          {
+ 124   1          unsigned int i;
+ 125   1          while (ms--) {
+ 126   2              for (i = 0; i < 120; i++) { _nop_(); }
+ 127   2          }
+ 128   1      }
+ 129          
+ 130          /* ====================== LCD1602 驱动 ====================== */
+ 131          
+ 132          /*
+ 133           * LCD 写操作期间必须关蜂鸣器 (T0), 因为蜂鸣器和 LCD_RW 共用 P2.5
+ 134           * 如果在 LCD 写数据时 T0 ISR 翻转 P2.5, RW 会变高 → LCD 进入读模式 → 显示异常
+ 135           */
+ 136          
+ 137          void LCD_WriteCmd(unsigned char cmd)
+ 138          {
+ 139   1          EA = 0;                        /* 关中断, 保护 LCD 时序 */
+ 140   1          LCD_RS = 0;
+ 141   1          LCD_RW = 0;
+ 142   1          LCD_EN = 0;
+ 143   1          LCD_DATA = cmd;
+ 144   1          Delay_ms(1);
+ 145   1          LCD_EN = 1;
+ 146   1          Delay_ms(1);
+ 147   1          LCD_EN = 0;
+ 148   1          LCD_DATA = 0xFF;               /* 释放 P0, 避免数码管乱码 */
+ 149   1          EA = 1;
+ 150   1      }
+ 151          
+ 152          void LCD_WriteData(unsigned char dat)
+ 153          {
+ 154   1          EA = 0;
+ 155   1          LCD_RS = 1;
+ 156   1          LCD_RW = 0;
+ 157   1          LCD_EN = 0;
+ 158   1          LCD_DATA = dat;
+ 159   1          Delay_ms(1);
+ 160   1          LCD_EN = 1;
+ 161   1          Delay_ms(1);
+ 162   1          LCD_EN = 0;
+ 163   1          LCD_DATA = 0xFF;
+ 164   1          EA = 1;
+ 165   1      }
+ 166          
+ 167          void LCD_SetPos(unsigned char line, unsigned char col)
+ 168          {
+ 169   1          LCD_WriteCmd((line == 0 ? 0x80 : 0xC0) + col);
+ 170   1      }
+ 171          
+ 172          void LCD_WriteStr(unsigned char *str)
+ 173          {
+ 174   1          while (*str) {
+C51 COMPILER V9.59.0.0   MAIN                                                              05/11/2026 13:05:59 PAGE 4   
+
+ 175   2              LCD_WriteData(*str++);
+ 176   2          }
+ 177   1      }
+ 178          
+ 179          void LCD_ClearLine(unsigned char line)
+ 180          {
+ 181   1          unsigned char i;
+ 182   1          LCD_SetPos(line, 0);
+ 183   1          for (i = 0; i < 16; i++) LCD_WriteData(' ');
+ 184   1      }
+ 185          
+ 186          void LCD_ShowPrompt(unsigned char *line1, unsigned char *line2)
+ 187          {
+ 188   1          LCD_ClearLine(0);
+ 189   1          LCD_ClearLine(1);
+ 190   1          LCD_SetPos(0, 0);
+ 191   1          LCD_WriteStr(line1);
+ 192   1          LCD_SetPos(1, 0);
+ 193   1          LCD_WriteStr(line2);
+ 194   1      }
+ 195          
+ 196          void LCD_Init(void)
+ 197          {
+ 198   1          Delay_ms(50);
+ 199   1          LCD_WriteCmd(0x38);
+ 200   1          LCD_WriteCmd(0x0C);
+ 201   1          LCD_WriteCmd(0x06);
+ 202   1          LCD_WriteCmd(0x01);
+ 203   1          Delay_ms(5);
+ 204   1      }
+ 205          
+ 206          /* ====================== 矩阵键盘 ====================== */
+ 207          
+ 208          unsigned char Key_Scan(void)
+ 209          {
+ 210   1          unsigned char col, row_data, key = 0;
+ 211   1      
+ 212   1          P1 = 0xF0;
+ 213   1          _nop_(); _nop_();
+ 214   1          if ((P1 & 0xF0) == 0xF0) return 0;
+ 215   1      
+ 216   1          for (col = 0; col < 4; col++) {
+ 217   2              P1 = (~(1 << col) & 0x0F) | 0xF0;
+ 218   2              _nop_(); _nop_();
+ 219   2              row_data = P1 & 0xF0;
+ 220   2              if (row_data != 0xF0) {
+ 221   3                  if      (!(row_data & 0x80)) key = col + 1;
+ 222   3                  else if (!(row_data & 0x40)) key = col + 5;
+ 223   3                  else if (!(row_data & 0x20)) key = col + 9;
+ 224   3                  else if (!(row_data & 0x10)) key = col + 13;
+ 225   3                  break;
+ 226   3              }
+ 227   2          }
+ 228   1      
+ 229   1          P1 = 0xF0;                     /* 释放 P1, 避免电机误动 */
+ 230   1          return key;
+ 231   1      }
+ 232          
+ 233          unsigned char Key_WaitPress(void)
+ 234          {
+ 235   1          unsigned char raw;
+ 236   1      
+C51 COMPILER V9.59.0.0   MAIN                                                              05/11/2026 13:05:59 PAGE 5   
+
+ 237   1          while (1) {
+ 238   2              raw = Key_Scan();
+ 239   2              if (raw != 0) {
+ 240   3                  Delay_ms(20);
+ 241   3                  if (Key_Scan() == raw) break;  /* 消抖确认 */
+ 242   3              }
+ 243   2          }
+ 244   1      
+ 245   1          /* 等按键释放 */
+ 246   1          while (Key_Scan() != 0);
+ 247   1          Delay_ms(20);
+ 248   1      
+ 249   1          /* 按键释放后才发声, 避免蜂鸣器干扰键盘扫描 */
+ 250   1          Beep_Start(BEEP_KEY, 3);       /* 60ms 按键音 */
+ 251   1      
+ 252   1          /* 键值映射 */
+ 253   1          if (raw >= 1 && raw <= 9)  return '0' + raw;
+ 254   1          if (raw == 10)             return '0';
+ 255   1          if (raw == 11)             return 'E';
+ 256   1          if (raw == 12)             return 'C';
+ 257   1          return 0;
+ 258   1      }
+ 259          
+ 260          /* ====================== 蜂鸣器 (P2.5, 与LCD_RW共用) ====================== */
+ 261          
+ 262          void Beep_Start(unsigned char type, unsigned int tick)
+ 263          {
+ 264   1          beep_type     = type;
+ 265   1          beep_duration = tick;
+ 266   1          TH0 = beep_TH[type];
+ 267   1          TL0 = beep_TL[type];
+ 268   1          TR0 = 1;
+ 269   1          ET0 = 1;
+ 270   1      }
+ 271          
+ 272          void Beep_Stop(void)
+ 273          {
+ 274   1          ET0 = 0;
+ 275   1          TR0 = 0;
+ 276   1          BEEP = 0;                      /* P2.5=0 → RW=0, 不影响后续LCD操作 */
+ 277   1          beep_duration = 0;
+ 278   1      }
+ 279          
+ 280          /* ====================== 步进电机 (P1.0~P1.3, JP8) ====================== */
+ 281          
+ 282          void Motor_StepCW(void)
+ 283          {
+ 284   1          phase_idx++;
+ 285   1          if (phase_idx >= PHASE_COUNT) phase_idx = 0;
+ 286   1          P1 = (P1 & 0xF0) | phase_table[(unsigned char)phase_idx];
+ 287   1      }
+ 288          
+ 289          void Motor_StepCCW(void)
+ 290          {
+ 291   1          phase_idx--;
+ 292   1          if (phase_idx < 0) phase_idx = PHASE_COUNT - 1;
+ 293   1          P1 = (P1 & 0xF0) | phase_table[(unsigned char)phase_idx];
+ 294   1      }
+ 295          
+ 296          void Motor_Run(unsigned int steps, unsigned char direction)
+ 297          {
+ 298   1          unsigned int i;
+C51 COMPILER V9.59.0.0   MAIN                                                              05/11/2026 13:05:59 PAGE 6   
+
+ 299   1          for (i = 0; i < steps; i++) {
+ 300   2              if (direction) Motor_StepCW();
+ 301   2              else           Motor_StepCCW();
+ 302   2              Delay_ms(2);
+ 303   2          }
+ 304   1      }
+ 305          
+ 306          void Motor_Reset(void)
+ 307          {
+ 308   1          P1 &= 0xF0;
+ 309   1          phase_idx = 0;
+ 310   1      }
+ 311          
+ 312          /* ====================== UI 显示 ====================== */
+ 313          
+ 314          void UI_ShowLocked(void)
+ 315          {
+ 316   1          LCD_ShowPrompt("  >> LOCKED <<  ", "Press any key...");
+ 317   1          LED_RED   = 0;                 /* 红亮 */
+ 318   1          LED_GREEN = 0;                 /* 绿灭 */
+ 319   1      }
+ 320          
+ 321          void UI_ShowInput(void)
+ 322          {
+ 323   1          unsigned char i;
+ 324   1          LCD_ClearLine(0);
+ 325   1          LCD_ClearLine(1);
+ 326   1          LCD_SetPos(0, 0);
+ 327   1          LCD_WriteStr("Password: ");
+ 328   1          for (i = 0; i < input_count; i++) LCD_WriteData('*');
+ 329   1          LCD_SetPos(1, 0);
+ 330   1          LCD_WriteStr("[E]=OK  [C]=CLR");
+ 331   1      }
+ 332          
+ 333          void UI_ShowCorrect(void)
+ 334          {
+ 335   1          LCD_ShowPrompt(" >> CORRECT! << ", "Switch JP8 now ");
+ 336   1          LED_RED   = 1;                 /* 红灭 */
+ 337   1          LED_GREEN = 1;                 /* 绿亮 */
+ 338   1          Beep_Start(BEEP_OK, 15);       /* 成功音 300ms */
+ 339   1      }
+ 340          
+ 341          void UI_ShowSwitchToMotor(void)
+ 342          {
+ 343   1          LCD_ShowPrompt("JP8 ON,JP4 OFF", "Then press [K1]");
+ 344   1      }
+ 345          
+ 346          void UI_ShowUnlocked(void)
+ 347          {
+ 348   1          LCD_ShowPrompt(" ** WELCOME **  ", "Auto lock in: 5s");
+ 349   1      }
+ 350          
+ 351          void UI_ShowError(void)
+ 352          {
+ 353   1          LCD_ShowPrompt(" >> WRONG!! <<  ", "Try again...   ");
+ 354   1          LED_RED   = 0;
+ 355   1          LED_GREEN = 0;
+ 356   1          Beep_Start(BEEP_ERR, 25);      /* 错误音 500ms */
+ 357   1      }
+ 358          
+ 359          void UI_ShowLockout(void)
+ 360          {
+C51 COMPILER V9.59.0.0   MAIN                                                              05/11/2026 13:05:59 PAGE 7   
+
+ 361   1          LCD_ShowPrompt(" ** LOCKOUT **  ", "Wait 30 seconds");
+ 362   1          LED_RED   = 0;
+ 363   1          LED_GREEN = 0;
+ 364   1      }
+ 365          
+ 366          void UI_ShowSwitchToKeypad(void)
+ 367          {
+ 368   1          LCD_ShowPrompt("JP4 ON,JP8 OFF", "Then press [K2]");
+ 369   1      }
+ 370          
+ 371          /* ====================== 中断服务 ====================== */
+ 372          
+ 373          void timer0_isr(void) interrupt 1
+ 374          {
+ 375   1          TH0 = beep_TH[beep_type];
+ 376   1          TL0 = beep_TL[beep_type];
+ 377   1          BEEP = !BEEP;                  /* 翻转 P2.5 */
+ 378   1      }
+ 379          
+ 380          void timer1_isr(void) interrupt 3
+ 381          {
+ 382   1          TH1 = T1_TH;
+ 383   1          TL1 = T1_TL;
+ 384   1      
+ 385   1          if (beep_duration > 0) {
+ 386   2              beep_duration--;
+ 387   2              if (beep_duration == 0) Beep_Stop();
+ 388   2          }
+ 389   1      
+ 390   1          if ((state == S_UNLOCKED || state == S_LOCKOUT) && state_timer > 0) {
+ 391   2              state_timer--;
+ 392   2          }
+ 393   1      }
+ 394          
+ 395          /* ====================== 主函数 ====================== */
+ 396          
+ 397          void main(void)
+ 398          {
+ 399   1          unsigned char ch, i;
+ 400   1          unsigned int last_timer;
+ 401   1      
+ 402   1          /* 端口初始化 */
+ 403   1          P0 = 0xFF;
+ 404   1          P1 = 0xF0;                     /* JP4键盘模式, P1低四位=0不驱动电机 */
+ 405   1          P2 = 0xFF;
+ 406   1          P3 = 0xFF;
+ 407   1      
+ 408   1          /* 变量初始化 */
+ 409   1          state         = S_LOCKED;
+ 410   1          attempts       = 0;
+ 411   1          state_timer    = 0;
+ 412   1          phase_idx      = 0;
+ 413   1          input_count    = 0;
+ 414   1          beep_duration  = 0;
+ 415   1          for (i = 0; i < PASS_LEN; i++) input_buf[i] = 0;
+ 416   1      
+ 417   1          LED_RED   = 0;
+ 418   1          LED_GREEN = 0;
+ 419   1      
+ 420   1          /* 定时器 0: 蜂鸣器 */
+ 421   1          TMOD &= 0xF0;
+ 422   1          TMOD |= 0x01;
+C51 COMPILER V9.59.0.0   MAIN                                                              05/11/2026 13:05:59 PAGE 8   
+
+ 423   1          ET0 = 0; TR0 = 0;
+ 424   1      
+ 425   1          /* 定时器 1: 20ms 节拍 */
+ 426   1          TMOD &= 0x0F;
+ 427   1          TMOD |= 0x10;
+ 428   1          TH1 = T1_TH; TL1 = T1_TL;
+ 429   1          ET1 = 1; TR1 = 1;
+ 430   1      
+ 431   1          /* LCD 初始化 (EA 尚未开启, ISR 不会干扰) */
+ 432   1          LCD_Init();
+ 433   1      
+ 434   1          EA = 1;                        /* LCD 就绪后才开中断 */
+ 435   1      
+ 436   1          /* 开机画面 */
+ 437   1          LCD_ShowPrompt("Password Lock v4", "JP8 OFF! JP4 ON");
+ 438   1          Delay_ms(2000);
+ 439   1      
+ 440   1          /* ═════════════════════════════════
+             -═════════════════
+ 441   1           *  主循环
+ 442   1           * ═════════════════════════════════
+             -═════════════════ */
+ 443   1          while (1) {
+ 444   2      
+ 445   2              switch (state) {
+ 446   3      
+ 447   3              case S_LOCKED:
+ 448   3                  UI_ShowLocked();
+ 449   3                  Key_WaitPress();
+ 450   3      
+ 451   3                  input_count = 0;
+ 452   3                  for (i = 0; i < PASS_LEN; i++) input_buf[i] = 0;
+ 453   3                  state = S_INPUT;
+ 454   3                  UI_ShowInput();
+ 455   3                  break;
+ 456   3      
+ 457   3              case S_INPUT:
+ 458   3                  ch = Key_WaitPress();
+ 459   3      
+ 460   3                  if (ch == 'C') {
+ 461   4                      input_count = 0;
+ 462   4                      for (i = 0; i < PASS_LEN; i++) input_buf[i] = 0;
+ 463   4                      UI_ShowInput();
+ 464   4                  }
+ 465   3                  else if (ch == 'E') {
+ 466   4                      if (input_count < PASS_LEN) {
+ 467   5                          LCD_SetPos(1, 0);
+ 468   5                          LCD_WriteStr("Need 4 digits! ");
+ 469   5                          Delay_ms(800);
+ 470   5                          UI_ShowInput();
+ 471   5                      } else {
+ 472   5                          for (i = 0; i < PASS_LEN; i++)
+ 473   5                              if (input_buf[i] != password[i]) break;
+ 474   5      
+ 475   5                          if (i == PASS_LEN) {
+ 476   6                              attempts = 0;
+ 477   6                              UI_ShowCorrect();
+ 478   6                              Delay_ms(1200);
+ 479   6                              UI_ShowSwitchToMotor();
+ 480   6                              state = S_VERIFY_OK;
+ 481   6      
+ 482   6                              while (BTN_K1 != 0);
+C51 COMPILER V9.59.0.0   MAIN                                                              05/11/2026 13:05:59 PAGE 9   
+
+ 483   6                              Delay_ms(20);
+ 484   6                              while (BTN_K1 == 0);
+ 485   6                              Delay_ms(20);
+ 486   6                          } else {
+ 487   6                              attempts++;
+ 488   6                              UI_ShowError();
+ 489   6                              Delay_ms(1500);
+ 490   6                              if (attempts >= MAX_ATTEMPTS) {
+ 491   7                                  state = S_LOCKOUT;
+ 492   7                                  state_timer = LOCKOUT_TICK;
+ 493   7                                  last_timer  = 0xFFFF;
+ 494   7                                  UI_ShowLockout();
+ 495   7                              } else {
+ 496   7                                  state = S_VERIFY_FAIL;
+ 497   7                              }
+ 498   6                          }
+ 499   5                      }
+ 500   4                  }
+ 501   3                  else if (ch >= '0' && ch <= '9') {
+ 502   4                      if (input_count < PASS_LEN) {
+ 503   5                          input_buf[input_count] = ch - '0';
+ 504   5                          input_count++;
+ 505   5                          UI_ShowInput();
+ 506   5                      }
+ 507   4                  }
+ 508   3                  break;
+ 509   3      
+ 510   3              case S_VERIFY_FAIL:
+ 511   3                  input_count = 0;
+ 512   3                  for (i = 0; i < PASS_LEN; i++) input_buf[i] = 0;
+ 513   3                  state = S_INPUT;
+ 514   3                  UI_ShowInput();
+ 515   3                  LED_RED   = 0;
+ 516   3                  LED_GREEN = 0;
+ 517   3                  break;
+ 518   3      
+ 519   3              case S_VERIFY_OK:
+ 520   3                  UI_ShowUnlocked();
+ 521   3                  Beep_Start(BEEP_OK, 15);
+ 522   3                  Delay_ms(300);
+ 523   3      
+ 524   3                  /* 此时用户应已插上 JP8 (电机) */
+ 525   3                  Motor_Run(512, 1);
+ 526   3                  Motor_Reset();
+ 527   3                  Delay_ms(200);
+ 528   3      
+ 529   3                  state = S_UNLOCKED;
+ 530   3                  state_timer = UNLOCK_TICK;
+ 531   3                  last_timer  = 0xFFFF;   /* 强制首次刷新 */
+ 532   3                  LED_RED   = 1;
+ 533   3                  LED_GREEN = 1;
+ 534   3                  break;
+ 535   3      
+ 536   3              case S_UNLOCKED:
+ 537   3                  /* 实时显示倒计时 */
+ 538   3                  if (state_timer != last_timer) {
+ 539   4                      last_timer = state_timer;
+ 540   4                      LCD_SetPos(1, 0);
+ 541   4                      LCD_WriteStr("Auto lock in:   ");
+ 542   4                      LCD_SetPos(1, 14);
+ 543   4                      if (state_timer >= 50) {
+ 544   5                          LCD_WriteData('0' + (state_timer / 50) % 10);
+C51 COMPILER V9.59.0.0   MAIN                                                              05/11/2026 13:05:59 PAGE 10  
+
+ 545   5                          LCD_WriteData('s');
+ 546   5                      } else {
+ 547   5                          LCD_WriteData('0' + (state_timer * 20 / 1000) % 10);
+ 548   5                          LCD_WriteData('.');
+ 549   5                          LCD_WriteData('0' + (state_timer * 20 / 100) % 10);
+ 550   5                          LCD_WriteData('s');
+ 551   5                      }
+ 552   4                  }
+ 553   3      
+ 554   3                  if (state_timer == 0) {
+ 555   4                      LCD_ShowPrompt("Auto locking...", "                ");
+ 556   4                      Delay_ms(500);
+ 557   4      
+ 558   4                      Motor_Run(512, 0);     /* 反转关锁 */
+ 559   4                      Motor_Reset();
+ 560   4      
+ 561   4                      UI_ShowSwitchToKeypad();
+ 562   4      
+ 563   4                      while (BTN_K2 != 0);
+ 564   4                      Delay_ms(20);
+ 565   4                      while (BTN_K2 == 0);
+ 566   4                      Delay_ms(20);
+ 567   4      
+ 568   4                      state = S_LOCKED;
+ 569   4                      LED_RED   = 0;
+ 570   4                      LED_GREEN = 0;
+ 571   4                  }
+ 572   3                  break;
+ 573   3      
+ 574   3              case S_LOCKOUT:
+ 575   3                  /* 显示剩余锁定时间 */
+ 576   3                  if (state_timer != last_timer) {
+ 577   4                      last_timer = state_timer;
+ 578   4                      LCD_SetPos(1, 0);
+ 579   4                      LCD_WriteStr("Remain:         ");
+ 580   4                      LCD_SetPos(1, 8);
+ 581   4                      LCD_WriteData('0' + (state_timer / 50) / 10 % 10);
+ 582   4                      LCD_WriteData('0' + (state_timer / 50) % 10);
+ 583   4                      LCD_WriteStr("s  ");
+ 584   4                  }
+ 585   3      
+ 586   3                  if (state_timer == 0) {
+ 587   4                      attempts = 0;
+ 588   4                      state = S_LOCKED;
+ 589   4                      LED_RED   = 0;
+ 590   4                      LED_GREEN = 0;
+ 591   4                  }
+ 592   3                  break;
+ 593   3      
+ 594   3              } /* end switch */
+ 595   2          } /* end while */
+ 596   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   1762    ----
+   CONSTANT SIZE    =    394    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     13      18
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+C51 COMPILER V9.59.0.0   MAIN                                                              05/11/2026 13:05:59 PAGE 11  
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

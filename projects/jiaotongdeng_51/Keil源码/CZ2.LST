@@ -1,0 +1,271 @@
+C51 COMPILER V9.59.0.0   CZ2                                                               05/14/2026 12:31:10 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE CZ2
+OBJECT MODULE PLACED IN CZ2.OBJ
+COMPILER INVOKED BY: C:\Keil_v5\C51\BIN\C51.EXE CZ2.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include <reg51.h>
+   2          
+   3          // ===== 引脚定义（按你的要求） =====
+   4          // 南北方向灯
+   5          sbit NS_RED    = P1^3;
+   6          sbit NS_YELLOW = P1^5;
+   7          sbit NS_GREEN  = P1^4;
+   8          // 东西方向灯
+   9          sbit EW_RED    = P1^0;
+  10          sbit EW_YELLOW = P1^2;
+  11          sbit EW_GREEN  = P1^1;
+  12          
+  13          sbit EMERGENCY_KEY = P3^2;  // 紧急按键 (INT0)
+  14          
+  15          // 数码管位选（共阳极，高有效）
+  16          sbit DIG_EW_TENS = P2^0;   // 东西十位
+  17          sbit DIG_EW_ONES = P2^1;   // 东西个位
+  18          sbit DIG_NS_TENS = P2^2;   // 南北十位
+  19          sbit DIG_NS_ONES = P2^3;   // 南北个位
+  20          
+  21          // ===== 全局变量与状态定义 =====
+  22          #define STATE_NS_GO     0   // 南北通行
+  23          #define STATE_NS_WARN   1   // 南北缓冲（黄灯闪）
+  24          #define STATE_EW_GO     2   // 东西通行
+  25          #define STATE_EW_WARN   3   // 东西缓冲（黄灯闪）
+  26          
+  27          unsigned char code seg_table[] = {  // 共阳极段码（0~9）
+  28              0xC0, 0xF9, 0xA4, 0xB0, 0x99,
+  29              0x92, 0x82, 0xF8, 0x80, 0x90
+  30          };
+  31          
+  32          unsigned char disp_buf[4];         // 显示缓冲区：0-EW十位,1-EW个位,2-NS十位,3-NS个位
+  33          unsigned char state;               // 当前状态
+  34          unsigned char time_left;           // 当前状态剩余秒数
+  35          
+  36          bit emergency_mode;                // 紧急模式标志
+  37          unsigned char saved_state;         // 保存的状态
+  38          unsigned char saved_time_left;     // 保存的剩余秒数
+  39          bit emergency_triggered;           // 中断触发标志
+  40          
+  41          bit yellow_blink;                  // 黄灯闪烁翻转位（0.5s 翻转一次）
+  42          
+  43          // ===== 函数声明 =====
+  44          void UpdateDisplayBuffer(void);
+  45          void UpdateLights(void);
+  46          void Delay10ms(void);
+  47          
+  48          // ===== 定时器0初始化（1ms中断） =====
+  49          void Timer0_Init(void) {
+  50   1          TMOD &= 0xF0;     // 不影响定时器1
+  51   1          TMOD |= 0x01;     // 定时器0，模式1（16位）
+  52   1          TH0 = (65536 - 1000) / 256;  // 1ms @12MHz
+  53   1          TL0 = (65536 - 1000) % 256;
+  54   1          ET0 = 1;          // 允许定时器0中断
+  55   1          TR0 = 1;          // 启动定时器0
+C51 COMPILER V9.59.0.0   CZ2                                                               05/14/2026 12:31:10 PAGE 2   
+
+  56   1      }
+  57          
+  58          // ===== 外部中断0初始化（下降沿触发） =====
+  59          void ExtInt0_Init(void) {
+  60   1          IT0 = 1;          // 下降沿触发
+  61   1          EX0 = 1;          // 允许外部中断0
+  62   1      }
+  63          
+  64          // ===== 主函数 =====
+  65          void main(void) {
+  66   1          // 初始化状态
+  67   1          state = STATE_NS_GO;
+  68   1          time_left = 20;
+  69   1          emergency_mode = 0;
+  70   1          emergency_triggered = 0;
+  71   1          yellow_blink = 0;
+  72   1          
+  73   1          Timer0_Init();
+  74   1          ExtInt0_Init();
+  75   1          EA = 1;           // 开总中断
+  76   1          
+  77   1          while (1) {
+  78   2              // 处理紧急按键触发
+  79   2              if (emergency_triggered) {
+  80   3                  Delay10ms();                    // 去抖
+  81   3                  if (EMERGENCY_KEY == 0) {       // 按键确实按下
+  82   4                      if (!emergency_mode) {
+  83   5                          // 保存当前运行环境
+  84   5                          saved_state = state;
+  85   5                          saved_time_left = time_left;
+  86   5                          emergency_mode = 1;     // 进入紧急模式
+  87   5                      }
+  88   4                  }
+  89   3                  emergency_triggered = 0;
+  90   3              }
+  91   2              
+  92   2              // 紧急模式下检测按键释放以恢复正常运行
+  93   2              if (emergency_mode) {
+  94   3                  if (EMERGENCY_KEY == 1) {       // 检测到按键松开
+  95   4                      Delay10ms();                // 去抖
+  96   4                      if (EMERGENCY_KEY == 1) {
+  97   5                          emergency_mode = 0;     // 退出紧急模式
+  98   5                          // 恢复现场
+  99   5                          state = saved_state;
+ 100   5                          time_left = saved_time_left;
+ 101   5                          UpdateDisplayBuffer();  // 刷新显示缓冲
+ 102   5                      }
+ 103   4                  }
+ 104   3              }
+ 105   2          }
+ 106   1      }
+ 107          
+ 108          // ===== 定时器0中断服务（1ms） =====
+ 109          void Timer0_ISR() interrupt 1 {
+ 110   1          static unsigned int ms_count = 0;
+ 111   1          static unsigned int blink_count = 0;
+ 112   1          static unsigned char scan_index = 0;
+ 113   1          
+ 114   1          TH0 = (65536 - 1000) / 256;  // 重装初值
+ 115   1          TL0 = (65536 - 1000) % 256;
+ 116   1          
+ 117   1          // ---- 动态扫描显示 ----
+C51 COMPILER V9.59.0.0   CZ2                                                               05/14/2026 12:31:10 PAGE 3   
+
+ 118   1          // 先关闭所有位选
+ 119   1          DIG_EW_TENS = 0;
+ 120   1          DIG_EW_ONES = 0;
+ 121   1          DIG_NS_TENS = 0;
+ 122   1          DIG_NS_ONES = 0;
+ 123   1          // 输出段码并开启对应位选
+ 124   1          switch (scan_index) {
+ 125   2              case 0: P0 = seg_table[disp_buf[0]]; DIG_EW_TENS = 1; break;
+ 126   2              case 1: P0 = seg_table[disp_buf[1]]; DIG_EW_ONES = 1; break;
+ 127   2              case 2: P0 = seg_table[disp_buf[2]]; DIG_NS_TENS = 1; break;
+ 128   2              case 3: P0 = seg_table[disp_buf[3]]; DIG_NS_ONES = 1; break;
+ 129   2          }
+ 130   1          scan_index = (scan_index + 1) & 0x03;   // 0~3循环
+ 131   1          
+ 132   1          // ---- 非紧急模式下的计时与状态控制 ----
+ 133   1          if (!emergency_mode) {
+ 134   2              // 黄灯闪烁计数（0.5s翻转一次）
+ 135   2              blink_count++;
+ 136   2              if (blink_count >= 500) {
+ 137   3                  blink_count = 0;
+ 138   3                  yellow_blink = ~yellow_blink;
+ 139   3              }
+ 140   2              
+ 141   2              // 1秒计时
+ 142   2              ms_count++;
+ 143   2              if (ms_count >= 1000) {
+ 144   3                  ms_count = 0;
+ 145   3                  // 倒计时递减
+ 146   3                  if (time_left > 0) {
+ 147   4                      time_left--;
+ 148   4                  }
+ 149   3                  // 状态切换
+ 150   3                  if (time_left == 0) {
+ 151   4                      state = (state + 1) % 4;
+ 152   4                      switch (state) {
+ 153   5                          case STATE_NS_GO:   time_left = 20; break;
+ 154   5                          case STATE_NS_WARN: time_left = 3;  break;
+ 155   5                          case STATE_EW_GO:   time_left = 15; break;
+ 156   5                          case STATE_EW_WARN: time_left = 3;  break;
+ 157   5                      }
+ 158   4                  }
+ 159   3                  UpdateDisplayBuffer(); // 更新显示缓冲区
+ 160   3              }
+ 161   2              UpdateLights();            // 根据当前状态设置LED
+ 162   2          } else {
+ 163   2              // 紧急模式：全红灯，冻结倒计时显示（缓冲区保持不变）
+ 164   2              NS_RED = 0;    // 点亮
+ 165   2              EW_RED = 0;
+ 166   2              NS_YELLOW = 1;
+ 167   2              NS_GREEN = 1;
+ 168   2              EW_YELLOW = 1;
+ 169   2              EW_GREEN = 1;
+ 170   2          }
+ 171   1      }
+ 172          
+ 173          // ===== 更新显示缓冲区（根据状态计算东西、南北显示的秒数） =====
+ 174          void UpdateDisplayBuffer(void) {
+ 175   1          unsigned char ns_disp, ew_disp;
+ 176   1          
+ 177   1          switch (state) {
+ 178   2              case STATE_NS_GO:   // 南北通行，东西红灯
+ 179   2                  ns_disp = time_left;
+C51 COMPILER V9.59.0.0   CZ2                                                               05/14/2026 12:31:10 PAGE 4   
+
+ 180   2                  ew_disp = time_left + 3;  // 东西红灯还将持续当前态+下一缓冲态
+ 181   2                  break;
+ 182   2              case STATE_NS_WARN: // 南北黄闪，东西红灯
+ 183   2                  ns_disp = time_left;
+ 184   2                  ew_disp = time_left;
+ 185   2                  break;
+ 186   2              case STATE_EW_GO:   // 东西通行，南北红灯
+ 187   2                  ew_disp = time_left;
+ 188   2                  ns_disp = time_left + 3;
+ 189   2                  break;
+ 190   2              case STATE_EW_WARN: // 东西黄闪，南北红灯
+ 191   2                  ew_disp = time_left;
+ 192   2                  ns_disp = time_left;
+ 193   2                  break;
+ 194   2          }
+ 195   1          // 拆分十位、个位
+ 196   1          disp_buf[0] = ew_disp / 10;  // 东西十位
+ 197   1          disp_buf[1] = ew_disp % 10;  // 东西个位
+ 198   1          disp_buf[2] = ns_disp / 10;  // 南北十位
+ 199   1          disp_buf[3] = ns_disp % 10;  // 南北个位
+ 200   1      }
+ 201          
+ 202          // ===== 根据状态设置交通灯（黄灯闪烁控制） =====
+ 203          void UpdateLights(void) {
+ 204   1          // 先全部熄灭（共阳极，输出1为灭）
+ 205   1          NS_RED = 1; NS_YELLOW = 1; NS_GREEN = 1;
+ 206   1          EW_RED = 1; EW_YELLOW = 1; EW_GREEN = 1;
+ 207   1          
+ 208   1          switch (state) {
+ 209   2              case STATE_NS_GO:   // 南北绿，东西红
+ 210   2                  NS_GREEN = 0;
+ 211   2                  EW_RED = 0;
+ 212   2                  break;
+ 213   2              case STATE_NS_WARN: // 南北黄闪，东西红
+ 214   2                  EW_RED = 0;
+ 215   2                  NS_YELLOW = yellow_blink ? 0 : 1;  // 闪烁
+ 216   2                  break;
+ 217   2              case STATE_EW_GO:   // 东西绿，南北红
+ 218   2                  EW_GREEN = 0;
+ 219   2                  NS_RED = 0;
+ 220   2                  break;
+ 221   2              case STATE_EW_WARN: // 东西黄闪，南北红
+ 222   2                  NS_RED = 0;
+ 223   2                  EW_YELLOW = yellow_blink ? 0 : 1;
+ 224   2                  break;
+ 225   2          }
+ 226   1      }
+ 227          
+ 228          // ===== 外部中断0服务 =====
+ 229          void ExtInt0_ISR() interrupt 0 {
+ 230   1          if (!emergency_mode) {
+ 231   2              emergency_triggered = 1;   // 设置标志，由主循环处理
+ 232   2          }
+ 233   1      }
+ 234          
+ 235          // ===== 简单延时函数（约10ms，用于按键消抖） =====
+ 236          void Delay10ms(void) {
+ 237   1          unsigned int i, j;
+ 238   1          for (i = 0; i < 10; i++)
+ 239   1              for (j = 0; j < 120; j++);
+ 240   1      }
+
+C51 COMPILER V9.59.0.0   CZ2                                                               05/14/2026 12:31:10 PAGE 5   
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    520    ----
+   CONSTANT SIZE    =     10    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     13    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      3    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
