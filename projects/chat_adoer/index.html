@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>被讨厌的勇气 — 阿德勒心理对话</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --warm-50:  #fdf8f3;
+    --warm-100: #f7f1e6;
+    --warm-200: #efe3d1;
+    --warm-300: #e3cbaa;
+    --gold:     #d4a76a;
+    --gold-dk:  #b8894e;
+    --teal:     #3d6b5e;
+    --teal-lt:  #5a8c7e;
+    --teal-dk:  #2a4f44;
+    --ink:      #2c2418;
+    --ink-70:   #5c5347;
+    --ink-40:   #9c9489;
+    --ink-20:   #cdc7be;
+    --bubble-bot: #ffffff;
+    --bubble-shadow: 0 1px 4px rgba(44,36,24,0.06), 0 4px 16px rgba(44,36,24,0.04);
+    --card-shadow: 0 8px 40px rgba(44,36,24,0.10);
+    --card-bg: #ffffff;
+    --page-bg: var(--warm-100);
+    --input-bg: var(--warm-50);
+    --border-light: rgba(44,36,24,0.08);
+    --accent: var(--gold);
+    --accent-hover: var(--gold-dk);
+    --primary: var(--teal);
+    --primary-light: var(--teal-lt);
+    --primary-dark: var(--teal-dk);
+    --text: var(--ink);
+    --text-soft: var(--ink-70);
+    --text-muted: var(--ink-40);
+    --hover-overlay: rgba(61,107,94,0.06);
+    --chip-bg: rgba(255,255,255,0.70);
+    --chip-border: rgba(61,107,94,0.20);
+    --scrollbar: var(--warm-200);
+  }
+
+  .dark {
+    --warm-50:  #1a1613;
+    --warm-100: #24201c;
+    --warm-200: #35302a;
+    --ink:      #e8e0d8;
+    --ink-70:   #b0a89f;
+    --ink-40:   #6b655d;
+    --ink-20:   #423d37;
+    --bubble-bot: #2d2823;
+    --card-bg: #1d1a17;
+    --page-bg: #13110e;
+    --input-bg: #2a2520;
+    --border-light: rgba(232,224,216,0.08);
+    --bubble-shadow: 0 1px 4px rgba(0,0,0,0.2), 0 4px 16px rgba(0,0,0,0.15);
+    --card-shadow: 0 8px 40px rgba(0,0,0,0.4);
+    --chip-bg: rgba(45,40,35,0.80);
+    --chip-border: rgba(212,167,106,0.25);
+    --scrollbar: var(--warm-200);
+    --hover-overlay: rgba(212,167,106,0.08);
+  }
+
+  body {
+    font-family: "Noto Sans SC", -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--page-bg);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    position: relative;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: .45;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,.015) 2px, rgba(0,0,0,.015) 4px),
+      repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0,0,0,.008) 2px, rgba(0,0,0,.008) 4px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 480px;
+    height: 100vh;
+    max-height: 820px;
+    background: var(--card-bg);
+    border-radius: 32px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    backdrop-filter: blur(2px);
+  }
+
+  @media (max-width: 540px) {
+    .container { max-height: 100vh; border-radius: 0; }
+  }
+
+  /* ─── Header ─── */
+  .header {
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-bg {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, var(--teal-dk) 0%, var(--teal) 40%, var(--teal-lt) 100%);
+    z-index: 0;
+  }
+  .header-bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 120% 80% at 80% 120%, rgba(212,167,106,0.15) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 60% at -10% -20%, rgba(255,255,255,0.06) 0%, transparent 60%);
+  }
+  .header-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      100deg,
+      transparent, transparent 40px,
+      rgba(255,255,255,0.03) 40px, rgba(255,255,255,0.03) 41px
+    );
+  }
+  .header-inner {
+    position: relative;
+    z-index: 1;
+    padding: 22px 24px 18px;
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+  }
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .avatar-book {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    border: 1px solid rgba(255,255,255,0.15);
+    flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.10);
+  }
+  .header h1 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+    line-height: 1.3;
+  }
+  .header .sub {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    font-weight: 400;
+    letter-spacing: 0.3px;
+  }
+  .theme-toggle {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.20);
+    background: rgba(255,255,255,0.08);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: .25s;
+    backdrop-filter: blur(8px);
+    flex-shrink: 0;
+  }
+  .theme-toggle:hover {
+    background: rgba(255,255,255,0.18);
+    transform: rotate(15deg);
+  }
+  .header-quote {
+    margin-top: 10px;
+    padding: 8px 14px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 10px;
+    border-left: 3px solid var(--gold);
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.75);
+    font-family: "Noto Serif SC", serif;
+    font-style: italic;
+    line-height: 1.6;
+    letter-spacing: 0.2px;
+  }
+
+  /* ─── Messages ─── */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 20px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    scroll-behavior: smooth;
+    background:
+      radial-gradient(ellipse 100% 60% at 50% 0%, rgba(212,167,106,0.03) 0%, transparent 80%);
+  }
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
+
+  .msg {
+    display: flex;
+    gap: 10px;
+    max-width: 88%;
+    opacity: 0;
+    animation: msgIn .4s ease forwards;
+  }
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .msg.user {
+    align-self: flex-end;
+    flex-direction: row-reverse;
+  }
+
+  .msg .bubble {
+    padding: 13px 18px;
+    border-radius: 18px;
+    font-size: 14.5px;
+    line-height: 1.75;
+    word-break: break-word;
+    position: relative;
+  }
+
+  .msg.bot .bubble {
+    background: var(--bubble-bot);
+    box-shadow: var(--bubble-shadow);
+    border-top-left-radius: 4px;
+    color: var(--text);
+  }
+  .msg.bot .bubble::before {
+    content: '';
+    position: absolute;
+    left: -6px; top: 12px;
+    width: 10px; height: 10px;
+    background: var(--bubble-bot);
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+  }
+
+  .msg.user .bubble {
+    background: linear-gradient(135deg, var(--teal) 0%, var(--teal-lt) 100%);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 2px 8px rgba(61,107,94,0.20);
+  }
+  .msg.user .bubble::after {
+    content: '';
+    position: absolute;
+    right: -6px; top: 12px;
+    width: 10px; height: 10px;
+    background: var(--teal);
+    clip-path: polygon(0 0, 100% 0, 0 100%);
+  }
+
+  .msg .avatar-small {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+    position: relative;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .msg.bot .avatar-small {
+    background: linear-gradient(135deg, var(--gold) 0%, #c49555 100%);
+    color: #fff;
+  }
+  .msg.user .avatar-small {
+    background: linear-gradient(135deg, var(--teal) 0%, var(--teal-lt) 100%);
+    color: #fff;
+  }
+
+  .time {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 6px;
+    padding: 0 4px;
+    letter-spacing: 0.2px;
+  }
+  .msg.user .time { text-align: right; }
+
+  .bubble .highlight {
+    font-family: "Noto Serif SC", serif;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ─── Suggestion chips ─── */
+  .suggestions {
+    padding: 6px 20px 14px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+  }
+  .suggestions button {
+    font-size: 12.5px;
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--chip-border);
+    background: var(--chip-bg);
+    backdrop-filter: blur(12px);
+    color: var(--primary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all .25s ease;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+    font-family: inherit;
+  }
+  .suggestions button:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(61,107,94,0.20);
+  }
+
+  /* ─── Input ─── */
+  .input-area {
+    padding: 12px 20px 18px;
+    border-top: 1px solid var(--border-light);
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    background: var(--card-bg);
+  }
+  .input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--input-bg);
+    border: 1.5px solid transparent;
+    border-radius: 26px;
+    padding: 2px 4px 2px 20px;
+    transition: all .25s ease;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .input-wrap:focus-within {
+    border-color: var(--gold);
+    background: var(--card-bg);
+    box-shadow: 0 0 0 3px rgba(212,167,106,0.12), inset 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .input-wrap input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 9px 0;
+    font-size: 14px;
+    outline: none;
+    font-family: inherit;
+    color: var(--text);
+    min-width: 0;
+  }
+  .input-wrap input::placeholder {
+    color: var(--text-muted);
+    font-size: 13.5px;
+  }
+  .input-wrap button {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dk) 100%);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all .25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(212,167,106,0.20);
+  }
+  .input-wrap button:hover {
+    transform: scale(1.06);
+    box-shadow: 0 4px 16px rgba(212,167,106,0.30);
+  }
+  .input-wrap button:active {
+    transform: scale(0.94);
+  }
+  .input-wrap button:disabled {
+    opacity: .35;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ─── Typing ─── */
+  .typing {
+    display: flex;
+    gap: 5px;
+    padding: 6px 0;
+  }
+  .typing span {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--ink-40);
+    animation: typing 1.4s infinite both;
+  }
+  .typing span:nth-child(2) { animation-delay: .2s; }
+  .typing span:nth-child(3) { animation-delay: .4s; }
+  @keyframes typing {
+    0%, 80%, 100% { opacity: .25; transform: scale(.75); }
+    40% { opacity: 1; transform: scale(1); }
+  }
+
+  /* ─── Quote style inside bubbles ─── */
+  .bubble .quote-line {
+    display: block;
+    border-left: 3px solid var(--accent);
+    padding-left: 12px;
+    margin: 6px 0;
+    color: var(--ink-70);
+    font-family: "Noto Serif SC", serif;
+    font-style: italic;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="app">
+  <!-- header -->
+  <div class="header">
+    <div class="header-bg"></div>
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="header-left">
+          <div class="avatar-book">📖</div>
+          <div>
+            <h1>被讨厌的勇气</h1>
+            <div class="sub">阿德勒心理学 · 哲人与青年的对话</div>
+          </div>
+        </div>
+        <button class="theme-toggle" id="themeBtn" title="切换深色模式">☀</button>
+      </div>
+      <div class="header-quote">
+        "所谓自由，就是被别人讨厌。"
+      </div>
+    </div>
+  </div>
+
+  <!-- messages -->
+  <div class="messages" id="messages"></div>
+
+  <!-- suggestions -->
+  <div class="suggestions" id="suggestions"></div>
+
+  <!-- input -->
+  <div class="input-area">
+    <div class="input-wrap">
+      <input type="text" id="input" placeholder="说说你的困惑…" autofocus />
+      <button id="sendBtn" aria-label="发送">→</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Knowledge Base ───────────────────────────────────────────
+
+const KB = {
+  greetings: [
+    "你好。阿德勒心理学认为，问题不在于过去发生了什么，而在于你如何诠释它。今天想聊聊什么？",
+    "欢迎。如果你总是在意他人的评价，不妨想想阿德勒的那句话：<span class='quote-line'>别人怎么看你，那是别人的课题，与你无关。</span>",
+    "人之所以感到不幸，并非因为过去或环境，而是因为缺乏<span class='highlight'>获得幸福的勇气</span>。你拥有那份勇气吗？",
+  ],
+  fallbacks: [
+    "阿德勒说：<span class='quote-line'>重要的不是被给予了什么，而是如何去利用被给予的东西。</span> 你面对的问题也许正是你成长的契机。",
+    "你是否在寻求他人的认可？《被讨厌的勇气》告诉我们：一切人际关系的烦恼，都源于对别人课题的干涉。试着分离课题——这是你的课题，还是别人的？",
+    "你是否觉得改变很难？阿德勒的目的论认为：你不想改变是为了达成不改变的目的。问问自己：维持现状的好处是什么？",
+    "人际关系是烦恼的根源，但也是幸福的根源。关键在于把<span class='highlight'>纵向关系</span>（评价、竞争）转变为<span class='highlight'>横向关系</span>（平等、鼓励）。",
+    "阿德勒说：<span class='quote-line'>所谓自由，就是被别人讨厌。</span> 这不是鼓励你故意讨人厌，而是说——当你不怕被人讨厌时，你才真正自由。",
+    "<span class='highlight'>共同体感觉</span>是阿德勒心理学的核心。不是我怎么被他人看待，而是我能为他人贡献什么。贡献感带来幸福。",
+    "你有过要是那时……就好了的想法吗？阿德勒会告诉你：人生不是一条线，而是一连串的刹那。活在当下，而不是活在过去或未来。",
+    "自卑感本身并不是坏事。阿德勒认为，自卑感是人类进步的动力。关键是不要把它变成<span class='highlight'>自卑情结</span>——拿自卑当借口。",
+    "你是否总在和别人比较？阿德勒说：<span class='quote-line'>重要的不是与他人比较，而是与理想的自己比较。</span> 你只需要不断超越自己。",
+  ],
+};
+
+// ─── Response Engine ─────────────────────────────────────────
+
+const keywords = [
+  {
+    match: /自卑|自信|不够好|差劲|不如|比较|比不上|优秀|优秀不/i,
+    reply: [
+      "自卑感人人都有。阿德勒认为，自卑感是追求优越性的动力。关键在于不要让它变成<span class='highlight'>自卑情结</span>——即拿自卑当借口，不去改变。你觉得自己哪方面不够好？也许那正是你可以开始努力的方向。",
+      "我们总是不自觉地拿自己和别人比较。但阿德勒说：<span class='quote-line'>重要的不是与他人比较，而是与理想的自己比较。</span> 人生不是竞争，你只需走在自己的路上。",
+    ],
+  },
+  {
+    match: /别人|他们|同事|同学|朋友|家人|父母|评价|看法|眼光|讨厌|嫌弃|在意/i,
+    reply: [
+      "<span class='highlight'>课题分离</span>是阿德勒心理学的重要工具。别人怎么评价你，那是别人的课题——你无法控制，也无需负责。你只需要做好自己的课题：按照自己的信念生活。<br><span class='quote-line'>所谓自由，就是被别人讨厌。</span>—— 这需要勇气。",
+      "你太在意别人的眼光了。阿德勒会问：<span class='quote-line'>这是谁的课题？</span> 如果最终后果是由你来承担，那就是你的课题。别人的评价是他们的课题，与你无关。",
+      "我们害怕被讨厌，其实是害怕失去人际关系。但阿德勒说：<span class='quote-line'>如果没有人际关系，也就没有幸福。</span> 关键在于建立横向关系——不评价、不竞争，只是平等地鼓励。",
+    ],
+  },
+  {
+    match: /过去|童年|原生家庭|创伤|小时候|经历|原因|曾经|走不出来/i,
+    reply: [
+      "阿德勒的<span class='highlight'>目的论</span>与弗洛伊德的原因论截然不同。原因论说：因为过去受过伤害，所以现在才痛苦。目的论却说：因为现在不想改变，所以才搬出过去的经历当借口。<br><br>重要的不是过去发生了什么，而是你如何诠释它。你随时可以重新选择。",
+      "过去已经过去了。阿德勒认为，决定我们自身的不是过去的经历，而是我们自己赋予经历的意义。<br><span class='quote-line'>无论之前的人生发生过什么，都对今后的人生如何度过没有影响。</span>—— 这就是阿德勒的勇气。",
+    ],
+  },
+  {
+    match: /改变|改变不了|做不到|没办法|习惯|现状|迈出|迈不出|拖延/i,
+    reply: [
+      "你之所以无法改变，是因为自己下了不改变的决心。听起来很残酷，但阿德勒的目的论就是这样说的：缺乏获得幸福的勇气，所以才不幸。<br><br>改变需要巨大的勇气，因为改变意味着未知，而未知是令人恐惧的。但你其实随时可以做出新的选择。",
+      "阿德勒说：<span class='quote-line'>你之所以不幸，并不是因为过去或环境，更不是因为能力不足，你只不过是缺乏获得幸福的勇气。</span><br><br>试着问问自己：如果没有任何人评价你，你会怎么做？",
+    ],
+  },
+  {
+    match: /幸福|快乐|满足|开心|意义|活着|人生|目标|追求/i,
+    reply: [
+      "阿德勒心理学的幸福观很特别：幸福不是你达到了某个目标，而是你感到自己对他人有贡献——这种<span class='highlight'>贡献感</span>让你觉得自己有价值。<br><br>真正的幸福不是被认可，而是我对他人有用的主观感受。",
+      "人生不是一条有终点的线，而是一连串的刹那。登山不是为了登顶的瞬间，而是每一步、每一秒的过程。<br><span class='quote-line'>所谓幸福，就是不断地向前迈进。</span>",
+    ],
+  },
+  {
+    match: /愤怒|生气|情绪|控制不住|脾气|烦躁/i,
+    reply: [
+      "阿德勒有一个著名的观点：<span class='highlight'>愤怒是可放可收的工具。</span> 人是因为想发怒才发怒，而不是因为愤怒才失控。情绪是为目的服务的。<br><br>你可以选择愤怒，也可以选择其他方式。你是情绪的主人。",
+    ],
+  },
+  {
+    match: /孤独|寂寞|一个人|没人理解|没有朋友|社交/i,
+    reply: [
+      "阿德勒说：<span class='quote-line'>人的烦恼皆源于人际关系。</span> 反过来说，人的幸福也源于人际关系。孤独是你主动选择了不与他人建立联系的结果。<br><br><span class='highlight'>共同体感觉</span>——把对自己的执着变成对他人的关心。试着从我能得到什么转向我能贡献什么。",
+    ],
+  },
+  {
+    match: /选择|决定|迷茫|不知道|犹豫|纠结|方向/i,
+    reply: [
+      "阿德勒心理学中有一个重要的概念：你现在的选择决定了你的人生。无论过去如何，你都有权利——也有能力——在当下做出新的选择。<br><br>迷茫很正常。但不要用我还没有准备好当借口。跨出第一步的勇气，比完美的计划更重要。",
+    ],
+  },
+  {
+    match: /喜欢|爱|恋爱|关系|女朋友|男朋友|表白|情感/i,
+    reply: [
+      "阿德勒认为，爱也是一种课题。真正的爱是抛弃自我，与对方融为一体。它不是寻找对的人，而是建立<span class='highlight'>对的关系</span>。<br><br>当一个人爱上另一个人时，他才第一次摆脱以自我为中心的生活方式。",
+    ],
+  },
+  {
+    match: /工作|上班|职场|老板|升职|工资|学习|考试|学业/i,
+    reply: [
+      "工作中的烦恼，本质上是人际关系的烦恼。阿德勒的课题分离在这里同样适用：做好你的工作是你的课题，老板怎么评价是老板的课题。<br><br>不要为了满足他人的期待而工作，而是为了自己对社会的贡献感。",
+    ],
+  },
+  {
+    match: /勇气|害怕|不敢|恐惧|担心|焦虑|紧张/i,
+    reply: [
+      "阿德勒心理学被称为<span class='highlight'>勇气的心理学</span>。他说：一切烦恼都源于人际关系，而一切幸福也源于人际关系。获得幸福需要你拥有被讨厌的勇气。<br><br>勇气不是没有恐惧，而是带着恐惧依然选择前进。你比你想象中更勇敢。",
+    ],
+  },
+];
+
+// ─── helpers ─────────────────────────────────────────────────
+
+function pick(arr) {
+  if (Array.isArray(arr)) return arr[Math.floor(Math.random() * arr.length)];
+  if (typeof arr === 'string') return arr;
+  return arr;
+}
+
+function matchReply(text) {
+  for (const k of keywords) {
+    if (k.match.test(text)) {
+      return pick(k.reply);
+    }
+  }
+  return null;
+}
+
+function getReply(text) {
+  const kw = matchReply(text);
+  if (kw) return kw;
+
+  const isQuestion = /[？?]/.test(text);
+  const pool = isQuestion
+    ? KB.fallbacks.filter(f => f.includes('？') || f.includes('?'))
+    : null;
+  return pick(pool || KB.fallbacks);
+}
+
+// ─── UI ──────────────────────────────────────────────────────
+
+const $msg = document.getElementById('messages');
+const $input = document.getElementById('input');
+const $send = document.getElementById('sendBtn');
+const $suggest = document.getElementById('suggestions');
+const $themeBtn = document.getElementById('themeBtn');
+
+const SUGGESTIONS = [
+  '我很在意别人的看法',
+  '我总是不自信',
+  '过去让我走不出来',
+  '我害怕改变',
+  '什么是课题分离？',
+  '怎样获得幸福？',
+  '我经常感到孤独',
+];
+
+let isLoading = false;
+
+function scrollBottom() {
+  const el = $msg;
+  el.scrollTop = el.scrollHeight;
+}
+
+function addMessage(text, role) {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+
+  const now = new Date();
+  const timeStr = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
+  if (role === 'bot') {
+    div.innerHTML = `
+      <div class="avatar-small">哲</div>
+      <div>
+        <div class="bubble">${text}</div>
+        <div class="time">${timeStr}</div>
+      </div>`;
+  } else {
+    div.innerHTML = `
+      <div class="avatar-small">你</div>
+      <div>
+        <div class="bubble">${text.replace(/\n/g, '<br>')}</div>
+        <div class="time">${timeStr}</div>
+      </div>`;
+  }
+  $msg.appendChild(div);
+  scrollBottom();
+}
+
+function addTyping() {
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.id = 'typing-indicator';
+  div.innerHTML = `
+    <div class="avatar-small">哲</div>
+    <div>
+      <div class="bubble">
+        <div class="typing"><span></span><span></span><span></span></div>
+      </div>
+    </div>`;
+  $msg.appendChild(div);
+  scrollBottom();
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+function reply(text) {
+  if (!text.trim() || isLoading) return;
+  isLoading = true;
+
+  addMessage(text.trim(), 'user');
+  $input.value = '';
+  $send.disabled = true;
+  removeSuggestions();
+
+  addTyping();
+
+  const delay = 500 + Math.random() * 1200;
+
+  setTimeout(() => {
+    removeTyping();
+    const answer = getReply(text.trim());
+    addMessage(answer, 'bot');
+    isLoading = false;
+    $send.disabled = false;
+    $input.focus();
+  }, delay);
+}
+
+function removeSuggestions() {
+  $suggest.innerHTML = '';
+}
+
+function showSuggestions() {
+  $suggest.innerHTML = '';
+  SUGGESTIONS.forEach(s => {
+    const btn = document.createElement('button');
+    btn.textContent = s;
+    btn.addEventListener('click', () => reply(s));
+    $suggest.appendChild(btn);
+  });
+}
+
+// ─── Theme toggle ────────────────────────────────────────────
+
+let dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+if (dark) document.documentElement.classList.add('dark');
+
+$themeBtn.addEventListener('click', () => {
+  dark = !dark;
+  document.documentElement.classList.toggle('dark', dark);
+  $themeBtn.textContent = dark ? '☾' : '☀';
+});
+$themeBtn.textContent = dark ? '☾' : '☀';
+
+// ─── Event binding ───────────────────────────────────────────
+
+$send.addEventListener('click', () => reply($input.value));
+$input.addEventListener('keydown', e => {
+  if (e.key === 'Enter') reply($input.value);
+});
+
+// ─── Init ────────────────────────────────────────────────────
+
+function init() {
+  setTimeout(() => {
+    addMessage(pick(KB.greetings), 'bot');
+    showSuggestions();
+    scrollBottom();
+  }, 400);
+}
+
+init();
+</script>
+</body>
+</html>
