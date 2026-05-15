@@ -686,125 +686,530 @@
 </div>
 
 <script>
-// ─── Knowledge Base ───────────────────────────────────────────
-
-const KB = {
-  greetings: [
-    "你好。阿德勒心理学认为，问题不在于过去发生了什么，而在于你如何诠释它。今天想聊聊什么？",
-    "欢迎。如果你总是在意他人的评价，不妨想想阿德勒的那句话：<span class='quote-line'>别人怎么看你，那是别人的课题，与你无关。</span>",
-    "人之所以感到不幸，并非因为过去或环境，而是因为缺乏<span class='highlight'>获得幸福的勇气</span>。你拥有那份勇气吗？",
-  ],
-  fallbacks: [
-    "阿德勒说：<span class='quote-line'>重要的不是被给予了什么，而是如何去利用被给予的东西。</span> 你面对的问题也许正是你成长的契机。",
-    "你是否在寻求他人的认可？《被讨厌的勇气》告诉我们：一切人际关系的烦恼，都源于对别人课题的干涉。试着分离课题——这是你的课题，还是别人的？",
-    "你是否觉得改变很难？阿德勒的目的论认为：你不想改变是为了达成不改变的目的。问问自己：维持现状的好处是什么？",
-    "人际关系是烦恼的根源，但也是幸福的根源。关键在于把<span class='highlight'>纵向关系</span>（评价、竞争）转变为<span class='highlight'>横向关系</span>（平等、鼓励）。",
-    "阿德勒说：<span class='quote-line'>所谓自由，就是被别人讨厌。</span> 这不是鼓励你故意讨人厌，而是说——当你不怕被人讨厌时，你才真正自由。",
-    "<span class='highlight'>共同体感觉</span>是阿德勒心理学的核心。不是我怎么被他人看待，而是我能为他人贡献什么。贡献感带来幸福。",
-    "你有过要是那时……就好了的想法吗？阿德勒会告诉你：人生不是一条线，而是一连串的刹那。活在当下，而不是活在过去或未来。",
-    "自卑感本身并不是坏事。阿德勒认为，自卑感是人类进步的动力。关键是不要把它变成<span class='highlight'>自卑情结</span>——拿自卑当借口。",
-    "你是否总在和别人比较？阿德勒说：<span class='quote-line'>重要的不是与他人比较，而是与理想的自己比较。</span> 你只需要不断超越自己。",
-  ],
+// ─── Emotion Detection ───────────────────────────────────
+const EMOTIONS = {
+  frustrated:  { words: ['好累','累了','疲惫','没劲','无力','绝望','放弃','不行了','受不了','撑不住'], label: '沮丧' },
+  angry:       { words: ['气死','烦死','凭什么','可恶','混蛋','滚','愤怒','生气','火大'], label: '愤怒' },
+  lost:        { words: ['不知道','怎么办','迷茫','困惑','不懂','不明白','想不通','没方向'], label: '迷茫' },
+  anxious:     { words: ['担心','害怕','紧张','焦虑','不安','慌','恐惧','怕'], label: '焦虑' },
+  sad:         { words: ['难过','伤心','哭','委屈','难受','心痛','悲伤','失落'], label: '悲伤' },
 };
 
-const keywords = [
-  {
-    match: /自卑|自信|不够好|差劲|不如|比较|比不上|优秀|优秀不/i,
-    reply: [
-      "自卑感人人都有。阿德勒认为，自卑感是追求优越性的动力。关键在于不要让它变成<span class='highlight'>自卑情结</span>——即拿自卑当借口，不去改变。你觉得自己哪方面不够好？也许那正是你可以开始努力的方向。",
-      "我们总是不自觉地拿自己和别人比较。但阿德勒说：<span class='quote-line'>重要的不是与他人比较，而是与理想的自己比较。</span> 人生不是竞争，你只需走在自己的路上。",
-    ],
-  },
-  {
-    match: /别人|他们|同事|同学|朋友|家人|父母|评价|看法|眼光|讨厌|嫌弃|在意/i,
-    reply: [
-      "<span class='highlight'>课题分离</span>是阿德勒心理学的重要工具。别人怎么评价你，那是别人的课题——你无法控制，也无需负责。你只需要做好自己的课题：按照自己的信念生活。<br><span class='quote-line'>所谓自由，就是被别人讨厌。</span>—— 这需要勇气。",
-      "你太在意别人的眼光了。阿德勒会问：<span class='quote-line'>这是谁的课题？</span> 如果最终后果是由你来承担，那就是你的课题。别人的评价是他们的课题，与你无关。",
-      "我们害怕被讨厌，其实是害怕失去人际关系。但阿德勒说：<span class='quote-line'>如果没有人际关系，也就没有幸福。</span> 关键在于建立横向关系——不评价、不竞争，只是平等地鼓励。",
-    ],
-  },
-  {
-    match: /过去|童年|原生家庭|创伤|小时候|经历|原因|曾经|走不出来/i,
-    reply: [
-      "阿德勒的<span class='highlight'>目的论</span>与弗洛伊德的原因论截然不同。原因论说：因为过去受过伤害，所以现在才痛苦。目的论却说：因为现在不想改变，所以才搬出过去的经历当借口。<br><br>重要的不是过去发生了什么，而是你如何诠释它。你随时可以重新选择。",
-      "过去已经过去了。阿德勒认为，决定我们自身的不是过去的经历，而是我们自己赋予经历的意义。<br><span class='quote-line'>无论之前的人生发生过什么，都对今后的人生如何度过没有影响。</span>—— 这就是阿德勒的勇气。",
-    ],
-  },
-  {
-    match: /改变|改变不了|做不到|没办法|习惯|现状|迈出|迈不出|拖延/i,
-    reply: [
-      "你之所以无法改变，是因为自己下了不改变的决心。听起来很残酷，但阿德勒的目的论就是这样说的：缺乏获得幸福的勇气，所以才不幸。<br><br>改变需要巨大的勇气，因为改变意味着未知，而未知是令人恐惧的。但你其实随时可以做出新的选择。",
-      "阿德勒说：<span class='quote-line'>你之所以不幸，并不是因为过去或环境，更不是因为能力不足，你只不过是缺乏获得幸福的勇气。</span><br><br>试着问问自己：如果没有任何人评价你，你会怎么做？",
-    ],
-  },
-  {
-    match: /幸福|快乐|满足|开心|意义|活着|人生|目标|追求/i,
-    reply: [
-      "阿德勒心理学的幸福观很特别：幸福不是你达到了某个目标，而是你感到自己对他人有贡献——这种<span class='highlight'>贡献感</span>让你觉得自己有价值。<br><br>真正的幸福不是被认可，而是我对他人有用的主观感受。",
-      "人生不是一条有终点的线，而是一连串的刹那。登山不是为了登顶的瞬间，而是每一步、每一秒的过程。<br><span class='quote-line'>所谓幸福，就是不断地向前迈进。</span>",
-    ],
-  },
-  {
-    match: /愤怒|生气|情绪|控制不住|脾气|烦躁/i,
-    reply: [
-      "阿德勒有一个著名的观点：<span class='highlight'>愤怒是可放可收的工具。</span> 人是因为想发怒才发怒，而不是因为愤怒才失控。情绪是为目的服务的。<br><br>你可以选择愤怒，也可以选择其他方式。你是情绪的主人。",
-    ],
-  },
-  {
-    match: /孤独|寂寞|一个人|没人理解|没有朋友|社交/i,
-    reply: [
-      "阿德勒说：<span class='quote-line'>人的烦恼皆源于人际关系。</span> 反过来说，人的幸福也源于人际关系。孤独是你主动选择了不与他人建立联系的结果。<br><br><span class='highlight'>共同体感觉</span>——把对自己的执着变成对他人的关心。试着从我能得到什么转向我能贡献什么。",
-    ],
-  },
-  {
-    match: /选择|决定|迷茫|不知道|犹豫|纠结|方向/i,
-    reply: [
-      "阿德勒心理学中有一个重要的概念：你现在的选择决定了你的人生。无论过去如何，你都有权利——也有能力——在当下做出新的选择。<br><br>迷茫很正常。但不要用我还没有准备好当借口。跨出第一步的勇气，比完美的计划更重要。",
-    ],
-  },
-  {
-    match: /喜欢|爱|恋爱|关系|女朋友|男朋友|表白|情感/i,
-    reply: [
-      "阿德勒认为，爱也是一种课题。真正的爱是抛弃自我，与对方融为一体。它不是寻找对的人，而是建立<span class='highlight'>对的关系</span>。<br><br>当一个人爱上另一个人时，他才第一次摆脱以自我为中心的生活方式。",
-    ],
-  },
-  {
-    match: /工作|上班|职场|老板|升职|工资|学习|考试|学业/i,
-    reply: [
-      "工作中的烦恼，本质上是人际关系的烦恼。阿德勒的课题分离在这里同样适用：做好你的工作是你的课题，老板怎么评价是老板的课题。<br><br>不要为了满足他人的期待而工作，而是为了自己对社会的贡献感。",
-    ],
-  },
-  {
-    match: /勇气|害怕|不敢|恐惧|担心|焦虑|紧张/i,
-    reply: [
-      "阿德勒心理学被称为<span class='highlight'>勇气的心理学</span>。他说：一切烦恼都源于人际关系，而一切幸福也源于人际关系。获得幸福需要你拥有被讨厌的勇气。<br><br>勇气不是没有恐惧，而是带着恐惧依然选择前进。你比你想象中更勇敢。",
-    ],
-  },
-];
-
-// ─── helpers ─────────────────────────────────────────────────
-
-function pick(arr) {
-  if (Array.isArray(arr)) return arr[Math.floor(Math.random() * arr.length)];
-  return arr;
-}
-
-function matchReply(text) {
-  for (const k of keywords) {
-    if (k.match.test(text)) return pick(k.reply);
+function detectEmotion(text) {
+  for (const [key, val] of Object.entries(EMOTIONS)) {
+    for (const w of val.words) {
+      if (text.includes(w)) return key;
+    }
   }
   return null;
 }
 
-function getReply(text) {
-  const kw = matchReply(text);
-  if (kw) return kw;
-  const isQuestion = /[？?]/.test(text);
-  const pool = isQuestion ? KB.fallbacks.filter(f => f.includes('？') || f.includes('?')) : null;
-  return pick(pool || KB.fallbacks);
+const EMOTION_PREFIX = {
+  frustrated: '听起来你最近很累。',
+  angry:      '我能感受到你的愤怒。',
+  lost:       '你似乎正处在一个迷茫的路口。',
+  anxious:    '你心里有很多担心。',
+  sad:        '那种难过的感觉，我能理解。',
+};
+
+// ─── Topic Engine (3-depth per topic) ────────────────────
+
+const TOPICS = [
+  {
+    key: 'others_opinion',
+    kw: ['在意看法','别人','眼光','评价','讨厌','嫌弃','认可','承认','赞同','看不起','瞧不起','议论','说三道四','不被理解','不被接受','被拒绝'],
+    depth: [
+      {
+        replies: [
+          "别人怎么看你，那是他们的课题，与你无关。<span class='quote-line'>课题分离</span>是阿德勒心理学最基础的工具——你只需要分清楚：这件事的最终后果由谁来承担？如果是你，那就是你的课题。别人的评价是他们的课题，你管不了，也不需要管。",
+          "你太在意别人的眼光了。但你想过没有——别人其实并没有那么在意你。阿德勒说，我们之所以觉得别人在盯着自己，是因为我们把自己看得太重了。<span class='highlight'>你才是自己生活的中心，不是别人目光的焦点。</span>",
+          "阿德勒有一个犀利的观点：<span class='highlight'>认可欲求</span>是一切人际关系的烦恼根源。你希望被所有人喜欢——但这是不可能的。你希望被理解——但理解是偶然的，不理解才是常态。接受这一点，反而轻松了。",
+        ],
+        quotes: ["别人怎么看你，那是别人的课题，与你无关。","我们并不是为了满足他人的期待而活着。"],
+        followUps: ["但我问你一个更本质的问题：你为什么那么在意别人的看法？你在害怕什么？","你最近有因为别人的一句话而难受很久的经历吗？","如果你完全不在意别人怎么想——你会怎么做？"],
+      },
+      {
+        replies: [
+          "你刚才提到了在意别人——我们往深了说。阿德勒认为，<span class='highlight'>纵向关系</span>是问题的根源。你把自己放在"下面"，把别人放在"上面"，所以你才会在意他们的评价。如果你和他们建立<span class='highlight'>横向关系</span>——平等、不评价、不竞争——你就不需要他们的认可。",
+          "其实"在意别人"本质上是一种自我中心。你太关注别人怎么看你，反而忽略了自己真正想要什么。阿德勒说：<span class='quote-line'>你不是世界的中心，你是世界地图的中心。</span>你不需要被所有人围着转，你只需要走自己的路。",
+          "让我问你：如果有人讨厌你，你觉得你的生活真的会因此毁掉吗？——不会。你可能会不舒服，但你依然可以好好活着。<span class='highlight'>自由就是被别人讨厌的勇气。</span>不是让你故意讨人厌，而是说你敢于承受被讨厌的风险，去做真实的自己。",
+        ],
+        quotes: ["所谓自由，就是被别人讨厌。","你不是世界的中心，你是世界地图的中心。"],
+        followUps: ["你宁可被人喜欢但活得很累，还是被人讨厌但活得自在？","你有没有哪件事，是因为怕别人看法而一直没做的？"],
+      },
+      {
+        replies: [
+          "现在让我们再往前走一步。<span class='highlight'>共同体感觉</span>——这是阿德勒心理学的顶点。当一个人不再执着于"别人怎么看我"，而是开始关心"我能为别人贡献什么"，他就真正获得了自由和幸福。从"被认可"到"去贡献"，这是质的变化，你需要很大的勇气。",
+          "我直接点破吧：你希望别人认可你，其实是因为你不认可自己。阿德勒说，<span class='highlight'>自我接纳</span>是第一步。不是"我很好"的自欺欺人，而是诚实地接受"我有能力不够的地方，但我在努力"。你能做到吗？不用假装强大，接受此刻的自己，然后继续往前走。",
+          "回到课题分离——如果你真的能做到，你会发现一个悖论：<span class='highlight'>当你不再在意别人怎么看你时，别人反而更尊重你。</span>因为真正强大的人，不需要别人的认可来证明自己的价值。你愿意试试看吗？从一件小事开始，做一次完全不在乎别人眼光的决定。",
+        ],
+        quotes: ["幸福即贡献感。","自我接纳——诚实地接受自己，然后努力。","不是"我"怎样被看待，而是"我们"能一起做什么。"],
+        followUps: ["你敢不敢在今天做一件完全不在乎别人眼光的事？哪怕只是很小的一件事。","你说的"在意"，对你来说，最痛苦的那个场景是什么？"],
+      },
+    ],
+  },
+  {
+    key: 'self_esteem',
+    kw: ['自卑','自信','不够好','差劲','不如','比较','比不上','没用','一无是处','失败','loser','我不行','我不配','觉得自己差'],
+    depth: [
+      {
+        replies: [
+          "自卑感人人都有。阿德勒说，<span class='highlight'>自卑感是人类进步的动力。</span>你觉得自己不够好——这说明你有追求更好的愿望。问题不在于自卑感本身，而在于你如何对待它。",
+          "你知道吗？阿德勒把"自卑感"和<span class='highlight'>自卑情结</span>分得很清楚。自卑感是"我还不够好，所以我努力"——这是健康的。自卑情结是"我不够好，所以我不可能"——这是借口。你现在是哪一个？",
+          "你总拿自己和别人比。但阿德勒说：<span class='quote-line'>重要的不是与他人比较，而是与理想的自己比较。</span>和别人比你永远能找到比你强的，和昨天的自己比你才能看到真正的进步。",
+        ],
+        quotes: ["重要的不是与他人比较，而是与理想的自己比较。","自卑感是追求优越性的动力。","自卑情结是把自卑当借口。"],
+        followUps: ["你觉得自己最不满意的地方是什么？","如果你不跟别人比，你还会觉得自己差吗？"],
+      },
+      {
+        replies: [
+          "你说自己不够好——那我来问你：你那个"好的标准"是谁定的？是你自己，还是别人塞给你的？阿德勒的观点是：<span class='highlight'>优越性的追求不是要超过别人，而是要超越自己。</span>你不需要成为别人眼中优秀的人，你只需要成为更好的自己。",
+          "你一直在用"能力不足"这个理由来逃避改变的可能。阿德勒会直白地告诉你：<span class='highlight'>你并不是能力不足，你只是缺乏勇气。</span>缺乏"即使失败了也没关系"的勇气，缺乏"我可以做得更好"的勇气。你接受这种说法吗？",
+          "让我讲一个阿德勒的观点：<span class='highlight'>人不是因为做了什么才有价值，而是存在本身就有价值。</span>你不是因为变得优秀才值得被爱，你现在的样子就值得。只是你一直用"不够好"来否定自己存在的价值。",
+        ],
+        quotes: ["人不是因为做了什么才有价值，而是存在本身就有价值。","你并不是能力不足，你只是缺乏勇气。"],
+        followUps: ["如果完全抛开别人的标准，你自己真正想成为什么样的人？","你觉得自己身上有什么优点吗——不需要别人认可的那种？"],
+      },
+      {
+        replies: [
+          "我们之前聊过自卑——现在我直接问你了：<span class='highlight'>你不敢自信，是因为你害怕自信之后会失败。</span>如果你承认自己不行，失败就不用承担责任。这是目的论的视角——你选择了"我不行"这个借口，来保护自己免受失败的打击。你承认吗？",
+          "阿德勒的终极武器是：<span class='highlight'>你的人生是你自己选择的。</span>你说自己不够好——但如果你用尽全力去改变，你真的做不到吗？还是你根本就没试过？勇气不是没有恐惧，而是带着恐惧依然选择前进。<br><span class='quote-line'>你之所以不幸，不是因为没有能力，而是因为缺乏获得幸福的勇气。</span>",
+          "我可以给你一个练习：从现在开始，每当你说"我不行"的时候，马上改成"我暂时还不行"。就加一个词。<span class='highlight'>"暂时"意味着可能性。</span>阿德勒心理学不相信固定的才能，只相信随时可以改变的人。你愿意试试这个练习吗？",
+        ],
+        quotes: ["你之所以不幸，不是因为过去或环境，而是因为缺乏获得幸福的勇气。","人生是连续的刹那，改变发生在此时此刻。","重要的不是被给予了什么，而是如何去利用被给予的东西。"],
+        followUps: ["你敢不敢现在就告诉我一件你觉得自己做得好的事？任何小事都行。","如果接下来一周你不再说"我不行"，你觉得会发生什么？"],
+      },
+    ],
+  },
+  {
+    key: 'past',
+    kw: ['过去','童年','原生家庭','创伤','小时候','经历','回忆','阴影','挥之不去','走不出来','一直记得','家庭','父母','我妈','我爸'],
+    depth: [
+      {
+        replies: [
+          "阿德勒的<span class='highlight'>目的论</span>和弗洛伊德的原因论完全不同。原因论说：因为过去受过伤害，所以现在才痛苦。目的论说：因为现在不想改变，所以才把过去拿出来当借口。<br><br>这个说法可能让你不舒服——但阿德勒就是这样尖锐。重要的不是过去发生了什么，而是你<em>现在</em>如何诠释它。",
+          "你认为过去的经历决定了现在的你。但阿德勒说：<span class='quote-line'>决定我们自身的不是过去的经历，而是我们自己赋予经历的意义。</span>同样的事情，你可以把它看作创伤，也可以把它看作使你变得更坚强的磨炼。选择权在你手上，不在过去。",
+          "过去已经过去了。你再怎么回头，它都不会改变。<span class='highlight'>但你对过去的看法——随时可以改变。</span>这才是你真正的自由。",
+        ],
+        quotes: ["决定我们自身的不是过去的经历，而是我们自己赋予经历的意义。","无论之前的人生发生过什么，都对今后的人生如何度过没有影响。","问题不在于过去发生了什么，而在于你如何诠释它。"],
+        followUps: ["你能跟我具体说说是什么事吗？","如果你把那段经历看作一个老师——它教会了你什么？"],
+      },
+      {
+        replies: [
+          "你一直走不出来——我问你一个尖锐的问题：<span class='highlight'>你抱着过去不放，是不是因为它让你有理由不改变？</span>如果你放下了，你就必须面对现在的生活，面对那个需要你做出选择的自己。阿德勒会说："保持现状"也是一种选择，而且是你主动做出的选择。",
+          "你说原生家庭对你有影响——我不否认。阿德勒也不否认过去有影响。但他坚持：<span class='highlight'>过去的影响不能决定你现在的选择。</span>你现在是一个成年人，你有能力为自己的人生负责，而不是永远做那个受伤的孩子。<br>你愿意从现在开始，为自己的人生做一次选择吗？",
+          "阿德勒说，<span class='highlight'>人可以在任何时刻重新选择。</span>如果你一直用过去来定义现在，那你就把自己困在了时间里。但人生不是一条线——不是由过去通向未来的直线。人生是一连串的"刹那"，你唯一能把握的，就是<em>此刻</em>。",
+        ],
+        quotes: ["人可以在任何时刻重新选择。","人生是一连串的刹那，不是一条线。","现在的你，决定了过去的意义。"],
+        followUps: ["过去的那件事——如果现在让你重新看待它，你觉得自己能换一个角度吗？","你觉得一直记着这件事，给你带来了什么好处吗？"],
+      },
+      {
+        replies: [
+          "我们来做一个实验。<span class='highlight'>把你过去的故事，换一种讲法。</span>如果你不再是那个"被伤害的人"，而是那个"经历过这一切、变得更坚强的人"——故事会变成什么样？阿德勒说，你的人生叙事是由你书写的。你愿意重新写一遍吗？",
+          "我直接说了：<span class='quote-line'>你抱着过去不放，不是因为过去太沉重——而是因为放下过去更可怕。</span>放下意味着你要面对一个未知的自己，你要为自己的人生负责。那个"受过伤的我"至少是安全的、确定的。"走出过去的我"则充满不确定性。你害怕的是改变本身，不是过去。",
+          "阿德勒的终极答案：<span class='highlight'>共同体感觉</span>——从对自己的执着（"我的过去""我的创伤"）变成对他人的关心（"我能为他人做什么"）。当你的目光从自己身上移开，你会发现过去的重量突然轻了。这不是逃避，而是超越。你愿意试试看吗——去做一件让他人受益的小事？",
+        ],
+        quotes: ["从"被给予了什么"到"如何使用被给予的东西"。","人不是被过去决定的，而是为了未来的目的而活着。","当你开始为他人贡献时，过去就不再是束缚了。"],
+        followUps: ["如果把你那段经历写成一个故事——它的主题会是什么？悲剧，还是成长？","你觉得"放下过去"对你来说，第一步应该是做什么？"],
+      },
+    ],
+  },
+  {
+    key: 'change',
+    kw: ['改变','改不了','做不到','没办法','习惯','现状','迈出','拖延','迈不出','跨出','突破','舒适区','想改'],
+    depth: [
+      {
+        replies: [
+          "你之所以无法改变——根据阿德勒的说法——是你自己下了"不改变"的决心。<span class='highlight'>改变需要勇气，而不改变也有它的好处：安全、稳定、不用冒险。</span>你只是选择了"安全"，而不是"幸福"。你能接受这个说法吗？",
+          "阿德勒的<span class='highlight'>目的论</span>说：你"不想改变"是为了达成"不改变的目的"。你可能会反驳，但问问自己：<span class='quote-line'>维持现状的好处是什么？</span>——你不用面对不确定性，不用承担失败的风险，不用走出舒适区。但你同时也在放弃变得更好的可能性。",
+          "你说你想改——但如果真的想改，你已经在改了。<span class='highlight'>"想"和"做"之间的差距，就是勇气的距离。</span>阿德勒说，人不是没有能力改变，而是缺乏迈出第一步的勇气。你缺的不是方法，是决心。",
+        ],
+        quotes: ["缺乏获得幸福的勇气，所以才不幸。","你之所以无法改变，是因为自己下了不改变的决心。","改变意味着未知，未知令人恐惧。"],
+        followUps: ["维持现状的好处具体是什么？","如果改变失败，你觉得最坏的结果是什么？真的无法承受吗？"],
+      },
+      {
+        replies: [
+          "你说你做不到——那我们先不讨论"能不能"，先说"想不想"。阿德勒说：<span class='highlight'>你一定会成为你想要成为的人。</span>如果你还没改变，那说明你内心深处并不真的想改变——你更想要的是"安全"和"不失败"。你确定你是真的想改变，还是只是觉得自己"应该"改变？",
+          "你一直等一个"准备好的时机"对吗？我告诉你：<span class='quote-line'>永远不会有一个完美的时机。</span>阿德勒认为，人生是连续的刹那，没有"准备阶段"。你不需要准备好才能开始——你只有在开始之后才会慢慢准备好。现在就做，哪怕做得很烂。",
+          "阿德勒说，<span class='highlight'>生活方式是自己主动选择的结果。</span>你现在的现状不是"被逼的"，是你主动维持的。听起来残酷，但也是好消息——因为既然是你选的，你也可以重新选。你随时可以做出新的选择。",
+        ],
+        quotes: ["你一定会成为你想要成为的人。","生活不是准备阶段，而是连续的刹那。","你随时可以做出新的选择。"],
+        followUps: ["如果今天就是那个"开始"的日子——你会做的第一件小事是什么？","你害怕改变，具体的恐惧是什么？说出来看看它是不是真的那么可怕。"],
+      },
+      {
+        replies: [
+          "我们聊了这么多改变——我让你现在就做一件事：<span class='highlight'>选一件你一直拖延的小事，明天之前完成它。</span>不是大事，是一件很小的、但能让你感受到"我在行动"的事。完成之后告诉我你的感受。行动才能带来改变，讨论不会。",
+          "阿德勒的心理学是<span class='highlight'>勇气的心理学</span>。它不是告诉你"你很弱小所以你需要安慰"——而是告诉你"你很强大，只是你自己不知道"。<span class='quote-line'>人只有在感觉"自己有价值"的时候才能获得勇气。</span>你不需要先改变再获得价值，你先承认自己有价值，然后才有勇气改变。",
+          "我给你一句阿德勒的名言，你仔细体会：<span class='quote-line'>重要的不是被给予了什么，而是如何去利用被给予的东西。</span>你现在的处境、能力、背景——这些是"被给予的"。你怎么用它们，是你的选择。你不要盯着"我没有的"看，要看"我有的"。你现在手上有哪些资源？哪怕只有一个——从那个开始。",
+        ],
+        quotes: ["重要的不是被给予了什么，而是如何去利用被给予的东西。","人只有在感觉'自己有价值'的时候才能获得勇气。","勇气不是没有恐惧，而是带着恐惧前进。"],
+        followUps: ["你手上有什么资源——哪怕很小——是你可以利用的？","你愿意现在给我一个承诺吗？你今天之内会为你的改变踏出第一步？"],
+      },
+    ],
+  },
+  {
+    key: 'happiness',
+    kw: ['幸福','快乐','满足','开心','意义','活着','人生','目标','追求','追求','价值','活着的意义'],
+    depth: [
+      {
+        replies: [
+          "阿德勒的幸福观很特别：<span class='highlight'>幸福不是你达到了某个目标，而是你感觉到自己有价值。</span>这种价值感从哪里来？从你对他人有贡献——不是别人认可你的贡献，而是你自己<em>感觉</em>自己有贡献。这是一种主观感受。",
+          "很多人以为幸福是"被爱""被认可""成功"。阿德勒说：都不是。<span class='quote-line'>幸福即贡献感。</span>当你觉得自己对他人有用时，你就能感受到幸福。不需要轰轰烈烈，哪怕是一件很小的事。你最近有做过让自己觉得"帮到了别人"的事吗？",
+          "人生不是一条有终点的线——考上大学就幸福了？工作就好了？结婚就好了？——不是的。阿德勒说：<span class='highlight'>登山不是为了登顶的瞬间，而是每一步、每一秒的过程。</span>幸福不在终点，幸福在此时此刻。",
+        ],
+        quotes: ["幸福即贡献感。","人生是一连串的刹那。","不是"我"如何被他人看待，而是"我们"能一起做什么。","所谓幸福，就是不断地向前迈进。"],
+        followUps: ["你心中"幸福的生活"是什么样的？不需要回答别人，回答你自己。","你现在的生活中，有让你觉得"有价值"的瞬间吗？"],
+      },
+      {
+        replies: [
+          "你说想追求幸福——但阿德勒会说：<span class='highlight'>幸福不需要"追求"，你只需要停止逃避。</span>幸福不是远处的目标，而是你此刻面对生活的态度。你逃避人际关系、逃避改变、逃避自我——这些才是让你不幸福的原因。不是因为你缺少什么。",
+          "阿德勒有一个核心观点：<span class='highlight'>一切烦恼都源于人际关系。</span>这句话反过来也成立：一切幸福也都源于人际关系。你感到孤单、不被理解、没有价值——这些都和别人有关。你感到被需要、有帮助、有关系——这些也来自和别人之间的联结。<span class='quote-line'>孤独是你主动选择了不与人建立联系。</span>",
+          "你认为幸福来自于"得到"还是"贡献"？大多数人说是得到——得到钱、得到爱、得到认可。阿德勒说是贡献——<span class='highlight'>当你不再问"我能得到什么"，而是问"我能给予什么"的时候，幸福就来了。</span>因为给予是你自己可以控制的，而得到永远取决于别人。",
+        ],
+        quotes: ["一切烦恼源于人际关系，一切幸福也源于人际关系。","幸福不是"得到"，而是"贡献"。","孤独是你主动选择了不与人建立联系。"],
+        followUps: ["你最近一次觉得"活着真好"是什么时候？","你觉得幸福和你现在的努力之间有关系吗？"],
+      },
+      {
+        replies: [
+          "很多人都把幸福寄托在未来——"等我……我就会幸福了。"阿德勒说，这是一种谎言。<span class='highlight'>你在逃避当下的生活。</span>你把现在当作"准备阶段"，为着一个永远不会到来的"真正的人生"做准备。但你的人生就是现在啊。此时此刻，你已经在活着了。",
+          "阿德勒心理学的终点是<span class='highlight'>共同体感觉</span>——从对自我的执着转向对他人的关心。这不是道德说教，而是通往幸福的实际路径。<span class='quote-line'>当你觉得自己是某个更大整体的一部分时，孤独感和不安感就会消失。</span>你觉得自己属于哪里？家庭？朋友？社区？还是——人类这个整体？",
+          "最后我问你一个阿德勒式的问题：<span class='highlight'>假如你只剩一年可以活，你会怎么过？</span>——不是让你恐惧，而是让你看清什么才是真正重要的。阿德勒认为，意识到生命的有限性，反而能让我们更认真、更勇敢地活在当下。你的答案是什么？",
+        ],
+        quotes: ["人生没有准备阶段，你的人生就是现在。","共同体感觉——从"我"到"我们"。","假如你只剩一年可以活，你会怎么活？"],
+        followUps: ["如果你只能活一年——你现在纠结的那些事，还重要吗？","你为别人做过什么事，让你觉得特别有意义？"],
+      },
+    ],
+  },
+  {
+    key: 'emotion',
+    kw: ['愤怒','生气','情绪','控制不住','脾气','烦躁','发火','火大','失控'],
+    depth: [
+      {
+        replies: [
+          "阿德勒有一个著名的观点：<span class='highlight'>愤怒是可放可收的工具。</span>你不是因为愤怒才发火，而是为了发火才制造愤怒。听起来很颠覆——但你想过没有：你对家人发火时，接到老板电话能瞬间变得温和？这说明愤怒是可以控制的。你是情绪的主人。",
+          "你问自己一个问题：<span class='quote-line'>我发火是为了达到什么目的？</span>让对方听你的？发泄自己的不满？引起注意？阿德勒说，所有情绪都是为某种目的服务的。愤怒不是一个自然现象，而是你选择的一种表达方式。",
+        ],
+        quotes: ["愤怒是可放可收的工具。","你是情绪的主人，不是奴隶。","情绪是为目的服务的。"],
+        followUps: ["你发火的时候，真正想表达的是什么？","如果不发火——你觉得还有别的方式能表达你的感受吗？"],
+      },
+      {
+        replies: [
+          "我们说深一点：<span class='highlight'>愤怒往往掩盖了更脆弱的情绪。</span>你生气，可能是因为你受伤了、感到被忽视了、或者害怕了。阿德勒不会只看表面情绪——他会问你：你生气的背后，真正受伤的是什么？",
+          "你容易发脾气——我问你一个关键问题：<span class='quote-line'>你是不是只有在面对亲密的人时才会失控？</span>如果你面对陌生人不会发火，那说明你是可以控制的。你选择在安全的人面前释放情绪——这本身就是一种选择。",
+        ],
+        quotes: ["愤怒是人际关系中的一种权力斗争。","真正的强者不需要通过愤怒来展示力量。"],
+        followUps: ["你生气之后，通常怎么收场？","有没有不使用愤怒，但依然让对方理解了你的经历？"],
+      },
+      {
+        replies: [
+          "阿德勒说，一切情绪都有其目的。如果你经常愤怒——它的目的是什么？可能是<span class='highlight'>你想让对方屈服，你想证明你是对的，你想控制局面。</span>但愤怒之后呢？你达到目的了吗？还是只是让关系更糟？",
+          "阿德勒的终极解法是<span class='highlight'>横向关系</span>——你不把对方放在上面（领导、权威），也不放在下面（下属、孩子），而是平等对待。<span class='quote-line'>当你真的把对方看作平等的人时，你就不需要用愤怒来压制他。</span>你可以直接说："我不喜欢你这样。"不需要发火。",
+        ],
+        quotes: ["横向关系——不评价、不竞争、不平等。","你可以选择愤怒，也可以选择其他方式。你是情绪的主人。"],
+        followUps: ["你觉得愤怒帮你解决了问题，还是制造了更多问题？","如果下次同样的情况发生——你希望自己怎么做？"],
+      },
+    ],
+  },
+  {
+    key: 'loneliness',
+    kw: ['孤独','寂寞','一个人','没人理解','没有朋友','社交','不合群','孤立','孤单','被冷落','被孤立'],
+    depth: [
+      {
+        replies: [
+          "阿德勒说：<span class='quote-line'>人的烦恼皆源于人际关系。</span>孤独也是这样——孤独不是因为你一个人，而是因为你感觉和他人没有联结。<span class='highlight'>孤独是一种主动的选择。</span>你可能因为害怕受伤而不敢靠近别人，但这本身就是你可以改变的事情。",
+          "你说自己孤独——那我来问你：<span class='quoteline'>你做过什么主动去联结别人的事吗？</span>阿德勒说，关系不是"等来的"、"碰到的"，而是你去建立的。你不需要有很多朋友，你只需要有那么一两个人，你能和他们建立<span class='highlight'>横向关系</span>——平等、真诚、不比较。",
+        ],
+        quotes: ["人的烦恼皆源于人际关系。","孤独是你主动选择了不与他人建立联系。","共同体感觉——把对自己的执着变成对他人的关心。"],
+        followUps: ["你渴望什么样的关系？是有人听你说话，还是有人懂你？","你最后一次主动联系朋友是什么时候？"],
+      },
+      {
+        replies: [
+          "你说没有人理解你——那我问你：<span class='highlight'>你有尝试去理解别人吗？</span>阿德勒说，人际关系的关键不是"被理解"，而是"去理解"。当你把目光从自己身上移开，开始真正关心别人的时候，别人也会慢慢靠近你。<span class='highlight'>先给予，再接受。</span>",
+          "阿德勒说，<span class='highlight'>归属感不是天生就有的，是你主动去获得的。</span>你不需要等别人来接纳你——你首先可以做的事情是：找到一件你关心的事，找到一个你认同的群体，然后参与进去。哪怕只是很小的参与。",
+        ],
+        quotes: ["归属感不是你等来的，而是你主动去获得的。","先贡献，再归属。","从"我能得到什么"转向"我能给予什么"。"],
+        followUps: ["你觉得你在逃避人际关系的什么——是被拒绝？还是被看穿？","你理想中的社交状态是什么样的？"],
+      },
+      {
+        replies: [
+          "阿德勒的终极方案是<span class='highlight'>共同体感觉</span>——你要找到一件比你更大的事。当你能感觉到自己是某个更大整体的一部分时——一个家庭、一个团队、一个社区、甚至全人类——孤独感会自然消失。<span class='quote-line'>不是因为有人陪你，而是因为你找到了归属。</span>",
+          "我给你一个阿德勒式的练习：<span class='highlight'>去做一件对别人有用的事。</span>不用很大——帮邻居拿个快递、在社区里做点小事、在网上回答一个你懂的问题。当你开始为他人贡献时，你会发现自己不再是孤独的。<span class='highlight'>贡献感是人类最深层的幸福源泉。</span>你愿意试一下吗？",
+        ],
+        quotes: ["共同体感觉是通往幸福的钥匙。","幸福即贡献感。","当你觉得自己属于某个更大整体时，孤独就消失了。"],
+        followUps: ["你觉得自己可以为什么样的人或事做一点贡献？","如果完全没有被拒绝的恐惧——你会怎么去认识新朋友？"],
+      },
+    ],
+  },
+  {
+    key: 'work',
+    kw: ['工作','上班','职场','老板','升职','工资','同事','领导','上级','裁员','跳槽','职业','上班族','加班'],
+    depth: [
+      {
+        replies: [
+          "工作中的烦恼本质上还是人际关系的烦恼。阿德勒的<span class='highlight'>课题分离</span>在职场同样适用：做好你的工作是你的课题，老板怎么评价是老板的课题。<span class='quote-line'>你只需要对自己的课题负责。</span>超出你控制范围的——放下它。",
+          "你把工作当成了什么？阿德勒会问：<span class='highlight'>你是为了满足别人的期待在工作，还是为了自己对社会的贡献感？</span>如果你只是为了工资、为了不挨骂——你会很累。但如果你是出于"我这个工作对别人有点用"——你就会找到意义。",
+        ],
+        quotes: ["工作不是"被评价"的地方，而是"贡献"的地方。","课题分离——你对你的工作负责，别人对他们的评价负责。"],
+        followUps: ["你工作中最大的压力来源是什么——事情本身，还是人？","如果明天你不需要这份工资了——你还会想做现在的工作吗？"],
+      },
+      {
+        replies: [
+          "你要不要把工作看作是<span class='highlight'>纵向关系</span>的体现？你觉得老板比你高、同事在和你竞争。但阿德勒说：<span class='highlight'>横向关系</span>才是健康的——你和老板只是分工不同，不是地位不同。你不需要讨好评级，你只需要做好你分内的事。",
+          "你说工作不开心——阿德勒说，<span class='quote-line'>你不开心的原因可能不是因为工作本身，而是因为你在工作中的人际关系。</span>你想想看：如果换一个你喜欢的团队、一个欣赏你的老板，同样的工作内容你会开心吗？如果是——那问题不在工作，在关系。",
+        ],
+        quotes: ["纵向关系让人疲惫，横向关系让人自由。","一切烦恼都是人际关系的烦恼。"],
+        followUps: ["你觉得工作中最消耗你的是什么——是事情难办，还是沟通累人？","如果你现在可以换一个岗位——你最想做的是什么？"],
+      },
+      {
+        replies: [
+          "阿德勒说，<span class='highlight'>真正的价值感来自于贡献感，而不是职位高低。</span>你在工作中哪怕只是做好了一件事，帮助了一个同事，那就是贡献。你不需要当上总监才有价值。<span class='quote-line'>存在本身就是价值——你在这里，就是有价值的。</span>",
+          "如果你对工作感到迷茫——阿德勒会建议你回到<span class='highlight'>共同体感觉</span>：你的工作对谁有好处？你的客户？你的同事？你的家人？当你清楚地看到自己工作的"贡献对象"时，意义就出现了。<span class='highlight'>没有无意义的工作，只有看不见意义的人。</span>",
+        ],
+        quotes: ["价值感不来自职位，来自贡献感。","存在本身就是价值。","共同体感觉——看见你的工作对谁有用。"],
+        followUps: ["你的工作帮到过什么人吗？哪怕很小。","如果你不为钱工作——你最想为社会贡献什么？"],
+      },
+    ],
+  },
+  {
+    key: 'relationship',
+    kw: ['喜欢','爱','恋爱','感情','女朋友','男朋友','表白','对象','结婚','分手','吵架','伴侣','婚姻','离婚'],
+    depth: [
+      {
+        replies: [
+          "阿德勒认为，<span class='highlight'>爱也是一种课题。</span>它不是寻找一个"对的人"——而是你有勇气去爱一个真实的人。很多人把"被爱"当成目标，但阿德勒说：<span class='quote-line'>真正的爱是你主动去爱，而不是等着被爱。</span>",
+          "在感情中，你是在追求<span class='highlight'>纵向关系</span>还是<span class='highlight'>横向关系</span>？你是不是总想证明自己比对方更正确、付出更多、更爱对方？阿德勒说，爱情中如果存在竞争，那就不叫爱了。<span class='highlight'>爱是两个人并肩面对世界，不是两个人互相较量。</span>",
+        ],
+        quotes: ["爱不是寻找对的人，而是建立对的关系。","真正的爱是你主动去爱。","爱是两个人并肩面对世界。"],
+        followUps: ["你期待在感情中得到什么？","你觉得爱一个人，最难的部分是什么？"],
+      },
+      {
+        replies: [
+          "很多人谈恋爱是为了填补自己的孤独和不安。但阿德勒说：<span class='highlight'>如果你不能一个人好好活着，你也不能两个人好好相爱。</span>你不能指望别人来"拯救"你。先成为一个独立的、完整的人，然后再去爱另一个人。",
+          "你害怕在感情中受伤对吗？阿德勒会直说：<span class='quote-line'>害怕受伤的人，选择了不去深爱。</span>你为了保护自己而和对方保持距离，但这种"安全"的关系不是真正的爱。真正的爱需要你放下自我保护——这需要巨大的勇气。",
+        ],
+        quotes: ["真正的爱需要放下自我保护。","先成为完整的自己，才能去爱另一个人。","爱需要勇气——不怕受伤的勇气。"],
+        followUps: ["你在感情中更怕被伤害，还是更怕让对方失望？","你觉得自己在爱里的勇气有几分？"],
+      },
+      {
+        replies: [
+          "阿德勒说：<span class='highlight'>当一个人爱上另一个人时，他才第一次摆脱以自我为中心的生活方式。</span>爱不是"我要你给我什么"——而是"我愿意为你付出什么"。当你真正爱上一个人，你的世界就不再只有你自己了。这是人从自我中心走向共同体感觉的第一步。",
+          "<span class='quote-line'>所有的关系问题，本质上是勇气问题。</span>你有没有勇气在对方面前做真实的自己？有没有勇气接受对方的不完美？有没有勇气即使被拒绝也依然保持真诚？阿德勒的心理学的核心就是两个字：<span class='highlight'>勇气</span>。爱也是一样。",
+        ],
+        quotes: ["爱使人第一次摆脱自我中心。","所有关系问题，本质上是勇气问题。","爱需要被讨厌的勇气。"],
+        followUps: ["你觉得自己在爱里最缺乏的是哪种勇气？","如果爱没有"被拒绝"的风险——你会怎么去爱？"],
+      },
+    ],
+  },
+  {
+    key: 'courage',
+    kw: ['勇气','害怕','不敢','恐惧','担心','焦虑','紧张','勇敢','胆小','退缩','逃避'],
+    depth: [
+      {
+        replies: [
+          "阿德勒心理学被称为<span class='highlight'>"勇气的心理学"</span>。不是因为它教你怎么变勇敢，而是因为它告诉你——你所有的不幸福，不是因为你的能力不够，而是因为你缺乏勇气。<span class='highlight'>改变需要勇气，被讨厌需要勇气，去爱需要勇气，活着本身也需要勇气。</span>",
+          "你说你害怕——那我问你：<span class='quote-line'>你是在害怕事情本身，还是在害怕"失败后的评价"？</span>阿德勒说，大多数人恐惧的不是失败，而是失败后被别人看不起。这又回到了课题分离——别人怎么看你，是别人的课题。",
+        ],
+        quotes: ["阿德勒心理学是"勇气的心理学"。","勇气不是没有恐惧，而是带着恐惧依然选择前进。","你缺乏的不是能力，是勇气。"],
+        followUps: ["你最近一次特别需要勇气是什么时候？","你觉得勇气是"没有恐惧"还是"带着恐惧去做"？"],
+      },
+      {
+        replies: [
+          "阿德勒说：<span class='quote-line'>人只有在感觉自己有价值的时候，才能获得勇气。</span>你不相信自己有价值，所以你没有勇气。但这和你的能力无关——你的价值不是由你的能力决定的，而是由你的存在本身决定的。你不需要"做出什么"才有价值，你活着就是价值。",
+          "你说你不敢——但"不敢"和"不去做"是两回事。阿德勒会让你正视：<span class='highlight'>你是真的"不敢"，还是你选择了"不去做"？</span>如果你真的去做了，最坏的结果你能承受吗？如果不能——那确实是风险。如果能——那你只是缺一个决定的勇气。",
+        ],
+        quotes: ["人只有在感觉自己有价值的时候，才能获得勇气。","你的价值不来自于你的能力，来自于你的存在本身。",""不敢"和"不去做"是不一样的。"],
+        followUps: ["如果你知道自己一定不会失败——你会去做什么？","你最大的恐惧是什么？说出来看看它有多大。"],
+      },
+      {
+        replies: [
+          "我给你一个阿德勒式的挑战：<span class='highlight'>从今天开始，每天做一件让你稍微有点害怕的事。</span>不需要很大——跟陌生人说一句话、表达一个不同的意见、承认自己不知道。<span class='quote-line'>勇气像肌肉一样，越练越强。</span>你愿意试试吗？",
+          "阿德勒说，人生就是不断的"一步"。你不需要一次迈出一大步。只需要迈出小小的一步——站在那个让你害怕的门口，深呼吸，然后迈进去。<span class='highlight'>跨出第一步的勇气，比完美的计划更重要。</span>你现在就告诉我——你接下来可以迈出的最小一步是什么？",
+        ],
+        quotes: ["勇气像肌肉，越练越强。","跨出第一步的勇气，比完美的计划更重要。","人生就是不断地迈出下一步。"],
+        followUps: ["你今天或明天可以做的、最小的一件勇敢的事是什么？","如果一年后的你回看现在——他会希望你做什么？"],
+      },
+    ],
+  },
+];
+
+// ─── Context Engine ─────────────────────────────────────
+
+const ctx = {
+  history: [],       // [{ topicKey, emotion, userText, botReply }]
+  topicDepth: {},    // { topicKey: depthLevel }
+  lastBot: null,     // last bot reply text
+  totalExchanges: 0,
+  userPhrases: [],   // memorable user phrases for recalling
+};
+
+const GREETINGS = [
+  "你好。阿德勒心理学认为，问题不在于过去发生了什么，而在于你如何诠释它。今天想聊聊什么？",
+  "欢迎。如果你总是在意他人的评价，不妨想想阿德勒的那句话：<span class='quote-line'>别人怎么看你，那是别人的课题，与你无关。</span>",
+  "人之所以感到不幸，并非因为过去或环境，而是因为缺乏<span class='highlight'>获得幸福的勇气</span>。你拥有那份勇气吗？",
+];
+
+const GENERIC_REPLIES = [
+  "嗯，我明白。能再具体说说吗？",
+  "你这么说，让我想起阿德勒的一个观点——<span class='quote-line'>人并不是受过去事件影响的被动存在，而是主动诠释自己生活的主体。</span>你觉得自己是怎么理解这件事的？",
+  "我需要知道更多。你为什么会有这样的感觉？",
+  "阿德勒说，<span class='quote-line'>重要的不是被给予了什么，而是如何去利用被给予的东西。</span>你现在的处境中，有什么是你还没利用起来的？",
+  "我直接问你吧——你希望我帮你分析，还是你只是想说出来？两种都可以。",
+  "你说的这个问题，表面上是A，但我怀疑根源在B。你觉得呢？",
+  "嗯。这是一个很好的切入点。我们从这个话题继续深入吧。",
+  "阿德勒会说：<span class='highlight'>你现在的选择决定了你的人生。</span>你提到这件事的时候，你觉得自己有哪些选择？",
+];
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
 }
 
-// ─── Conversation Store ──────────────────────────────────────
+function pickShuffled(arr) {
+  const i = Math.floor(Math.random() * arr.length);
+  const item = arr[i];
+  return item;
+}
+
+function stripHtml(str) {
+  return str.replace(/<[^>]*>/g, '').trim();
+}
+
+// ─── Scoring Engine ────────────────────────────────────
+
+function scoreTopics(text) {
+  const userLower = text.toLowerCase();
+  const scores = [];
+
+  for (const topic of TOPICS) {
+    let score = 0;
+    for (const kw of topic.kw) {
+      if (userLower.includes(kw.toLowerCase())) score += 1;
+    }
+    if (score > 0) scores.push({ key: topic.key, score, topic });
+  }
+
+  // also boost topic if recent context matches
+  if (ctx.history.length > 0) {
+    const lastTopicKey = ctx.history[ctx.history.length - 1].topicKey;
+    if (lastTopicKey) {
+      const same = scores.find(s => s.key === lastTopicKey);
+      if (same) same.score += 0.3; // slight boost for continuing same topic
+    }
+  }
+
+  scores.sort((a, b) => b.score - a.score);
+  return scores;
+}
+
+function detectTopicChange(text) {
+  const scores = scoreTopics(text);
+  if (scores.length === 0) return null;
+
+  const best = scores[0];
+
+  // Check if user is switching topic
+  if (ctx.history.length > 0) {
+    const lastKey = ctx.history[ctx.history.length - 1].topicKey;
+    if (lastKey && best.key !== lastKey && best.score >= 1) {
+      // Topic change detected
+      return { key: best.key, topic: best.topic, changed: true };
+    }
+    if (lastKey === best.key) {
+      return { key: best.key, topic: best.topic, changed: false, continued: true };
+    }
+  }
+
+  return best.score >= 1 ? { key: best.key, topic: best.topic, changed: false } : null;
+}
+
+// ─── Emotion Response ──────────────────────────────────
+
+function getEmotionPrefix(emotion) {
+  return EMOTION_PREFIX[emotion] || '';
+}
+
+function buildEmotionalResponse(text) {
+  const emotion = detectEmotion(text);
+  if (!emotion) return { emotion: null, text: '' };
+
+  const prefix = EMOTION_PREFIX[emotion] || '';
+
+  // Also try to store this emotion in context
+  return { emotion, text: prefix };
+}
+
+// ─── Generate reply ────────────────────────────────────
+
+function buildReply(text) {
+  const userText = text.trim();
+
+  // 1. Detect emotion
+  const emotionResult = buildEmotionalResponse(userText);
+  const emotion = emotionResult.emotion;
+
+  // 2. Detect topic
+  const topicResult = detectTopicChange(userText);
+
+  // 3. Build reply
+  if (!topicResult) {
+    // No matching topic → use generic reply
+    let reply = pick(GENERIC_REPLIES);
+
+    // If there's emotion, prepend it
+    if (emotion && emotionResult.text) {
+      reply = emotionResult.text + '<br><br>' + reply;
+    }
+
+    // ~20% chance to ask a spontaneous follow-up
+    if (Math.random() < 0.2 && ctx.lastBot) {
+      reply += '<br><br>' + pick(['能告诉我更多吗？','你觉得呢？','你同意吗？']);
+    }
+
+    return reply;
+  }
+
+  const { topic, changed, continued } = topicResult;
+  const topicKey = topic.key;
+
+  // Determine depth level
+  if (!ctx.topicDepth[topicKey]) {
+    ctx.topicDepth[topicKey] = 0;
+  }
+
+  let depth = ctx.topicDepth[topicKey];
+
+  // If topic changed, reset to 0 or keep previous depth?
+  // Better: reset to 0 for new topic
+  if (changed) {
+    depth = 0;
+    ctx.topicDepth[topicKey] = 0;
+  }
+
+  // Clamp depth
+  const levelIndex = Math.min(depth, topic.depth.length - 1);
+  const level = topic.depth[levelIndex];
+
+  // Pick reply
+  let reply = pick(level.replies);
+
+  // Prepend emotion prefix if detected
+  if (emotion && emotionResult.text) {
+    reply = emotionResult.text + '<br><br>' + reply;
+  }
+
+  // Add follow-up question (~55% chance, higher on deeper levels)
+  const followUpChance = 0.45 + (levelIndex * 0.08);
+  if (Math.random() < followUpChance) {
+    const question = pick(level.followUps);
+    reply += '<br><br>' + question;
+  }
+
+  // Save context
+  ctx.topicDepth[topicKey] = depth + 1;
+
+  return reply;
+}
+
+// ─── Conversation Store ────────────────────────────────
 
 const STORAGE_KEY = 'adoer_conversations';
 
@@ -846,13 +1251,13 @@ function timeAgo(ts) {
   return days + '天前';
 }
 
-// ─── State ───────────────────────────────────────────────────
+// ─── State ─────────────────────────────────────────────
 
 let conversations = loadConvs();
 let currentId = null;
 let isLoading = false;
 
-// ─── DOM refs ────────────────────────────────────────────────
+// ─── DOM refs ─────────────────────────────────────────
 
 const $msg = document.getElementById('messages');
 const $input = document.getElementById('input');
@@ -865,7 +1270,7 @@ const $menuBtn = document.getElementById('menuBtn');
 const $themeBtn = document.getElementById('themeBtn');
 const $btnNew = document.getElementById('btnNew');
 
-// ─── UI functions ────────────────────────────────────────────
+// ─── UI functions ─────────────────────────────────────
 
 function scrollBottom() {
   $msg.scrollTop = $msg.scrollHeight;
@@ -887,6 +1292,7 @@ function addMessage(text, role) {
 }
 
 function addTyping() {
+  if (document.getElementById('typing-indicator')) return;
   const div = document.createElement('div');
   div.className = 'msg bot';
   div.id = 'typing-indicator';
@@ -905,7 +1311,7 @@ function removeSuggestions() {
 }
 
 function showSuggestions() {
-  $suggest.innerHTML = '';
+  if ($suggest.children.length > 0) return;
   const chips = ['我很在意别人的看法','我总是不自信','过去让我走不出来','我害怕改变','什么是课题分离？','怎样获得幸福？','我经常感到孤独'];
   chips.forEach(s => {
     const btn = document.createElement('button');
@@ -916,44 +1322,27 @@ function showSuggestions() {
 }
 
 function showEmpty() {
-  $msg.innerHTML = `
-    <div class="empty-state">
-      <div class="empty-icon">📖</div>
-      <h3>开始一段新的对话</h3>
-      <p>点击上方话题，或输入你的困惑，与哲人对话</p>
-    </div>`;
+  $msg.innerHTML = `<div class="empty-state"><div class="empty-icon">📖</div><h3>开始一段新的对话</h3><p>点击上方话题，或输入你的困惑，与哲人对话</p></div>`;
 }
 
 function renderConversations() {
   $convList.innerHTML = '';
   if (conversations.length === 0) {
-    $convList.innerHTML = `<div style="padding:24px 14px;text-align:center;color:var(--text-muted);font-size:13px;">暂无对话记录</div>`;
+    $convList.innerHTML = '<div style="padding:24px 14px;text-align:center;color:var(--text-muted);font-size:13px;">暂无对话记录</div>';
     return;
   }
-  // newest first
   const sorted = [...conversations].sort((a, b) => b.updatedAt - a.updatedAt);
   sorted.forEach(c => {
     const div = document.createElement('div');
     div.className = 'conv-item' + (c.id === currentId ? ' active' : '');
-    div.innerHTML = `
-      <button class="conv-del" data-id="${c.id}">✕</button>
-      <div class="conv-title">${c.title}</div>
-      <div class="conv-meta"><span>${timeAgo(c.updatedAt)}</span><span>${c.messages.length} 条消息</span></div>
-      <div class="conv-preview">${convPreview(c.messages)}</div>`;
-    div.addEventListener('click', e => {
-      if (e.target.closest('.conv-del')) return;
-      switchConv(c.id);
-    });
-    const delBtn = div.querySelector('.conv-del');
-    delBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      deleteConv(c.id);
-    });
+    div.innerHTML = `<button class="conv-del" data-id="${c.id}">✕</button><div class="conv-title">${c.title}</div><div class="conv-meta"><span>${timeAgo(c.updatedAt)}</span><span>${c.messages.length} 条消息</span></div><div class="conv-preview">${convPreview(c.messages)}</div>`;
+    div.addEventListener('click', e => { if (!e.target.closest('.conv-del')) switchConv(c.id); });
+    div.querySelector('.conv-del').addEventListener('click', e => { e.stopPropagation(); deleteConv(c.id); });
     $convList.appendChild(div);
   });
 }
 
-// ─── Conversation CRUD ───────────────────────────────────────
+// ─── Conversation CRUD ────────────────────────────────
 
 function newConv() {
   const c = { id: genId(), title: '新对话', messages: [], createdAt: Date.now(), updatedAt: Date.now() };
@@ -974,20 +1363,22 @@ function switchConv(id) {
 
   $msg.innerHTML = '';
   removeSuggestions();
+  ctx.history = [];
+  ctx.topicDepth = {};
+  ctx.lastBot = null;
+  ctx.totalExchanges = 0;
 
   if (c.messages.length === 0) {
-    // greet
     setTimeout(() => {
-      addMessage(pick(KB.greetings), 'bot');
+      const greeting = pick(GREETINGS);
+      addMessage(greeting, 'bot');
       showSuggestions();
       scrollBottom();
-      c.messages.push({ role: 'bot', text: KB.greetings[0], time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'}) });
-      c.greeted = true;
+      c.messages.push({ role: 'bot', text: greeting, time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'}) });
       saveConvs(conversations);
     }, 300);
   } else {
     c.messages.forEach(m => addMessage(m.text, m.role));
-    // show suggestions if only greeting
     if (c.messages.length <= 1 && c.messages[0]?.role === 'bot') showSuggestions();
     scrollBottom();
   }
@@ -1023,30 +1414,31 @@ function saveCurrentMessage(text, role) {
   renderConversations();
 }
 
-// ─── Reply ───────────────────────────────────────────────────
+// ─── Reply (core) ─────────────────────────────────────
 
 function reply(text) {
   if (!text.trim() || isLoading) return;
-
-  // ensure there's a current conversation
-  if (!currentId) { newConv(); }
+  if (!currentId) newConv();
 
   isLoading = true;
+  const userText = text.trim();
 
-  addMessage(text.trim(), 'user');
-  saveCurrentMessage(text.trim(), 'user');
+  addMessage(userText, 'user');
+  saveCurrentMessage(userText, 'user');
 
   $input.value = '';
   $send.disabled = true;
   removeSuggestions();
-
   addTyping();
 
-  const delay = 500 + Math.random() * 1200;
+  const delay = 600 + Math.random() * 1400;
 
   setTimeout(() => {
     removeTyping();
-    const answer = getReply(text.trim());
+    const answer = buildReply(userText);
+    ctx.lastBot = answer;
+    ctx.totalExchanges++;
+
     addMessage(answer, 'bot');
     saveCurrentMessage(answer, 'bot');
     isLoading = false;
@@ -1055,7 +1447,7 @@ function reply(text) {
   }, delay);
 }
 
-// ─── Theme ───────────────────────────────────────────────────
+// ─── Theme ────────────────────────────────────────────
 
 let dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 if (dark) document.documentElement.classList.add('dark');
@@ -1066,28 +1458,20 @@ $themeBtn.addEventListener('click', () => {
 });
 $themeBtn.textContent = dark ? '☾' : '☀';
 
-// ─── Events ──────────────────────────────────────────────────
+// ─── Events ──────────────────────────────────────────
 
 $send.addEventListener('click', () => reply($input.value));
 $input.addEventListener('keydown', e => { if (e.key === 'Enter') reply($input.value); });
 $btnNew.addEventListener('click', newConv);
-
-$menuBtn.addEventListener('click', () => {
-  $sidebar.classList.toggle('open');
-  $overlay.classList.toggle('show');
-});
+$menuBtn.addEventListener('click', () => { $sidebar.classList.toggle('open'); $overlay.classList.toggle('show'); });
 $overlay.addEventListener('click', closeSidebar);
 
-// ─── Init ────────────────────────────────────────────────────
+// ─── Init ────────────────────────────────────────────
 
 function init() {
-  // restore last conversation or show empty
   const sorted = [...conversations].sort((a, b) => b.updatedAt - a.updatedAt);
-  if (sorted.length > 0) {
-    switchConv(sorted[0].id);
-  } else {
-    newConv();
-  }
+  if (sorted.length > 0) switchConv(sorted[0].id);
+  else newConv();
   renderConversations();
 }
 
