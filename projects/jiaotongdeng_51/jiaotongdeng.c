@@ -44,12 +44,12 @@ volatile unsigned char disp_buf[4] = {0,0,0,0};
 unsigned char current_state = STATE_NS_GO;
 
 // 定时参数
-#define NS_GREEN  20
+#define NS_GREEN  10
 #define NS_YELLOW  3
-#define EW_GREEN  15
+#define EW_GREEN   5
 #define EW_YELLOW  3
-#define NS_TOTAL  (NS_GREEN + NS_YELLOW)  // 23
-#define EW_TOTAL  (EW_GREEN + EW_YELLOW)  // 18
+#define NS_TOTAL  (NS_GREEN + NS_YELLOW)  // 13
+#define EW_TOTAL  (EW_GREEN + EW_YELLOW)  // 8
 
 // 单个倒计时变量，两个数码管显示相同值
 unsigned char countdown = NS_TOTAL;
