@@ -1,0 +1,14 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+
+  "command": {
+    "analyze-image": {
+      "description": "Analyze an image file using Python (Pillow + OpenCV + EasyOCR) — extracts metadata, colors, edge analysis, and Chinese/English OCR text.",
+      "prompt": "Analyze the image at the given path. Use: python scripts/analyze_image.py <path>"
+    }
+  },
+
+  "skills": {
+    "paths": [".opencode/skills"]
+  }
+}
