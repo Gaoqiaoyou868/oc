@@ -7,13 +7,17 @@ import cv2
 import numpy as np
 
 EASYOCR_DIR = Path.home() / ".EasyOCR" / "model"
-EASYOCR_URL = "https://github.com/JaidedAI/EasyOCR/releases/download/v1.0"
+MODEL_URLS = {
+    "craft_mlt_25k.pth": "https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/craft_mlt_25k.zip",
+    "english_g2.pth": "https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/english_g2.zip",
+    "zh_sim_g2.pth": "https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/zh_sim_g2.zip",
+}
 
 
 def _models_cached() -> bool:
     if not EASYOCR_DIR.is_dir():
         return False
-    files = list(EASYOCR_DIR.iterdir())
+    files = [f for f in EASYOCR_DIR.iterdir() if f.suffix == ".pth"]
     return len(files) >= 3
 
 
@@ -32,37 +36,34 @@ _reader = _setup_easyocr()
 
 def download_models():
     """Download EasyOCR models with proxy support."""
-    import requests
+    import requests, zipfile, io
     EASYOCR_DIR.mkdir(parents=True, exist_ok=True)
-    models = [
-        ("craft_mlt_25k.pth", "detection"),
-        ("english_g2.pth", "recognition"),
-        ("zh_sim_g2.pth", "recognition (Chinese)"),
-    ]
     proxies = {
         "http": os.environ.get("HTTP_PROXY") or os.environ.get("http_proxy") or "",
         "https": os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy") or "",
     }
     ok = True
-    for fname, desc in models:
+    for fname, url in MODEL_URLS.items():
         dest = EASYOCR_DIR / fname
         if dest.exists() and dest.stat().st_size > 100000:
-            print(f"[OK] {fname} ({desc}) already cached")
+            print(f"[OK] {fname} already cached")
             continue
-        url = f"{EASYOCR_URL}/{fname}"
-        print(f"Downloading {fname} ({desc}) ...")
+        print(f"Downloading {fname} ...")
         try:
-            r = requests.get(url, proxies=proxies if any(proxies.values()) else None, timeout=120)
+            r = requests.get(url, proxies=proxies if any(proxies.values()) else None, timeout=120, stream=True)
             r.raise_for_status()
-            dest.write_bytes(r.content)
-            print(f"  -> saved {len(r.content)} bytes")
+            z = zipfile.ZipFile(io.BytesIO(r.content))
+            z.extract(fname, EASYOCR_DIR)
+            z.close()
+            print(f"  -> saved {dest.stat().st_size} bytes")
         except Exception as e:
             print(f"  FAILED: {e}")
             ok = False
     if ok:
-        print("All models downloaded. Run the script again for OCR.")
+        print("All models downloaded. Restart opencode and try again.")
     else:
-        print("Some models failed. Connect VPN and run: python scripts/analyze_image.py --download-models")
+        print("Some models failed. Connect VPN and run:")
+        print("  python scripts/analyze_image.py --download-models")
 
 
 def analyze(path: str) -> dict:
