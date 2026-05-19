@@ -3,9 +3,12 @@
 typedef unsigned int u16;
 typedef unsigned char u8;
 
-// 普中A2: K1=RESET键 → 按重启 → 自动发 "Hello 齐继浩 094424128"
+// 普中A2: K1=RESET键 → 按重启 → 自动发 Hello
+// 同时：收到任何串口字符 → 回复 Hello
 
 u8 code hello_msg[] = "Hello 齐继浩 094424128\r\n";
+
+bit send_hello = 1;
 
 void Delay_ms(u16 ms)
 {
@@ -21,34 +24,12 @@ void UART_SendByte(u8 dat)
     TI = 0;
 }
 
-void main(void)
+void UART_SendString(void)
 {
     u8 i;
-
-    P0 = 0xFF;
-    P1 = 0x00;
-    P2 = 0xFF;
-    P3 = 0xFF;
-
-    TMOD &= 0x0F;
-    TMOD |= 0x20;
-    TH1 = 0xFD;  TL1 = 0xFD;
-    TR1 = 1;
-
-    SCON = 0x50;  PCON = 0x00;
-    TI = 0;
-    RI = 0;
-
-    Delay_ms(50);
-
     for (i = 0; hello_msg[i] != '\0'; i++) {
         UART_SendByte(hello_msg[i]);
     }
-
-    ES = 1;
-    EA = 1;
-
-    while (1);
 }
 
 void UART_ISR(void) interrupt 4
@@ -60,6 +41,8 @@ void UART_ISR(void) interrupt 4
     if (RI) {
         ch = SBUF;
         RI = 0;
+
+        send_hello = 1;
 
         if (ch == '1' || ch == '2') {
             cmd[idx++] = ch;
@@ -85,5 +68,34 @@ void UART_ISR(void) interrupt 4
     }
     if (TI) {
         TI = 0;
+    }
+}
+
+void main(void)
+{
+    P0 = 0xFF;
+    P1 = 0x00;
+    P2 = 0xFF;
+    P3 = 0xFF;
+
+    TMOD &= 0x0F;
+    TMOD |= 0x20;
+    TH1 = 0xFD;  TL1 = 0xFD;
+    TR1 = 1;
+
+    SCON = 0x50;  PCON = 0x00;
+    TI = 0;
+    RI = 0;
+
+    Delay_ms(50);
+
+    ES = 1;
+    EA = 1;
+
+    while (1) {
+        if (send_hello) {
+            send_hello = 0;
+            UART_SendString();
+        }
     }
 }
