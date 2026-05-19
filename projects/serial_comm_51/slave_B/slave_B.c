@@ -19,9 +19,11 @@ void Delay_ms(u16 ms)
 
 void UART_SendByte(u8 dat)
 {
+    ES = 0;
     SBUF = dat;
     while (!TI);
     TI = 0;
+    ES = 1;
 }
 
 void UART_SendString(void)
