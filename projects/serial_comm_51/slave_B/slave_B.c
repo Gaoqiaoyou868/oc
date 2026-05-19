@@ -3,9 +3,8 @@
 typedef unsigned int u16;
 typedef unsigned char u8;
 
-sbit K1 = P3^2;
-
-// 普中A2: D1=P0.0, D2=P0.1（低电平亮）
+// 普中A2: K1=RESET键（不是GPIO），按重启后自动发字符串
+// D1=P0.0, D2=P0.1（低电平亮）
 // 8×8点阵共用P0总线，列会跟着亮，属正常现象
 
 u8 code hello_msg[] = "Hello 齐继浩 094424128\r\n";
@@ -32,18 +31,6 @@ void UART_SendString(void)
     }
 }
 
-// 选做(1): K1按下 → 发送"Hello 齐继浩 094424128"
-void INT0_ISR(void) interrupt 0
-{
-    Delay_ms(20);
-    if (K1 == 0) {
-        UART_SendString();
-        while (K1 == 0);
-        Delay_ms(20);
-    }
-}
-
-// 选做(2): 串口命令 "11"/"10"/"21"/"20" → 控制 D1/D2
 void UART_ISR(void) interrupt 4
 {
     static u8 cmd[3];
@@ -64,19 +51,22 @@ void UART_ISR(void) interrupt 4
         }
 
         if (idx == 2) {
-            if (cmd[0] == '1' && cmd[1] == '1') {
-                P0 &= 0xFE;   // D1亮 (P0.0=0)
-            } else if (cmd[0] == '1' && cmd[1] == '0') {
-                P0 |= 0x01;   // D1灭 (P0.0=1)
-            } else if (cmd[0] == '2' && cmd[1] == '1') {
-                P0 &= 0xFD;   // D2亮 (P0.1=0)
-            } else if (cmd[0] == '2' && cmd[1] == '0') {
-                P0 |= 0x02;   // D2灭 (P0.1=1)
-            }
+            if (cmd[0] == '1' && cmd[1] == '1')
+                P0 &= 0xFE;      // D1亮 (P0.0=0)
+            else if (cmd[0] == '1' && cmd[1] == '0')
+                P0 |= 0x01;      // D1灭 (P0.0=1)
+            else if (cmd[0] == '2' && cmd[1] == '1')
+                P0 &= 0xFD;      // D2亮 (P0.1=0)
+            else if (cmd[0] == '2' && cmd[1] == '0')
+                P0 |= 0x02;      // D2灭 (P0.1=1)
             idx = 0;
         }
 
         if (idx >= 3) idx = 0;
+    }
+
+    if (TI) {
+        TI = 0;
     }
 }
 
@@ -93,10 +83,14 @@ void main(void)
     TR1 = 1;
 
     SCON = 0x50;  PCON = 0x00;
+
+    TI = 0;
+    RI = 0;
+
+    // 选做(1): K1=RESET, 按重启 → 自动发消息
+    UART_SendString();
+
     ES = 1;
-
-    IT0 = 1;  EX0 = 1;
-
     EA = 1;
 
     while (1);
