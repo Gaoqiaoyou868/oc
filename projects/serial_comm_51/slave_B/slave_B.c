@@ -3,13 +3,13 @@
 typedef unsigned int u16;
 typedef unsigned char u8;
 
-sbit KEY3 = P3^2;
-sbit LED1 = P2^6;
-sbit LED2 = P2^7;
+u8 code seg_CA[10] = {
+    0xC0, 0xF9, 0xA4, 0xB0,
+    0x99, 0x92, 0x82, 0xF8,
+    0x80, 0x90
+};
 
-u8 key_count = 0;
-u8 rx_buf[4];
-u8 rx_idx = 0;
+u8 disp_buf[2] = {0xFF, 0xFF};
 
 void Delay_ms(u16 ms)
 {
@@ -25,68 +25,90 @@ void UART_SendByte(u8 dat)
     TI = 0;
 }
 
-void INT0_ISR(void) interrupt 0
+void Timer0_ISR(void) interrupt 1
 {
-    Delay_ms(20);
-    if (KEY3 == 0) {
-        key_count++;
-        if (key_count > 99) key_count = 0;
-        UART_SendByte(key_count);
-        while (KEY3 == 0);
-        Delay_ms(20);
+    static u8 scan = 0;
+
+    TH0 = 0xF8;  TL0 = 0xCD;
+
+    P0 = 0xFF;
+    P1 = (P1 & 0xF8);
+
+    if (scan == 0) {
+        if (disp_buf[0] != 0xFF) {
+            P0 = disp_buf[0];
+            P1 = (P1 & 0xF8) | 0x00;
+        }
+    } else {
+        if (disp_buf[1] != 0xFF) {
+            P0 = disp_buf[1];
+            P1 = (P1 & 0xF8) | 0x01;
+        }
     }
+
+    scan = !scan;
 }
 
 void UART_ISR(void) interrupt 4
 {
+    static u8 cmd[3];
+    static u8 idx = 0;
     u8 ch;
 
     if (RI) {
         ch = SBUF;
         RI = 0;
 
-        if (ch == 0x11) {
-            LED1 = 0;
-            LED2 = 1;
-            rx_idx = 0;
-            return;
-        }
-        if (ch == 0x22) {
-            LED1 = 1;
-            LED2 = 1;
-            rx_idx = 0;
-            return;
-        }
-
-        if (ch >= '0' && ch <= '9') {
-            if (rx_idx < 3)
-                rx_buf[rx_idx++] = ch;
+        if (ch == '1') {
+            cmd[idx++] = ch;
+        } else if (ch == '2') {
+            cmd[idx++] = ch;
+        } else if (ch == '0' && idx > 0) {
+            cmd[idx++] = ch;
         } else {
-            rx_idx = 0;
+            idx = 0;
             return;
         }
 
-        if (rx_idx == 2) {
-            if (rx_buf[0] == '1' && rx_buf[1] == '1')
-                LED1 = 0;
-            else if (rx_buf[0] == '1' && rx_buf[1] == '0')
-                LED1 = 1;
-            else if (rx_buf[0] == '2' && rx_buf[1] == '1')
-                LED2 = 0;
-            else if (rx_buf[0] == '2' && rx_buf[1] == '0')
-                LED2 = 1;
-            rx_idx = 0;
+        if (idx == 2) {
+            UART_SendByte(cmd[0]);
+            UART_SendByte(cmd[1]);
+
+            if (cmd[0] == '1' && cmd[1] == '1') {
+                disp_buf[0] = seg_CA[1];
+                disp_buf[1] = seg_CA[1];
+            } else if (cmd[0] == '1' && cmd[1] == '0') {
+                disp_buf[0] = seg_CA[1];
+                disp_buf[1] = seg_CA[0];
+            } else if (cmd[0] == '2' && cmd[1] == '1') {
+                disp_buf[0] = seg_CA[2];
+                disp_buf[1] = seg_CA[1];
+            } else if (cmd[0] == '2' && cmd[1] == '0') {
+                disp_buf[0] = seg_CA[2];
+                disp_buf[1] = seg_CA[0];
+            }
+
+            idx = 0;
         }
 
-        if (rx_idx >= 3) rx_idx = 0;
+        if (idx >= 3) idx = 0;
     }
 }
 
 void main(void)
 {
+    P0 = 0xFF;
+    P1 = 0x00;
     P2 = 0xFF;
-    key_count = 0;
-    rx_idx = 0;
+    P3 = 0xFF;
+
+    disp_buf[0] = 0xFF;
+    disp_buf[1] = 0xFF;
+
+    TMOD &= 0xF0;
+    TMOD |= 0x01;
+    TH0 = 0xF8;  TL0 = 0xCD;
+    ET0 = 1;  TR0 = 1;
 
     TMOD &= 0x0F;
     TMOD |= 0x20;
@@ -95,11 +117,6 @@ void main(void)
 
     SCON = 0x50;  PCON = 0x00;
     ES = 1;
-
-    IT0 = 1;  EX0 = 1;
-
-    PX0 = 1;
-    PS = 0;
 
     EA = 1;
 

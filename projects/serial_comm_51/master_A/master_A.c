@@ -5,8 +5,8 @@ typedef unsigned char u8;
 
 sbit KEY1 = P3^2;
 sbit KEY2 = P3^3;
-sbit SEG_TENS = P1^0;
-sbit SEG_UNITS = P1^1;
+// 普中A2: 7SEG经74HC138驱动 (P1.0=A, P1.1=B, P1.2=C)
+// Y0=十位 (P1=0x00), Y1=个位 (P1=0x01)
 
 u8 code seg_CA[10] = {
     0xC0, 0xF9, 0xA4, 0xB0,
@@ -56,17 +56,16 @@ void Timer0_ISR(void) interrupt 1
 
     TH0 = 0xF8;  TL0 = 0xCD;
 
-    P0 = 0xFF;
-    SEG_TENS = 0;
-    SEG_UNITS = 0;
+    P0 = 0xFF;                // 消隐
+    P1 = (P1 & 0xF8);         // 关位选 (138: A/B/C=0)
 
     scan = !scan;
     if (scan) {
         P0 = seg_CA[disp_val / 10];
-        SEG_TENS = 1;
+        P1 = (P1 & 0xF8) | 0x00;  // 138: Y0 → 十位
     } else {
         P0 = seg_CA[disp_val % 10];
-        SEG_UNITS = 1;
+        P1 = (P1 & 0xF8) | 0x01;  // 138: Y1 → 个位
     }
 }
 
