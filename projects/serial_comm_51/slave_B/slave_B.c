@@ -3,12 +3,12 @@
 typedef unsigned int u16;
 typedef unsigned char u8;
 
-// 普中A2: K1=RESET键 → 按重启 → 自动发 Hello
-// 同时：收到任何串口字符 → 回复 Hello
+sbit K1 = P3^2;
+
+// 选做(1): K1(P3.2)按下 → 发送 "Hello 齐继浩 094424128"
+// 选做(2): 串口发"11"/"10"/"21"/"20" → 控制 D1/D2
 
 u8 code hello_msg[] = "Hello 齐继浩 094424128\r\n";
-
-bit send_hello = 1;
 
 void Delay_ms(u16 ms)
 {
@@ -34,6 +34,16 @@ void UART_SendString(void)
     }
 }
 
+void INT0_ISR(void) interrupt 0
+{
+    Delay_ms(20);
+    if (K1 == 0) {
+        UART_SendString();
+        while (K1 == 0);
+        Delay_ms(20);
+    }
+}
+
 void UART_ISR(void) interrupt 4
 {
     static u8 cmd[3];
@@ -43,8 +53,6 @@ void UART_ISR(void) interrupt 4
     if (RI) {
         ch = SBUF;
         RI = 0;
-
-        send_hello = 1;
 
         if (ch == '1' || ch == '2') {
             cmd[idx++] = ch;
@@ -68,9 +76,6 @@ void UART_ISR(void) interrupt 4
         }
         if (idx >= 3) idx = 0;
     }
-    if (TI) {
-        TI = 0;
-    }
 }
 
 void main(void)
@@ -89,15 +94,11 @@ void main(void)
     TI = 0;
     RI = 0;
 
-    Delay_ms(50);
+    IT0 = 1;
+    EX0 = 1;
 
     ES = 1;
     EA = 1;
 
-    while (1) {
-        if (send_hello) {
-            send_hello = 0;
-            UART_SendString();
-        }
-    }
+    while (1);
 }
