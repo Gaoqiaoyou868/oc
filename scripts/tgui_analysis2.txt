@@ -1,0 +1,16 @@
+﻿tgKeyboardShortcuts.xml CONTEXT:
+妤撴暫鐚€鐟ュ崯绌〆鏁冲酱鎱斾ア鎽ˉ鐚€鐟ヤ厽鐟靛嵂绌〆鐣傜懘婀厒鏁崇寑鐟ュ暉鏁虫鐣虫薄鐟撴惫鋲ユ崱鋶悲鐗攢鏁剁懏鎱堟懏鏁瑀鎽″饯妗冩崶鏁崵鎱ㄦ澁鎽ユ剙鎽や崯妤鐚€鐟ュ憻鎵＄憮鐏皜婀╀鲍鎵℃饱妤屾姹冩崺鏁暏鏁剁懏鎱堟懏鏁瑀鎽″饯妤屾姹冩崺鏁玠妤撴暫F娼冪懏妤℃暜鋶叉汞鐗存悲鐚€鐟ヤ厽鐟靛嵂鎱ｆ暚妤勬暛鐛僵鐛寑鐟ヤ厽鐟靛嵂鎱ｆ暚娼嶆暏鋭€鐟靛嵂鎱ｆ暚娼嶆暏鐚€鐟ヤ崯妤攻鍗寸┅e鏁у酱娼冪懏娼茬崿鋵€婀壌姹絻姹崶妤存汞鋽€鎽箟鐟╁垁鐛ユ档浔ョァ鐣痶鏁愭櫜鐗杯绁＄暞t鎱嶆〈鍒€鐣懏鋵€姹壇錁€娼蹭叚鏉瞓鏁冲酱鎱傛娼冩浆r 膧岈€鍔犲瘑璁よ瘉閿欒锛岀櫥闄嗗け璐ャ€?
+鈩佽鍙栦俊鎭嚭閿欙紝璇疯仈绯诲ぉ姝ｅ叕鍙搞€?
+峒佽瘯鐢ㄦ湡宸茶繃锛岃鑱旂郴澶╂鍏徃銆?
+鈱佽瘯鐢ㄦ椂闂村凡鐢ㄥ敖锛岃鑱旂郴澶╂鍏徃銆?
+啶佸ぉ姝ｈ蒋浠垛磥\Autodesk\Revit\Addins鈱€\!!!TgUIApp.addin虁\啶€icon釡€ButnDllName釡€ButnCmdName釀€ButnText釀€ButnIcon釀€ButnTips虁
+詟_s詟_t嗉€Tch.xml釀€TG_ADDIN啶€name釋€SEPARATOR釀€SLIDEOUT軃鍛戒护缁勦type啶€灞傚彔鎸夐挳啶佷笅鎷夋寜閽寔GroupName嗉€FixItem啶€Hide啶€涓嬫媺鍒楄〃啶両con啶€Tips啶€鍛戒护缁勨€溹磥鈥濆姞杞藉け璐ャ€傑佸懡浠も€溙亁虁y啶€.bmp啶€.png \tgKeyboardShortcuts.xml釡€澶╂蹇嵎閿枃浠舵湭鎵惧埌锛氞紒瀵煎叆澶╂蹇嵎閿渷璇ュ懡浠や細鑷姩灏嗗ぉ姝ｅ揩鎹烽敭瀵煎叆Revit
+娉細瀵煎叆杩囩▼涓紝Revit浼氳闂鍏ユ柟寮忥紝璇烽€夋嫨鈥滀笌鐜版湁蹇嵎閿缃悎骞垛€濋€夐」銆傕缁х画瀵煎叆詠鍙栨秷軄蹇嵎閿紒瀵煎叆蹇嵎閿枃浠夺剚ComboBox啶€Edit啻€#32770嗉€Product啶€help釀€TRch.ini釡€鎵句笉鍒板府鍔╂枃妗ｏ紝 鍦?軄"浣嶇疆悚乀gUIApp.Properties.Resources釋€\TRch.ini岈€Tangent Revit CName軃0.0嗉€Version虁V岈€Build00000000啻€SubVer軃www啶€http釀€@Tangent Email詟QQ軃QQ缇ぼ?10 Phone軃Fax岽€漏 2015 Tangent Right釀€Registry釀€娉ㄥ唽琛ㄤ俊鎭崯鍧忥紒釀乗License啶€Mode軃鍗曟満鐗堒佺綉缁滅増軄涓汉鐗堘400-608-3158軄璇曠敤鐗堘寔InitStart峒€HideStartDialog虁1幛€TRConfig.ini *.ico嗉€http://嗉€mailto:釀€m_lCName釡€m_lHaspType啻€******釘€m_lVersion V10.0釘€m_labelURL軃缃戝潃:釋乵_lSubVer啶€瀛愮増鏈彿幛乵_labelEmail軃閭欢:幛乵_labelPhone軃鐢佃瘽:釀乵_lPhone釘€m_labelFax軃浼犵湡:啻?
+
+
+鏈壘鍒?CONTEXT:
+璇疯仈绯诲ぉ姝ｅ叕鍙搞€?
+鈱佽瘯鐢ㄦ椂闂村凡鐢ㄥ敖锛岃鑱旂郴澶╂鍏徃銆?
+啶佸ぉ姝ｈ蒋浠垛磥\Autodesk\Revit\Addins鈱€\!!!TgUIApp.addin虁\啶€icon釡€ButnDllName釡€ButnCmdName釀€ButnText釀€ButnIcon釀€ButnTips虁
+詟_s詟_t嗉€Tch.xml釀€TG_ADDIN啶€name釋€SEPARATOR釀€SLIDEOUT軃鍛戒护缁勦type啶€灞傚彔鎸夐挳啶佷笅鎷夋寜閽寔GroupName嗉€FixItem啶€Hide啶€涓嬫媺鍒楄〃啶両con啶€Tips啶€鍛戒护缁勨€溹磥鈥濆姞杞藉け璐ャ€傑佸懡浠も€溙亁虁y啶€.bmp啶€.png \tgKeyboardShortcuts.xml釡€澶╂蹇嵎閿枃浠舵湭鎵惧埌锛氞紒瀵煎叆澶╂蹇嵎閿渷璇ュ懡浠や細鑷姩灏嗗ぉ姝ｅ揩鎹烽敭瀵煎叆Revit
+娉細瀵煎叆杩囩▼涓紝Revit浼氳闂鍏ユ柟寮忥紝璇烽€夋嫨鈥滀笌鐜版湁蹇嵎閿缃悎骞垛€濋€夐」銆傕缁х画瀵煎叆詠鍙栨秷軄蹇嵎閿紒瀵煎叆蹇嵎閿枃浠夺剚ComboBox啶€Edit啻€#32770嗉€Product啶€help釀€TRch.ini釡€鎵句笉鍒板府鍔╂枃妗ｏ紝 鍦?軄"浣嶇疆悚乀gUIApp.Properties.Resources釋€\TRch.ini岈€Tangent Revit CName軃0.0嗉€Version虁V岈€Build00000000啻€SubVer軃www啶€http釀€@Tangent Email詟QQ軃QQ缇ぼ?10 Phone軃Fax岽€漏 2015 Tangent Right釀€Registry釀€娉ㄥ唽琛ㄤ俊鎭崯鍧忥紒釀乗License啶€Mode軃鍗曟満鐗堒佺綉缁滅増軄涓汉鐗堘400-608-3158軄璇曠敤鐗堘寔InitStart峒€HideStartDialog虁1幛€TRConfig.ini *.ico嗉€http://嗉€mailto:釀€m_lCName釡€m_lHaspType啻€******釘€m_lVersion V10.0釘€m_labelURL軃缃戝潃:釋乵_lS
