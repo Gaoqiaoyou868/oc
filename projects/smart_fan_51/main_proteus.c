@@ -162,25 +162,23 @@ sbit BEEP   = P2^5;
  * 写入方式: MOTOR_IN1=1, MOTOR_IN2=0 → 电机正转
  *          MOTOR_IN1=0, MOTOR_IN2=0 → 电机停止
  *
- * 1档(微风):   2ms/32ms ≈   6% 占空比 → 慢速
- * 5档(强风):  30ms/32ms ≈  94% 占空比 → 快速
+ * 1档(微风):   1ms/8ms  ≈  12% 占空比 → 慢速
+ * 5档(强风):   7ms/8ms  ≈  88% 占空比 → 快速
  */
-u8 code pwm_on_time[5] = {2, 6, 12, 20, 30};
-#define PWM_CYCLE  32  // PWM 周期 (ms)
+u8 code pwm_on_time[5] = {1, 2, 4, 6, 7};
+#define PWM_CYCLE  8   // PWM 周期 (ms) 125Hz
 
 /* --- 风速档位对应的 PWM 占空比 --- */
 /*
  * pwm_on_time[i] 表示第 (i+1) 档的导通时间 (ms)
  * 值越大 = 占空比越高 = 转速越快
  *
- * 档位与转速:
- *   1档(微风):  2ms/32ms =  6% → 慢速, 风力很小
- *   2档        :  6ms/32ms = 19%
- *   3档(中速)  : 12ms/32ms = 38%
- *   4档        : 20ms/32ms = 63%
- *   5档(强风)  : 30ms/32ms = 94% → 快速, 风力强劲
- *
- * 1档和5档相差约 15 倍, 视觉差异非常明显
+ * 档位与转速 (125Hz PWM):
+ *   1档(微风):  1ms/8ms =  12% → 慢速
+ *   2档        :  2ms/8ms =  25%
+ *   3档(中速)  :  4ms/8ms =  50%
+ *   4档        :  6ms/8ms =  75%
+ *   5档(强风)  :  7ms/8ms =  88% → 快速
  */
 
 /* --- 风类模式 --- */
@@ -486,20 +484,24 @@ u8 Key_Scan(void)
 
 /*******************************************************************************
  * 函数名  : Beep_Tick
- * 功能    : 短促提示音 (有源蜂鸣器, 拉低 50ms 即发声)
+ * 功能    : 短促提示音 (无源蜂鸣器, 2kHz 方波驱动 100ms)
  * 参数    : 无
  * 返回值  : 无
- * 说明    : 有源蜂鸣器: P2.5=0 → 电流流过内部振荡器 → 发声
- *           P2.5=1 → 无电流 → 静音
+ * 说明    : 无源蜂鸣器需方波驱动: P2.5 以 2kHz 翻转 100ms
+ *           Delay_10us(25) ≈ 0.25ms → 半周期 0.25ms → 频率 2kHz
+ *           200 次翻转 × 0.5ms = 100ms 时长
  *
- *           结束后 P2.5=1 (LCD_RW 读模式), 但下次 LCD 写操作
- *           会重新设为 0 (写模式), 无需担心
+ *           结束时 BEEP=0 (LCD_RW=0 写模式)
+ *           ★在按键/遥控操作后调用, 必须在 LCD 操作间隙调用
  *******************************************************************************/
 void Beep_Tick(void)
 {
-    BEEP = 0;                    // 有源蜂鸣器: 拉低即发声
-    Delay_ms(50);                // 持续 50ms
-    BEEP = 1;                    // 停止发声 (LCD_RW=1=读模式, 下次LCD写会重置)
+    u8 i;
+    for (i = 0; i < 200; i++) {
+        BEEP = !BEEP;
+        Delay_10us(25);          // ~0.25ms → 2kHz
+    }
+    BEEP = 0;                    // 200次翻转(偶数)回到0 → RW=0 写模式
 }
 
 /* ======================== 风扇系统控制 ======================== */
@@ -820,8 +822,8 @@ void main(void)
     /* ===== ② 变量初始化 ===== */
     fan_state        = FAN_OFF;
     fan_mode         = MODE_NORMAL;
-    speed_level      = 3;        // 默认 3 档 (中速)
-    effective_speed  = 2;        // 索引 2 → pwm_on_time[2]=12ms
+    speed_level      = 1;        // 默认 1 档 (微风)
+    effective_speed  = 0;        // 索引 0 → pwm_on_time[0]=1ms
     sys_tick         = 0;
     natural_tick     = 0;
     sleep_tick       = 0;
@@ -957,12 +959,12 @@ void main(void)
         /* ----- (c) 风扇运行时驱动直流电机 (PWM) ----- */
         if (fan_state == FAN_ON) {
             /*
-             * 软件 PWM 调速: 固定周期 32ms
+             * 软件 PWM 调速: 固定周期 8ms (125Hz)
              * 导通时间 = pwm_on_time[effective_speed]
              * 占空比越高 → 转速越快
              *
-             *   1档:   2ms 通 / 30ms 断 =  6% 占空比 → 慢速
-             *   5档:  30ms 通 /  2ms 断 = 94% 占空比 → 快速
+             *   1档: 1ms/8ms = 12% → 慢速
+             *   5档: 7ms/8ms = 88% → 快速
              *
              * 阻塞期间定时器 ISR 仍在运行:
              * - 系统节拍(sys_tick)正常累加
@@ -974,12 +976,12 @@ void main(void)
             Motor_Stop();
             Delay_ms(PWM_CYCLE - pwm_on_time[effective_speed]);
 
-            /* 睡眠风模式: D2 每次 PWM 周期翻转 */
+            /* 睡眠风模式: D2 每 0.5s 闪烁一次 (用 sys_tick 节拍) */
             if (fan_mode == MODE_SLEEP) {
-                LED_D2 = !LED_D2;
+                LED_D2 = (sys_tick / 10) % 2 ? 0 : 1;
             }
 
-            /* 自然风模式: D2 根据换档节奏闪烁 */
+            /* 自然风模式: D2 随风速变化闪烁, 每秒亮1秒/周期3秒 */
             if (fan_mode == MODE_NATURAL) {
                 LED_D2 = (natural_tick < TICKS_PER_SEC) ? 0 : 1;
             }
