@@ -1,104 +1,74 @@
-#include <reg51.h>
+#include <reg52.h>
+#include <stdio.h>
 
-typedef unsigned int u16;
-typedef unsigned char u8;
+sbit K1   = P3^2;
+sbit LED1 = P2^0;
+sbit LED2 = P2^1;
 
-sbit K1 = P3^2;
+#define XINGMING "齐继浩"
+#define XUEHAO   "094424128"
 
-// 选做(1): K1(P3.2)按下 → 发送 "Hello 齐继浩 094424128"
-// 选做(2): 串口发"11"/"10"/"21"/"20" → 控制 D1/D2
-
-u8 code hello_msg[] = "Hello 齐继浩 094424128\r\n";
-
-void Delay_ms(u16 ms)
+void Uart_Init(void)
 {
-    u16 i, j;
-    for (i = ms; i > 0; i--)
-        for (j = 120; j > 0; j--);
+    SCON = 0x50;
+    TMOD |= 0x20;
+    TH1  = 0xFD;
+    TL1  = 0xFD;
+    TR1  = 1;
+    EA   = 1;
+    ES   = 1;
 }
 
-void UART_SendByte(u8 dat)
+void Send_Byte(unsigned char dat)
 {
-    ES = 0;
     SBUF = dat;
-    while (!TI);
+    while(!TI);
     TI = 0;
-    ES = 1;
+}
+char putchar(char c)
+{
+    Send_Byte(c);
+    return c;
 }
 
-void UART_SendString(void)
+void Key1_Send(void)
 {
-    u8 i;
-    for (i = 0; hello_msg[i] != '\0'; i++) {
-        UART_SendByte(hello_msg[i]);
+    if(K1 == 0)
+    {
+        unsigned int t;
+        for(t=0;t<5000;t++);
+        if(K1 == 0)
+        {
+            printf("Hello, %s + %s\r\n",XINGMING,XUEHAO);
+            while(K1==0);
+        }
     }
 }
 
-void INT0_ISR(void) interrupt 0
+unsigned char dat_buf[2],num=0;
+void Uart_Int() interrupt 4
 {
-    Delay_ms(20);
-    if (K1 == 0) {
-        UART_SendString();
-        while (K1 == 0);
-        Delay_ms(20);
-    }
-}
-
-void UART_ISR(void) interrupt 4
-{
-    static u8 cmd[3];
-    static u8 idx = 0;
-    u8 ch;
-
-    if (RI) {
-        ch = SBUF;
-        RI = 0;
-
-        if (ch == '1' || ch == '2') {
-            cmd[idx++] = ch;
-        } else if (ch == '0' && idx > 0) {
-            cmd[idx++] = ch;
-        } else {
-            idx = 0;
-            return;
+    if(RI)
+    {
+        RI=0;
+        dat_buf[num++]=SBUF;
+        if(num>=2)
+        {
+            num=0;
+            if(dat_buf[0]=='1'&&dat_buf[1]=='1') LED1=0;
+            if(dat_buf[0]=='1'&&dat_buf[1]=='0') LED1=1;
+            if(dat_buf[0]=='2'&&dat_buf[1]=='1') LED2=0;
+            if(dat_buf[0]=='2'&&dat_buf[1]=='0') LED2=1;
         }
-
-        if (idx == 2) {
-            if (cmd[0] == '1' && cmd[1] == '1')
-                P0 &= 0xFE;
-            else if (cmd[0] == '1' && cmd[1] == '0')
-                P0 |= 0x01;
-            else if (cmd[0] == '2' && cmd[1] == '1')
-                P0 &= 0xFD;
-            else if (cmd[0] == '2' && cmd[1] == '0')
-                P0 |= 0x02;
-            idx = 0;
-        }
-        if (idx >= 3) idx = 0;
     }
 }
 
 void main(void)
 {
-    P0 = 0xFF;
-    P1 = 0x00;
-    P2 = 0xFF;
-    P3 = 0xFF;
-
-    TMOD &= 0x0F;
-    TMOD |= 0x20;
-    TH1 = 0xFD;  TL1 = 0xFD;
-    TR1 = 1;
-
-    SCON = 0x50;  PCON = 0x00;
-    TI = 0;
-    RI = 0;
-
-    IT0 = 1;
-    EX0 = 1;
-
-    ES = 1;
-    EA = 1;
-
-    while (1);
+    Uart_Init();
+    LED1=1;LED2=1;
+    while(1)
+    {
+        Key1_Send();
+    }
 }

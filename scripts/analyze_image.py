@@ -7,10 +7,11 @@ import cv2
 import numpy as np
 
 EASYOCR_DIR = Path.home() / ".EasyOCR" / "model"
+GH_MIRROR = os.environ.get("GH_MIRROR", "https://ghproxy.com/")
 MODEL_URLS = {
-    "craft_mlt_25k.pth": "https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/craft_mlt_25k.zip",
-    "english_g2.pth": "https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/english_g2.zip",
-    "zh_sim_g2.pth": "https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/zh_sim_g2.zip",
+    "craft_mlt_25k.pth": GH_MIRROR + "https://github.com/JaidedAI/EasyOCR/releases/download/pre-v1.1.6/craft_mlt_25k.zip",
+    "english_g2.pth": GH_MIRROR + "https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/english_g2.zip",
+    "zh_sim_g2.pth": GH_MIRROR + "https://github.com/JaidedAI/EasyOCR/releases/download/v1.3/zh_sim_g2.zip",
 }
 
 

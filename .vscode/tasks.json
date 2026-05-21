@@ -1,0 +1,31 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "OpenCode (OC)",
+      "type": "shell",
+      "command": "opencode",
+      "options": {
+        "cwd": "C:/Users/17537/Desktop/oc"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "group": "opencode",
+        "panel": "dedicated"
+      }
+    },
+    {
+      "label": "Claude Code (CC)",
+      "type": "shell",
+      "command": "claude",
+      "options": {
+        "cwd": "C:/Users/17537/Desktop/cc"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "group": "claude",
+        "panel": "dedicated"
+      }
+    }
+  ]
+}
