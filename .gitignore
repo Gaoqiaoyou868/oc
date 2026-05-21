@@ -2,3 +2,7 @@
 
 # Office temp files
 ~$*.docx
+
+# docx backup/temp files
+*_备份*.docx
+*_v2.docx
