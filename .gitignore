@@ -1,1 +1,4 @@
 .claude/
+
+# Office temp files
+~$*.docx
