@@ -1,0 +1,19 @@
+<svg width="1920" height="1080" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<filter id="s" x="-2%" y="-2%" width="104%" height="106%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.06"/></filter>
+<filter id="sl" x="-2%" y="-2%" width="104%" height="106%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.04"/></filter>
+<linearGradient id="h" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#165DFF"/><stop offset="100%" stop-color="#4080FF"/></linearGradient><linearGradient id="h2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#4E5969"/><stop offset="100%" stop-color="#4080FF"/></linearGradient>
+<marker id="a" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#165DFF"/></marker>
+</defs>
+<rect width="1920" height="1080" fill="#FFFFFF"/>
+<rect x="0" y="0" width="1920" height="100" fill="#F5F7FA"/>
+<rect x="0" y="100" width="1920" height="1" fill="#E5E6EB"/>
+<text x="80" y="58" font-family="Microsoft YaHei,sans-serif" font-size="26" font-weight="bold" fill="#1D2129">科技馆</text><text x="80" y="82" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">功能设计与技术指标</text><rect x="1820" y="16" width="44" height="28" rx="14" fill="#E8F0FF"/><text x="1836" y="36" font-family="Microsoft YaHei,sans-serif" font-size="13" font-weight="bold" fill="#165DFF">10/12</text>
+<rect x="40" y="124" width="1840" height="928" fill="#FAFBFC" rx="10" filter="url(#s)"/>
+<rect x="58" y="140" width="240" height="36" rx="8" fill="url(#h0)"/>
+<text x="74" y="164" font-family="Microsoft YaHei,sans-serif" font-size="17" font-weight="bold" fill="#FFFFFF">建筑模型成果展示</text>
+
+<rect x="70" y="210" width="1780" height="810" rx="8" fill="#F0F1F3" stroke="#E5E6EB" stroke-width="1"/>
+<text x="860" y="600" font-family="Microsoft YaHei,sans-serif" font-size="24" fill="#C9CDD4">建筑模型成果展示</text>
+<text x="860" y="650" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#DEE0E4">（请插入图片）</text>
+<text x="80" y="1072" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#C9CDD4">来源：科技馆建筑设计 · 不学BIM</text></svg>

@@ -1,0 +1,31 @@
+<svg width="1920" height="1080" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<filter id="s" x="-2%" y="-2%" width="104%" height="106%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.06"/></filter>
+<filter id="sl" x="-2%" y="-2%" width="104%" height="106%"><feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.04"/></filter>
+<linearGradient id="h" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#165DFF"/><stop offset="100%" stop-color="#4080FF"/></linearGradient><linearGradient id="h2" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#4E5969"/><stop offset="100%" stop-color="#4080FF"/></linearGradient>
+<marker id="a" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,10 3.5,0 7" fill="#165DFF"/></marker>
+</defs>
+<rect width="1920" height="1080" fill="#FFFFFF"/>
+<rect x="0" y="0" width="1920" height="100" fill="#F5F7FA"/>
+<rect x="0" y="100" width="1920" height="1" fill="#E5E6EB"/>
+<text x="80" y="58" font-family="Microsoft YaHei,sans-serif" font-size="26" font-weight="bold" fill="#1D2129">科技馆</text><text x="80" y="82" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">功能设计与技术指标</text><rect x="1820" y="16" width="44" height="28" rx="14" fill="#E8F0FF"/><text x="1836" y="36" font-family="Microsoft YaHei,sans-serif" font-size="13" font-weight="bold" fill="#165DFF">2/12</text>
+<rect x="40" y="124" width="440" height="928" fill="#FAFBFC" rx="10" filter="url(#s)"/>
+<rect x="58" y="140" width="200" height="36" rx="8" fill="url(#h0)"/>
+<text x="74" y="164" font-family="Microsoft YaHei,sans-serif" font-size="17" font-weight="bold" fill="#FFFFFF">目录 CONTENTS</text>
+<rect x="60" y="200" width="420" height="820" fill="#FFFFFF" rx="8"/>
+    <rect x="60" y="200" width="420" height="340" rx="8" fill="url(#h0)"/>
+    <text x="120" y="380" font-family="Microsoft YaHei,sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF">01</text>
+    <text x="120" y="450" font-family="Microsoft YaHei,sans-serif" font-size="22" font-weight="bold" fill="#1D2129">团队介绍</text>
+    <text x="120" y="510" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#86909C">团队成员</text><text x="120" y="535" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#86909C">学校简介</text><rect x="520" y="200" width="420" height="820" fill="#FFFFFF" rx="8"/>
+    <rect x="520" y="200" width="420" height="340" rx="8" fill="url(#h0)"/>
+    <text x="580" y="380" font-family="Microsoft YaHei,sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF">02</text>
+    <text x="580" y="450" font-family="Microsoft YaHei,sans-serif" font-size="22" font-weight="bold" fill="#1D2129">工程概况</text>
+    <text x="580" y="510" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#86909C">经济技术指标</text><text x="580" y="535" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#86909C">建筑功能</text><rect x="980" y="200" width="420" height="820" fill="#FFFFFF" rx="8"/>
+    <rect x="980" y="200" width="420" height="340" rx="8" fill="url(#h0)"/>
+    <text x="1040" y="380" font-family="Microsoft YaHei,sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF">03</text>
+    <text x="1040" y="450" font-family="Microsoft YaHei,sans-serif" font-size="22" font-weight="bold" fill="#1D2129">方案说明</text>
+    <text x="1040" y="510" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#86909C">设计理念</text><text x="1040" y="535" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#86909C">方案细节</text><rect x="1440" y="200" width="420" height="820" fill="#FFFFFF" rx="8"/>
+    <rect x="1440" y="200" width="420" height="340" rx="8" fill="url(#h0)"/>
+    <text x="1500" y="380" font-family="Microsoft YaHei,sans-serif" font-size="48" font-weight="bold" fill="#FFFFFF">04</text>
+    <text x="1500" y="450" font-family="Microsoft YaHei,sans-serif" font-size="22" font-weight="bold" fill="#1D2129">成果展示</text>
+    <text x="1500" y="510" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#86909C">模型展示</text><text x="1500" y="535" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#86909C">渲染视频</text><text x="80" y="1072" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#C9CDD4">来源：科技馆建筑设计 · 不学BIM</text></svg>

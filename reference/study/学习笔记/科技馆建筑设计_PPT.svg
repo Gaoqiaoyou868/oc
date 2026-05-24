@@ -6,10 +6,7 @@
     <filter id="shadow-light" x="-2%" y="-2%" width="104%" height="106%">
       <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.04"/>
     </filter>
-    <marker id="arrow-blue" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#165DFF"/>
-    </marker>
-    <linearGradient id="header-grad" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="hdr" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#165DFF"/>
       <stop offset="100%" stop-color="#4080FF"/>
     </linearGradient>
@@ -17,180 +14,167 @@
       <stop offset="0%" stop-color="#165DFF"/>
       <stop offset="100%" stop-color="#4080FF"/>
     </linearGradient>
-    <linearGradient id="bar-tra" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0%" stop-color="#C9CDD4"/>
-      <stop offset="100%" stop-color="#DDE0E5"/>
-    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#165DFF"/>
+    </marker>
   </defs>
 
-  <!-- 背景 -->
   <rect width="1920" height="1080" fill="#FFFFFF"/>
   <rect x="0" y="0" width="1920" height="100" fill="#F5F7FA"/>
   <rect x="0" y="100" width="1920" height="1" fill="#E5E6EB"/>
 
-  <!-- 标题 -->
-  <text x="80" y="58" font-family="Microsoft YaHei, sans-serif" font-size="26" font-weight="bold" fill="#1D2129">科技馆建筑设计 · 核心设计要点</text>
-  <text x="80" y="82" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#86909C">基于建筑设计说明提炼</text>
+  <text x="80" y="58" font-family="Microsoft YaHei,sans-serif" font-size="26" font-weight="bold" fill="#1D2129">科技馆建筑设计 · 设计要点</text>
+  <text x="80" y="82" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#86909C">功能分区 · 建筑形象 · 交通设计</text>
 
-  <!-- ============================================ -->
-  <!-- 左栏：功能分区与空间特色 -->
-  <!-- ============================================ -->
+  <rect x="1820" y="16" width="44" height="28" rx="14" fill="#E8F0FF"/>
+  <text x="1836" y="36" font-family="Microsoft YaHei,sans-serif" font-size="13" font-weight="bold" fill="#165DFF">1/2</text>
+
+  <!-- ===== 左栏 ===== -->
   <rect x="40" y="124" width="900" height="928" fill="#FAFBFC" rx="10" filter="url(#shadow)"/>
-  <rect x="58" y="140" width="220" height="36" rx="8" fill="url(#header-grad)"/>
-  <text x="74" y="164" font-family="Microsoft YaHei, sans-serif" font-size="17" font-weight="bold" fill="#FFFFFF">功能分区与空间特色</text>
+  <rect x="58" y="140" width="220" height="36" rx="8" fill="url(#hdr)"/>
+  <text x="74" y="164" font-family="Microsoft YaHei,sans-serif" font-size="17" font-weight="bold" fill="#FFFFFF">功能分区与空间特色</text>
 
-  <!-- 1. 五大功能体系 -->
-  <text x="70" y="216" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#1D2129">1. 五大功能体系</text>
-  <line x1="70" y1="224" x2="910" y2="224" stroke="#E5E6EB" stroke-width="1"/>
+  <!-- 五大功能 -->
+  <text x="70" y="216" font-family="Microsoft YaHei,sans-serif" font-size="15" font-weight="bold" fill="#1D2129">五大功能体系</text>
+  <line x1="70" y1="226" x2="910" y2="226" stroke="#E5E6EB" stroke-width="1"/>
 
-  <text x="82" y="254" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 公众展览区</text>
-  <text x="250" y="254" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#86909C">（核心 · 大展厅+小展厅+序厅）</text>
-  <text x="82" y="278" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 公共服务区</text>
-  <text x="250" y="278" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#86909C">（接待室+贵宾室+文创厅）</text>
-  <text x="82" y="302" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 会议办公区</text>
-  <text x="250" y="302" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#86909C">（会议室+办公室+值班室+广播室）</text>
-  <text x="82" y="326" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 后勤保障区</text>
-  <text x="250" y="326" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#86909C">（库房+储藏室+设备间）</text>
-  <text x="82" y="350" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 交通联系区</text>
-  <text x="250" y="350" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#86909C">（楼梯间+走廊）</text>
+  <text x="82" y="256" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 公众展览区（核心）</text>
+  <text x="300" y="256" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#86909C">大展厅+小展厅+序厅</text>
+  <text x="82" y="282" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 公共服务区</text>
+  <text x="300" y="282" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#86909C">接待室+贵宾室+文创厅</text>
+  <text x="82" y="308" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 会议办公区</text>
+  <text x="300" y="308" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#86909C">会议室+办公室+值班室+广播室</text>
+  <text x="82" y="334" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 后勤保障区</text>
+  <text x="300" y="334" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#86909C">库房+储藏室+设备间</text>
+  <text x="82" y="360" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 交通联系区</text>
+  <text x="300" y="360" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#86909C">楼梯间+走廊</text>
 
-  <!-- 2. 展厅核心参数 -->
-  <text x="70" y="410" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#1D2129">2. 展厅核心参数</text>
-  <line x1="70" y1="418" x2="910" y2="418" stroke="#E5E6EB" stroke-width="1"/>
+  <!-- 参数卡片 -->
+  <text x="70" y="410" font-family="Microsoft YaHei,sans-serif" font-size="15" font-weight="bold" fill="#1D2129">展厅核心参数</text>
+  <line x1="70" y1="420" x2="910" y2="420" stroke="#E5E6EB" stroke-width="1"/>
 
-  <rect x="70" y="436" width="168" height="80" rx="8" fill="#FFFFFF" filter="url(#shadow-light)" stroke="#E5E6EB" stroke-width="1"/>
-  <text x="108" y="465" font-family="Microsoft YaHei, sans-serif" font-size="24" font-weight="bold" fill="#165DFF">12 m</text>
-  <text x="84" y="502" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#86909C">最大跨度（无柱空间）</text>
+  <rect x="70" y="440" width="168" height="76" rx="8" fill="#FFFFFF" filter="url(#shadow-light)" stroke="#E5E6EB" stroke-width="1"/>
+  <text x="108" y="468" font-family="Microsoft YaHei,sans-serif" font-size="24" font-weight="bold" fill="#165DFF">12 m</text>
+  <text x="86" y="500" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#86909C">最大跨度（无柱）</text>
 
-  <rect x="266" y="436" width="168" height="80" rx="8" fill="#FFFFFF" filter="url(#shadow-light)" stroke="#E5E6EB" stroke-width="1"/>
-  <text x="308" y="465" font-family="Microsoft YaHei, sans-serif" font-size="24" font-weight="bold" fill="#165DFF">≥4.5 m</text>
-  <text x="288" y="502" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#86909C">展厅净高</text>
+  <rect x="258" y="440" width="168" height="76" rx="8" fill="#FFFFFF" filter="url(#shadow-light)" stroke="#E5E6EB" stroke-width="1"/>
+  <text x="300" y="468" font-family="Microsoft YaHei,sans-serif" font-size="24" font-weight="bold" fill="#165DFF">≥4.5 m</text>
+  <text x="284" y="500" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#86909C">展厅净高</text>
 
-  <rect x="462" y="436" width="168" height="80" rx="8" fill="#FFFFFF" filter="url(#shadow-light)" stroke="#E5E6EB" stroke-width="1"/>
-  <text x="510" y="465" font-family="Microsoft YaHei, sans-serif" font-size="24" font-weight="bold" fill="#165DFF">≥300</text>
-  <text x="524" y="502" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#86909C">大展厅面积（㎡）</text>
+  <rect x="446" y="440" width="168" height="76" rx="8" fill="#FFFFFF" filter="url(#shadow-light)" stroke="#E5E6EB" stroke-width="1"/>
+  <text x="490" y="468" font-family="Microsoft YaHei,sans-serif" font-size="24" font-weight="bold" fill="#165DFF">≥300</text>
+  <text x="508" y="500" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#86909C">大展厅面积（㎡）</text>
 
-  <text x="70" y="552" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">适配：大型展品陈列 + 灵活布展，适应不同展览需求</text>
+  <text x="70" y="548" font-family="Microsoft YaHei,sans-serif" font-size="13" fill="#4E5969">适配：大型展品陈列 + 灵活布展</text>
 
-  <!-- 3. 面积分配 -->
-  <text x="70" y="604" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#1D2129">3. 面积分配（按功能 · 使用面积约 2,023㎡）</text>
-  <line x1="70" y1="612" x2="910" y2="612" stroke="#E5E6EB" stroke-width="1"/>
+  <!-- 面积分配 -->
+  <text x="70" y="596" font-family="Microsoft YaHei,sans-serif" font-size="15" font-weight="bold" fill="#1D2129">面积分配（使用面积约 2,023㎡）</text>
+  <line x1="70" y1="606" x2="910" y2="606" stroke="#E5E6EB" stroke-width="1"/>
 
-  <rect x="70" y="645" width="830" height="34" rx="4" fill="#F0F1F3"/>
-  <rect x="70" y="645" width="473" height="34" rx="4" fill="url(#bar-exh)"/>
-  <rect x="543" y="645" width="97" height="34" rx="4" fill="#A9AEB8"/>
-  <rect x="640" y="645" width="46" height="34" rx="4" fill="#69B1FF"/>
-  <rect x="686" y="645" width="58" height="34" rx="4" fill="#4E5969"/>
-  <rect x="744" y="645" width="156" height="34" rx="4" fill="url(#bar-tra)"/>
+  <rect x="70" y="636" width="830" height="32" rx="4" fill="#F0F1F3"/>
+  <rect x="70" y="636" width="473" height="32" rx="4" fill="url(#bar-exh)"/>
+  <rect x="543" y="636" width="100" height="32" rx="4" fill="#86909C"/>
+  <rect x="643" y="636" width="42" height="32" rx="4" fill="#69B1FF"/>
+  <rect x="685" y="636" width="58" height="32" rx="4" fill="#4E5969"/>
+  <rect x="743" y="636" width="157" height="32" rx="4" fill="#C9CDD4"/>
 
-  <text x="70" y="708" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#165DFF">● 展厅区 1,149㎡</text>
-  <text x="70" y="726" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#86909C">占比 57%</text>
-  <text x="230" y="708" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#4E5969">● 办公区 236㎡</text>
-  <text x="230" y="726" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#86909C">12%</text>
-  <text x="370" y="708" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#69B1FF">● 服务区 113㎡</text>
-  <text x="370" y="726" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#86909C">5%</text>
-  <text x="500" y="708" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#4E5969">● 后勤 143㎡</text>
-  <text x="500" y="726" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#86909C">7%</text>
-  <text x="620" y="708" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#6B7785">● 交通 382㎡</text>
-  <text x="620" y="726" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#86909C">19%</text>
+  <text x="70" y="694" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#165DFF">● 展厅 1,149㎡</text>
+  <text x="70" y="712" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#86909C">57%</text>
+  <text x="220" y="694" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#4E5969">● 办公 236㎡</text>
+  <text x="220" y="712" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#86909C">12%</text>
+  <text x="355" y="694" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#69B1FF">● 服务 113㎡</text>
+  <text x="355" y="712" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#86909C">5%</text>
+  <text x="480" y="694" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#4E5969">● 后勤 143㎡</text>
+  <text x="480" y="712" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#86909C">7%</text>
+  <text x="600" y="694" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#6B7785">● 交通 382㎡</text>
+  <text x="600" y="712" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#86909C">19%</text>
 
-  <!-- 4. 楼层面积分布 -->
-  <text x="70" y="790" font-family="Microsoft YaHei, sans-serif" font-size="15" font-weight="bold" fill="#1D2129">4. 楼层面积分布</text>
-  <line x1="70" y1="798" x2="910" y2="798" stroke="#E5E6EB" stroke-width="1"/>
+  <!-- 楼层对比 -->
+  <rect x="70" y="748" width="830" height="28" rx="4" fill="#F0F1F3"/>
+  <text x="86" y="768" font-family="Microsoft YaHei,sans-serif" font-size="13" font-weight="bold" fill="#4E5969">1F</text>
+  <rect x="130" y="748" width="530" height="28" rx="4" fill="url(#bar-exh)"/>
+  <rect x="130" y="748" width="382" height="28" rx="4" fill="#C9CDD4"/>
+  <text x="140" y="768" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#FFFFFF">展厅 677㎡(72%)</text>
+  <text x="760" y="768" font-family="Microsoft YaHei,sans-serif" font-size="13" font-weight="bold" fill="#1D2129">942㎡</text>
 
-  <text x="70" y="828" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#4E5969">1F</text>
-  <rect x="120" y="816" width="770" height="20" rx="3" fill="#F0F1F3"/>
-  <rect x="120" y="816" width="554" height="20" rx="3" fill="url(#bar-exh)"/>
-  <rect x="120" y="816" width="216" height="20" rx="3" fill="url(#bar-tra)"/>
-  <text x="120" y="852" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#86909C">展厅 677㎡(72%)</text>
-  <text x="380" y="852" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#86909C">交通+其他 265㎡(28%)</text>
-  <text x="760" y="852" font-family="Microsoft YaHei, sans-serif" font-size="12" font-weight="bold" fill="#4E5969">942㎡</text>
+  <rect x="70" y="788" width="830" height="28" rx="4" fill="#F0F1F3"/>
+  <text x="86" y="808" font-family="Microsoft YaHei,sans-serif" font-size="13" font-weight="bold" fill="#4E5969">2F</text>
+  <rect x="130" y="788" width="472" height="28" rx="4" fill="url(#bar-exh)"/>
+  <rect x="130" y="788" width="220" height="28" rx="4" fill="#86909C"/>
+  <rect x="350" y="788" width="50" height="28" rx="4" fill="#69B1FF"/>
+  <rect x="400" y="788" width="65" height="28" rx="4" fill="#4E5969"/>
+  <rect x="465" y="788" width="107" height="28" rx="4" fill="#C9CDD4"/>
+  <text x="140" y="808" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#FFFFFF">展厅 472㎡(44%)</text>
+  <text x="760" y="808" font-family="Microsoft YaHei,sans-serif" font-size="13" font-weight="bold" fill="#1D2129">1,081㎡</text>
 
-  <text x="70" y="888" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#4E5969">2F</text>
-  <rect x="120" y="876" width="770" height="20" rx="3" fill="#F0F1F3"/>
-  <rect x="120" y="876" width="362" height="20" rx="3" fill="url(#bar-exh)"/>
-  <rect x="482" y="876" width="164" height="20" rx="3" fill="#A9AEB8"/>
-  <rect x="646" y="876" width="68" height="20" rx="3" fill="#69B1FF"/>
-  <rect x="714" y="876" width="89" height="20" rx="3" fill="#4E5969"/>
-  <rect x="803" y="876" width="87" height="20" rx="3" fill="url(#bar-tra)"/>
-  <text x="120" y="912" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#86909C">展厅 472㎡(44%)</text>
-  <text x="370" y="912" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#86909C">办公 214㎡</text>
-  <text x="530" y="912" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#86909C">服务 88㎡</text>
-  <text x="640" y="912" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#86909C">后勤 116㎡</text>
-  <text x="760" y="912" font-family="Microsoft YaHei, sans-serif" font-size="12" font-weight="bold" fill="#4E5969">1,081㎡</text>
-
-  <!-- ============================================ -->
-  <!-- 右栏：建筑形象与交通设计 -->
-  <!-- ============================================ -->
+  <!-- ===== 右栏 ===== -->
   <rect x="980" y="124" width="900" height="928" fill="#FAFBFC" rx="10" filter="url(#shadow)"/>
-  <rect x="998" y="140" width="220" height="36" rx="8" fill="url(#header-grad)"/>
-  <text x="1014" y="164" font-family="Microsoft YaHei, sans-serif" font-size="17" font-weight="bold" fill="#FFFFFF">建筑形象与交通设计</text>
+  <rect x="998" y="140" width="220" height="36" rx="8" fill="url(#hdr)"/>
+  <text x="1014" y="164" font-family="Microsoft YaHei,sans-serif" font-size="17" font-weight="bold" fill="#FFFFFF">建筑形象与交通设计</text>
 
-  <!-- 1. 立面设计 -->
-  <text x="1010" y="216" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#1D2129">1. 立面设计概念</text>
-  <line x1="1010" y1="224" x2="1850" y2="224" stroke="#E5E6EB" stroke-width="1"/>
+  <!-- 立面 -->
+  <text x="1010" y="216" font-family="Microsoft YaHei,sans-serif" font-size="15" font-weight="bold" fill="#1D2129">立面设计</text>
+  <line x1="1010" y1="226" x2="1850" y2="226" stroke="#E5E6EB" stroke-width="1"/>
 
-  <text x="1022" y="254" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 造型母题：以几何图形为母题，简洁体块错位布置</text>
-  <text x="1022" y="278" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 核心主材：</text>
-  <text x="1042" y="302" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">白色大理石 + Low-E 中空玻璃幕墙（6+12A+6）</text>
-  <text x="1022" y="330" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 入口雨棚：钢框架 + 白色 PTFE 膜材悬挑雨棚</text>
-  <text x="1022" y="358" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 室内设计：灰白主调 + 线性灯光 + 智能导视系统</text>
-  <text x="1022" y="386" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 色彩策略：灰白色为主色调，强化科技馆识别性</text>
+  <text x="1022" y="256" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 造型：几何图形母题，简洁体块错位布置</text>
+  <text x="1022" y="286" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 主材：白色大理石 + Low-E中空玻璃（6+12A+6）</text>
+  <text x="1022" y="316" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 雨棚：钢框架 + PTFE膜材悬挑雨棚</text>
+  <text x="1022" y="346" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 室内：灰白主调 + 线性灯光 + 智能导视</text>
 
-  <!-- 材料表 -->
-  <text x="1022" y="426" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">主要部位材料</text>
-  <line x1="1010" y1="438" x2="1850" y2="438" stroke="#E5E6EB" stroke-width="1"/>
+  <!-- 材料卡片 -->
+  <rect x="1022" y="380" width="195" height="78" rx="6" fill="#FFFFFF" stroke="#E5E6EB" stroke-width="1" filter="url(#shadow-light)"/>
+  <text x="1036" y="404" font-family="Microsoft YaHei,sans-serif" font-size="13" font-weight="bold" fill="#1D2129">外墙主面</text>
+  <text x="1036" y="424" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#86909C">白色大理石</text>
+  <text x="1036" y="444" font-family="Microsoft YaHei,sans-serif" font-size="10" fill="#C9CDD4">高强、科技感</text>
 
-  <rect x="1022" y="452" width="196" height="80" rx="6" fill="#FFFFFF" stroke="#E5E6EB" stroke-width="1" filter="url(#shadow-light)"/>
-  <text x="1036" y="478" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">外墙主面</text>
-  <text x="1036" y="500" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#86909C">白色大理石</text>
-  <text x="1036" y="518" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#C9CDD4">高强、科技感、便于造型</text>
+  <rect x="1240" y="380" width="195" height="78" rx="6" fill="#FFFFFF" stroke="#E5E6EB" stroke-width="1" filter="url(#shadow-light)"/>
+  <text x="1254" y="404" font-family="Microsoft YaHei,sans-serif" font-size="13" font-weight="bold" fill="#1D2129">幕墙系统</text>
+  <text x="1254" y="424" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#86909C">Low-E中空玻璃</text>
+  <text x="1254" y="444" font-family="Microsoft YaHei,sans-serif" font-size="10" fill="#C9CDD4">节能保温</text>
 
-  <rect x="1240" y="452" width="196" height="80" rx="6" fill="#FFFFFF" stroke="#E5E6EB" stroke-width="1" filter="url(#shadow-light)"/>
-  <text x="1254" y="478" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">幕墙系统</text>
-  <text x="1254" y="500" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#86909C">Low-E 中空玻璃</text>
-  <text x="1254" y="518" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#C9CDD4">节能保温、通透明亮</text>
+  <rect x="1458" y="380" width="195" height="78" rx="6" fill="#FFFFFF" stroke="#E5E6EB" stroke-width="1" filter="url(#shadow-light)"/>
+  <text x="1472" y="404" font-family="Microsoft YaHei,sans-serif" font-size="13" font-weight="bold" fill="#1D2129">入口雨棚</text>
+  <text x="1472" y="424" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#86909C">钢框架+PTFE</text>
+  <text x="1472" y="444" font-family="Microsoft YaHei,sans-serif" font-size="10" fill="#C9CDD4">轻盈现代</text>
 
-  <rect x="1458" y="452" width="196" height="80" rx="6" fill="#FFFFFF" stroke="#E5E6EB" stroke-width="1" filter="url(#shadow-light)"/>
-  <text x="1472" y="478" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">入口雨棚</text>
-  <text x="1472" y="500" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#86909C">钢框架+PTFE膜材</text>
-  <text x="1472" y="518" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#C9CDD4">轻盈现代、标识性强</text>
+  <rect x="1676" y="380" width="195" height="78" rx="6" fill="#FFFFFF" stroke="#E5E6EB" stroke-width="1" filter="url(#shadow-light)"/>
+  <text x="1690" y="404" font-family="Microsoft YaHei,sans-serif" font-size="13" font-weight="bold" fill="#1D2129">展厅地面</text>
+  <text x="1690" y="424" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#86909C">防静电架空地板</text>
+  <text x="1690" y="444" font-family="Microsoft YaHei,sans-serif" font-size="10" fill="#C9CDD4">便于布线</text>
 
-  <rect x="1676" y="452" width="196" height="80" rx="6" fill="#FFFFFF" stroke="#E5E6EB" stroke-width="1" filter="url(#shadow-light)"/>
-  <text x="1690" y="478" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">展厅地面</text>
-  <text x="1690" y="500" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#86909C">防静电架空地板</text>
-  <text x="1690" y="518" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#C9CDD4">适应展陈设备布线</text>
+  <!-- 流线 -->
+  <text x="1010" y="500" font-family="Microsoft YaHei,sans-serif" font-size="15" font-weight="bold" fill="#1D2129">流线组织</text>
+  <line x1="1010" y1="510" x2="1850" y2="510" stroke="#E5E6EB" stroke-width="1"/>
 
-  <!-- 2. 流线组织 -->
-  <text x="1010" y="586" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#1D2129">2. 流线组织</text>
-  <line x1="1010" y1="594" x2="1850" y2="594" stroke="#E5E6EB" stroke-width="1"/>
+  <text x="1022" y="536" font-family="Microsoft YaHei,sans-serif" font-size="13" font-weight="bold" fill="#165DFF">公众流线：</text>
+  <path d="M1022 558 L1850 558" stroke="#165DFF" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <text x="1040" y="548" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#165DFF">入口</text>
+  <text x="1140" y="548" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#165DFF">序厅</text>
+  <text x="1240" y="548" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#165DFF">小①</text>
+  <text x="1340" y="548" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#165DFF">小②</text>
+  <text x="1440" y="548" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#165DFF">小③</text>
+  <text x="1540" y="548" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#165DFF">大②</text>
+  <text x="1760" y="548" font-family="Microsoft YaHei,sans-serif" font-size="11" fill="#165DFF">出口</text>
 
-  <text x="1022" y="618" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#165DFF">公众流线：</text>
-  <path d="M1022 642 L1850 642" stroke="#165DFF" stroke-width="2.5" marker-end="url(#arrow-blue)"/>
-  <circle cx="1035" cy="634" r="14" fill="#165DFF"/>
-  <text x="1029" y="638" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#FFFFFF">入口</text>
-  <text x="1102" y="632" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#165DFF">序厅</text>
-  <text x="1190" y="632" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#165DFF">小展厅①</text>
-  <text x="1290" y="632" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#165DFF">小展厅②</text>
-  <text x="1390" y="632" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#165DFF">小展厅③</text>
-  <text x="1490" y="632" font-family="Microsoft YaHei, sans-serif" font-size="11" fill="#165DFF">大展厅②</text>
-  <circle cx="1845" cy="634" r="14" fill="#165DFF"/>
-  <text x="1840" y="638" font-family="Microsoft YaHei, sans-serif" font-size="9" fill="#FFFFFF">出口</text>
+  <text x="1022" y="596" font-family="Microsoft YaHei,sans-serif" font-size="13" fill="#4E5969">● 贵宾：贵宾室 → 大展厅①（独立使用）</text>
+  <text x="1022" y="620" font-family="Microsoft YaHei,sans-serif" font-size="13" fill="#4E5969">● 后勤：东侧入口 → 单跑楼梯 → 库房/设备间</text>
+  <text x="1022" y="644" font-family="Microsoft YaHei,sans-serif" font-size="13" fill="#4E5969">● 办公：东侧入口 → 办公区（2F）/ 会议室</text>
 
-  <text x="1022" y="690" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">● 贵宾流线：贵宾室 → 大展厅①（可独立使用）</text>
-  <text x="1022" y="714" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">● 后勤流线：东侧入口 → 单跑楼梯 → 库房/设备间</text>
-  <text x="1022" y="738" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">● 办公流线：东侧入口 → 办公区（2F）/ 会议室</text>
+  <!-- 疏散 -->
+  <text x="1010" y="700" font-family="Microsoft YaHei,sans-serif" font-size="15" font-weight="bold" fill="#1D2129">疏散保障</text>
+  <line x1="1010" y1="710" x2="1850" y2="710" stroke="#E5E6EB" stroke-width="1"/>
 
-  <!-- 3. 疏散保障 -->
-  <text x="1010" y="800" font-family="Microsoft YaHei, sans-serif" font-size="16" font-weight="bold" fill="#1D2129">3. 疏散保障</text>
-  <line x1="1010" y1="808" x2="1850" y2="808" stroke="#E5E6EB" stroke-width="1"/>
+  <text x="1022" y="742" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 每个防火分区 ≥ 2个安全出口</text>
+  <text x="1022" y="770" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 展览区任一点至出口 ≤ 30m</text>
+  <text x="1022" y="798" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 楼梯净宽 ≥ 1.2m，疏散门净宽 ≥ 1.4m</text>
+  <text x="1022" y="826" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#4E5969">● 配套：疏散指示 + 应急照明 + 蓄光标识</text>
 
-  <text x="1022" y="838" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 每个防火分区设 ≥ 2 个安全出口</text>
-  <text x="1022" y="866" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 展览区任一点至出口直线距离 ≤ 30m</text>
-  <text x="1022" y="894" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 疏散楼梯净宽 ≥ 1.2m，疏散门净宽 ≥ 1.4m</text>
-  <text x="1022" y="922" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">● 配套：疏散指示 + 应急照明 + 地面蓄光标识</text>
-  <text x="1022" y="960" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#86909C">耐火等级二级，防火分区最大 2,500㎡（设喷淋可扩至 5,000㎡）</text>
+  <rect x="1022" y="862" width="800" height="36" rx="6" fill="#E8F0FF"/>
+  <text x="1040" y="886" font-family="Microsoft YaHei,sans-serif" font-size="13" fill="#165DFF">耐火等级二级 · 防火分区最大 2,500㎡（设喷淋可扩至 5,000㎡）</text>
 
-  <!-- 页脚 -->
-  <text x="80" y="1072" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#C9CDD4">来源：科技馆建筑设计说明</text>
+  <!-- 底部总结 -->
+  <rect x="1010" y="920" width="830" height="44" rx="8" fill="#165DFF"/>
+  <text x="1030" y="948" font-family="Microsoft YaHei,sans-serif" font-size="15" font-weight="bold" fill="#FFFFFF">总建筑面积约 2,600㎡ · 建筑高度 9.0m · 地上 2 层</text>
+
+  <text x="80" y="1072" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#C9CDD4">来源：科技馆建筑设计说明</text>
 </svg>

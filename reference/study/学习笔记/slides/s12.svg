@@ -1,0 +1,9 @@
+<svg width="1920" height="1080" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="h0" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#165DFF"/><stop offset="100%" stop-color="#4080FF"/></linearGradient></defs>
+<rect width="1920" height="1080" fill="#F5F7FA"/>
+<rect x="0" y="0" width="1920" height="6" fill="#165DFF"/>
+<rect x="460" y="280" width="1000" height="460" fill="#FFFFFF" rx="8"/>
+<rect x="460" y="280" width="1000" height="6" fill="url(#h0)"/>
+<text x="600" y="420" font-family="Microsoft YaHei,sans-serif" font-size="42" font-weight="bold" fill="#1D2129">感谢观看</text>
+<text x="600" y="520" font-family="Microsoft YaHei,sans-serif" font-size="20" font-weight="bold" fill="#165DFF">不学BIM</text>
+<text x="600" y="570" font-family="Microsoft YaHei,sans-serif" font-size="14" fill="#86909C">2026年5月24日</text>
+<text x="80" y="1072" font-family="Microsoft YaHei,sans-serif" font-size="12" fill="#C9CDD4">来源：科技馆建筑设计</text></svg>
