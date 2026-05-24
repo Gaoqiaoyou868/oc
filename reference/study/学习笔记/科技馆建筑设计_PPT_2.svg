@@ -1,0 +1,317 @@
+<svg width="1920" height="1080" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="106%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity="0.06"/>
+    </filter>
+    <filter id="shadow-light" x="-2%" y="-2%" width="104%" height="106%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#000" flood-opacity="0.04"/>
+    </filter>
+    <linearGradient id="header-grad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#165DFF"/>
+      <stop offset="100%" stop-color="#4080FF"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 背景 -->
+  <rect width="1920" height="1080" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="1920" height="100" fill="#F5F7FA"/>
+  <rect x="0" y="100" width="1920" height="1" fill="#E5E6EB"/>
+
+  <!-- 标题 -->
+  <text x="80" y="58" font-family="Microsoft YaHei, sans-serif" font-size="26" font-weight="bold" fill="#1D2129">科技馆建筑设计 · 技术经济指标</text>
+  <text x="80" y="82" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#86909C">经济技术指标总表 · 楼层房间明细 · 门窗汇总</text>
+
+  <rect x="1820" y="16" width="44" height="28" rx="14" fill="#E8F0FF"/>
+  <text x="1836" y="36" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#165DFF">2/2</text>
+
+  <!-- ============================================ -->
+  <!-- 左栏：经济技术指标总表 -->
+  <!-- ============================================ -->
+  <rect x="40" y="124" width="600" height="928" fill="#FAFBFC" rx="10" filter="url(#shadow)"/>
+  <rect x="58" y="140" width="220" height="36" rx="8" fill="url(#header-grad)"/>
+  <text x="74" y="164" font-family="Microsoft YaHei, sans-serif" font-size="17" font-weight="bold" fill="#FFFFFF">经济技术指标总表</text>
+
+  <!-- 指标表头 -->
+  <rect x="58" y="200" width="565" height="32" rx="4" fill="#165DFF"/>
+  <text x="80" y="221" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#FFFFFF">指标名称</text>
+  <text x="380" y="221" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#FFFFFF">指标值</text>
+
+  <!-- 行数据 -->
+  <rect x="58" y="236" width="565" height="38" fill="#FFFFFF"/>
+  <rect x="58" y="278" width="565" height="38" fill="#F7F8FA"/>
+  <rect x="58" y="320" width="565" height="38" fill="#FFFFFF"/>
+  <rect x="58" y="362" width="565" height="38" fill="#F7F8FA"/>
+  <rect x="58" y="404" width="565" height="38" fill="#FFFFFF"/>
+  <rect x="58" y="446" width="565" height="38" fill="#F7F8FA"/>
+  <rect x="58" y="488" width="565" height="38" fill="#FFFFFF"/>
+  <rect x="58" y="530" width="565" height="38" fill="#F7F8FA"/>
+  <rect x="58" y="572" width="565" height="38" fill="#FFFFFF"/>
+  <rect x="58" y="614" width="565" height="38" fill="#F7F8FA"/>
+  <rect x="58" y="656" width="565" height="38" fill="#FFFFFF"/>
+  <rect x="58" y="698" width="565" height="38" fill="#F7F8FA"/>
+  <rect x="58" y="740" width="565" height="38" fill="#FFFFFF"/>
+  <rect x="58" y="782" width="565" height="38" fill="#F7F8FA"/>
+  <rect x="58" y="824" width="565" height="38" fill="#FFFFFF"/>
+  <rect x="58" y="866" width="565" height="38" fill="#F7F8FA"/>
+  <rect x="58" y="908" width="565" height="38" fill="#FFFFFF"/>
+
+  <!-- 分界线 -->
+  <line x1="350" y1="236" x2="350" y2="946" stroke="#E5E6EB" stroke-width="1"/>
+  <line x1="58" y1="236" x2="623" y2="236" stroke="#E5E6EB" stroke-width="1"/>
+  <line x1="58" y1="946" x2="623" y2="946" stroke="#E5E6EB" stroke-width="1"/>
+
+  <text x="75" y="262" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">总建筑面积</text>
+  <text x="365" y="262" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">约 2,600 ㎡</text>
+
+  <text x="75" y="304" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">建筑基底面积</text>
+  <text x="365" y="304" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">约 920 ㎡</text>
+
+  <text x="75" y="346" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">建筑层数</text>
+  <text x="365" y="346" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">地上 2 层</text>
+
+  <text x="75" y="388" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">建筑高度</text>
+  <text x="365" y="388" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">9.0 m</text>
+
+  <text x="75" y="430" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">一层层高（展厅区）</text>
+  <text x="365" y="430" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">4.50 m</text>
+
+  <text x="75" y="472" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">二层层高（展厅区）</text>
+  <text x="365" y="472" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">4.50 m</text>
+
+  <text x="75" y="514" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">室内外高差</text>
+  <text x="365" y="514" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">0.200 m</text>
+
+  <text x="75" y="556" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">结构形式</text>
+  <text x="365" y="556" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">钢筋混凝土框架结构</text>
+
+  <text x="75" y="598" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">基础形式</text>
+  <text x="365" y="598" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">独立基础 / 筏板基础（视地质）</text>
+
+  <text x="75" y="640" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">设计使用年限</text>
+  <text x="365" y="640" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">50 年</text>
+
+  <text x="75" y="682" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">耐火等级</text>
+  <text x="365" y="682" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">二级</text>
+
+  <text x="75" y="724" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">抗震设防烈度</text>
+  <text x="365" y="724" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">7 度（按一般设防）</text>
+
+  <text x="75" y="766" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">屋面防水等级</text>
+  <text x="365" y="766" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">I 级</text>
+
+  <text x="75" y="808" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">建筑密度</text>
+  <text x="365" y="808" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">约 46%</text>
+
+  <text x="75" y="850" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">容积率</text>
+  <text x="365" y="850" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">约 1.3</text>
+
+  <text x="75" y="892" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">绿地率</text>
+  <text x="365" y="892" font-family="Microsoft YaHei, sans-serif" font-size="14" font-weight="bold" fill="#1D2129">≥ 25%</text>
+
+  <text x="75" y="934" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">外墙保温</text>
+  <text x="365" y="934" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#4E5969">岩棉板外保温系统</text>
+
+  <!-- ============================================ -->
+  <!-- 中栏：1F 房间明细 -->
+  <!-- ============================================ -->
+  <rect x="660" y="124" width="600" height="928" fill="#FAFBFC" rx="10" filter="url(#shadow)"/>
+  <rect x="678" y="140" width="220" height="36" rx="8" fill="url(#header-grad)"/>
+  <text x="694" y="164" font-family="Microsoft YaHei, sans-serif" font-size="17" font-weight="bold" fill="#FFFFFF">一层（1F）房间明细</text>
+
+  <!-- 楼层概要 -->
+  <rect x="678" y="194" width="565" height="44" rx="6" fill="#E8F0FF"/>
+  <text x="695" y="218" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#165DFF">展览 677㎡ · 办公 22㎡ · 服务 25㎡ · 后勤 27㎡ · 交通 191㎡</text>
+  <text x="1080" y="218" font-family="Microsoft YaHei, sans-serif" font-size="15" font-weight="bold" fill="#165DFF">合计 942㎡</text>
+
+  <!-- 表头 -->
+  <rect x="678" y="252" width="565" height="30" rx="4" fill="#4E5969"/>
+  <text x="695" y="272" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF">区域</text>
+  <text x="795" y="272" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF">房间名称</text>
+  <text x="1070" y="272" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF">面积（㎡）</text>
+
+  <!-- 1F 展厅区域 -->
+  <rect x="678" y="286" width="565" height="28" fill="#F0F5FF"/>
+  <text x="695" y="305" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#165DFF">展览区</text>
+
+  <rect x="678" y="318" width="565" height="34" fill="#FFFFFF"/>
+  <text x="795" y="340" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">主展厅①</text>
+  <text x="1070" y="340" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">330</text>
+
+  <rect x="678" y="356" width="565" height="34" fill="#F7F8FA"/>
+  <text x="795" y="378" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">小展厅①</text>
+  <text x="1070" y="378" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">167</text>
+
+  <rect x="678" y="394" width="565" height="34" fill="#FFFFFF"/>
+  <text x="795" y="416" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">小展厅②</text>
+  <text x="1070" y="416" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">180</text>
+
+  <rect x="678" y="432" width="565" height="34" fill="#F7F8FA"/>
+  <text x="795" y="454" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">序厅</text>
+  <text x="1070" y="454" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">56</text>
+
+  <!-- 小计 -->
+  <rect x="678" y="470" width="565" height="28" fill="#E8F0FF"/>
+  <text x="795" y="489" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#165DFF">展厅小计</text>
+  <text x="1050" y="489" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#165DFF">677 ㎡</text>
+
+  <!-- 服务 -->
+  <rect x="678" y="504" width="565" height="28" fill="#F0FFF0"/>
+  <text x="695" y="523" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#006600">服务区</text>
+
+  <rect x="678" y="536" width="565" height="34" fill="#FFFFFF"/>
+  <text x="795" y="558" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">接待室</text>
+  <text x="1070" y="558" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">25</text>
+
+  <!-- 办公 -->
+  <rect x="678" y="576" width="565" height="28" fill="#FFF8F0"/>
+  <text x="695" y="595" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#996600">办公区</text>
+
+  <rect x="678" y="608" width="565" height="34" fill="#FFFFFF"/>
+  <text x="795" y="630" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">值班室</text>
+  <text x="1070" y="630" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">22</text>
+
+  <!-- 后勤 -->
+  <rect x="678" y="648" width="565" height="28" fill="#F0F0F5"/>
+  <text x="695" y="667" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#4E5969">后勤区</text>
+
+  <rect x="678" y="680" width="565" height="34" fill="#FFFFFF"/>
+  <text x="795" y="702" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">库房A（大展厅①配套）</text>
+  <text x="1070" y="702" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">14</text>
+
+  <rect x="678" y="718" width="565" height="34" fill="#F7F8FA"/>
+  <text x="795" y="740" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">库房C（小展厅①配套）</text>
+  <text x="1070" y="740" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">5</text>
+
+  <rect x="678" y="756" width="565" height="34" fill="#FFFFFF"/>
+  <text x="795" y="778" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">库房D（小展厅②配套）</text>
+  <text x="1070" y="778" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">8</text>
+
+  <rect x="678" y="794" width="565" height="28" fill="#E8F0FF"/>
+  <text x="795" y="813" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#165DFF">后勤小计</text>
+  <text x="1050" y="813" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#165DFF">27 ㎡</text>
+
+  <!-- 交通 -->
+  <rect x="678" y="828" width="565" height="28" fill="#F5F0FF"/>
+  <text x="695" y="847" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#6600CC">交通区</text>
+
+  <rect x="678" y="860" width="565" height="34" fill="#FFFFFF"/>
+  <text x="795" y="882" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">楼梯间A</text>
+  <text x="1070" y="882" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">83</text>
+
+  <rect x="678" y="898" width="565" height="34" fill="#F7F8FA"/>
+  <text x="795" y="920" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">楼梯间B</text>
+  <text x="1070" y="920" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">63</text>
+
+  <rect x="678" y="936" width="565" height="34" fill="#FFFFFF"/>
+  <text x="795" y="958" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">公共卫生间 + 走廊</text>
+  <text x="1070" y="958" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">405</text>
+
+  <rect x="678" y="978" width="565" height="28" fill="#E8F0FF"/>
+  <text x="795" y="997" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#165DFF">交通小计</text>
+  <text x="1050" y="997" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#165DFF">191 ㎡</text>
+
+  <!-- ============================================ -->
+  <!-- 右栏：2F 房间明细 + 门窗表 -->
+  <!-- ============================================ -->
+  <rect x="1280" y="124" width="600" height="928" fill="#FAFBFC" rx="10" filter="url(#shadow)"/>
+  <rect x="1298" y="140" width="220" height="36" rx="8" fill="url(#header-grad)"/>
+  <text x="1314" y="164" font-family="Microsoft YaHei, sans-serif" font-size="17" font-weight="bold" fill="#FFFFFF">二层（2F）房间明细</text>
+
+  <!-- 楼层概要 -->
+  <rect x="1298" y="194" width="565" height="44" rx="6" fill="#E8F0FF"/>
+  <text x="1315" y="218" font-family="Microsoft YaHei, sans-serif" font-size="14" fill="#165DFF">展览 472㎡ · 办公 214㎡ · 服务 88㎡ · 后勤 116㎡ · 交通 191㎡</text>
+  <text x="1700" y="218" font-family="Microsoft YaHei, sans-serif" font-size="15" font-weight="bold" fill="#165DFF">合计 1,081㎡</text>
+
+  <!-- 表头 -->
+  <rect x="1298" y="252" width="565" height="30" rx="4" fill="#4E5969"/>
+  <text x="1315" y="272" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF">区域</text>
+  <text x="1415" y="272" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF">房间名称</text>
+  <text x="1690" y="272" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#FFFFFF">面积（㎡）</text>
+
+  <!-- 2F 展览 -->
+  <rect x="1298" y="286" width="565" height="28" fill="#F0F5FF"/>
+  <text x="1315" y="305" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#165DFF">展览区</text>
+
+  <rect x="1298" y="318" width="565" height="34" fill="#FFFFFF"/>
+  <text x="1415" y="340" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">主展厅②</text>
+  <text x="1690" y="340" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">306</text>
+
+  <rect x="1298" y="356" width="565" height="34" fill="#F7F8FA"/>
+  <text x="1415" y="378" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">小展厅③</text>
+  <text x="1690" y="378" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">166</text>
+
+  <rect x="1298" y="394" width="565" height="28" fill="#E8F0FF"/>
+  <text x="1415" y="413" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#165DFF">展厅小计</text>
+  <text x="1670" y="413" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#165DFF">472 ㎡</text>
+
+  <!-- 2F 办公 -->
+  <rect x="1298" y="428" width="565" height="28" fill="#FFF8F0"/>
+  <text x="1315" y="447" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#996600">办公区</text>
+
+  <rect x="1298" y="460" width="565" height="34" fill="#FFFFFF"/>
+  <text x="1415" y="482" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">开放办公室</text>
+  <text x="1690" y="482" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">155</text>
+
+  <rect x="1298" y="498" width="565" height="34" fill="#F7F8FA"/>
+  <text x="1415" y="520" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">会议室</text>
+  <text x="1690" y="520" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">59</text>
+
+  <rect x="1298" y="536" width="565" height="28" fill="#E8F0FF"/>
+  <text x="1415" y="555" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#165DFF">办公小计</text>
+  <text x="1670" y="555" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#165DFF">214 ㎡</text>
+
+  <!-- 2F 服务 -->
+  <rect x="1298" y="570" width="565" height="28" fill="#F0FFF0"/>
+  <text x="1315" y="589" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#006600">服务区</text>
+
+  <rect x="1298" y="602" width="565" height="34" fill="#FFFFFF"/>
+  <text x="1415" y="624" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">广播室</text>
+  <text x="1690" y="624" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">65</text>
+
+  <rect x="1298" y="640" width="565" height="34" fill="#F7F8FA"/>
+  <text x="1415" y="662" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">文创厅</text>
+  <text x="1690" y="662" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">23</text>
+
+  <rect x="1298" y="678" width="565" height="28" fill="#E8F0FF"/>
+  <text x="1415" y="697" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#165DFF">服务小计</text>
+  <text x="1670" y="697" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#165DFF">88 ㎡</text>
+
+  <!-- 2F 后勤 -->
+  <rect x="1298" y="712" width="565" height="28" fill="#F0F0F5"/>
+  <text x="1315" y="731" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#4E5969">后勤区</text>
+
+  <rect x="1298" y="744" width="565" height="34" fill="#FFFFFF"/>
+  <text x="1415" y="766" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">库房B（大展厅②配套）</text>
+  <text x="1690" y="766" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">14</text>
+
+  <rect x="1298" y="782" width="565" height="34" fill="#F7F8FA"/>
+  <text x="1415" y="804" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">库房E（小展厅③配套）</text>
+  <text x="1690" y="804" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">8</text>
+
+  <rect x="1298" y="820" width="565" height="34" fill="#FFFFFF"/>
+  <text x="1415" y="842" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">储藏室</text>
+  <text x="1690" y="842" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">54</text>
+
+  <rect x="1298" y="858" width="565" height="34" fill="#F7F8FA"/>
+  <text x="1415" y="880" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">设备间</text>
+  <text x="1690" y="880" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">40</text>
+
+  <rect x="1298" y="896" width="565" height="28" fill="#E8F0FF"/>
+  <text x="1415" y="915" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#165DFF">后勤小计</text>
+  <text x="1670" y="915" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#165DFF">116 ㎡</text>
+
+  <!-- 2F 交通 -->
+  <rect x="1298" y="930" width="565" height="28" fill="#F5F0FF"/>
+  <text x="1315" y="949" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#6600CC">交通区</text>
+
+  <rect x="1298" y="962" width="565" height="34" fill="#FFFFFF"/>
+  <text x="1415" y="984" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#4E5969">公共卫生间 + 楼梯间 + 走廊</text>
+  <text x="1690" y="984" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#1D2129">191</text>
+
+  <rect x="1298" y="1000" width="565" height="28" fill="#E8F0FF"/>
+  <text x="1415" y="1019" font-family="Microsoft YaHei, sans-serif" font-size="13" fill="#165DFF">交通小计</text>
+  <text x="1670" y="1019" font-family="Microsoft YaHei, sans-serif" font-size="13" font-weight="bold" fill="#165DFF">191 ㎡</text>
+
+  <!-- 页脚 -->
+  <text x="80" y="1072" font-family="Microsoft YaHei, sans-serif" font-size="12" fill="#C9CDD4">来源：科技馆建筑设计说明 · 使用面积约 2,023㎡（不含墙体），总建筑面积约 2,600㎡</text>
+</svg>
