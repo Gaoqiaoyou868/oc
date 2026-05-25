@@ -149,7 +149,7 @@ sbit BEEP   = P2^5;
  *   4档        :  2ms/步
  *   5档(强风)  :  1ms/步 → 最快
  */
-u8 code step_delay[5] = {8, 6, 4, 2, 1};
+u8 code step_delay[5] = {500, 400, 300, 200, 100};
 
 /* --- 风类模式 --- */
 #define MODE_NORMAL  0   // 常风: 恒定转速
