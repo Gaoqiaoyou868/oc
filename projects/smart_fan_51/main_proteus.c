@@ -99,7 +99,7 @@ sbit LCD_EN = P2^7;
  * 8 拍半步序列: A → AB → B → BC → C → CD → D → DA
  * 写 P1 时用 & 0xF0 保护高4位 (独立按键)
  */
-u8 code step_phase[8] = {0x01, 0x02, 0x04, 0x08, 0x01, 0x02, 0x04, 0x08};
+u8 code step_phase[8] = {0x01, 0x03, 0x02, 0x06, 0x04, 0x0C, 0x08, 0x09};
 
 /* ======================== 按键引脚 (P1 高四位) ======================== */
 /*
@@ -137,19 +137,19 @@ sbit BEEP   = P2^5;
 
 /* ======================== 常量定义 ======================== */
 
-/* --- 步进电机速度表 --- */
+/* --- 步进电机节拍间隔表 --- */
 /*
- * step_delay[i] 表示第 (i+1) 档的步间延时 (ms)
+ * step_interval[i] 表示第 (i+1) 档的步间间隔 (×50ms 节拍)
  * 值越小 → 步进越快 → 转速越快
  *
  * 档位与转速:
- *   1档(微风):  8ms/步 → 最慢
- *   2档        :  6ms/步
- *   3档(中速)  :  4ms/步
- *   4档        :  2ms/步
- *   5档(强风)  :  1ms/步 → 最快
+ *   1档(微风): 10×50ms = 500ms/步 → 最慢
+ *   2档       :  8×50ms = 400ms/步
+ *   3档(中速) :  6×50ms = 300ms/步
+ *   4档       :  4×50ms = 200ms/步
+ *   5档(强风) :  2×50ms = 100ms/步 → 最快
  */
-u8 code step_delay[5] = {500, 400, 300, 200, 100};
+u8 code step_interval[5] = {10, 8, 6, 4, 2};
 
 /* --- 风类模式 --- */
 #define MODE_NORMAL  0   // 常风: 恒定转速
@@ -189,6 +189,9 @@ u16 sys_tick;           // 系统 50ms 节拍累加器 (可溢出)
 u16 natural_tick;       // 自然风换档倒计时
 u16 sleep_tick;         // 睡眠风降档倒计时
 u16 timer_tick;         // 定时关机倒计时 (单位: 50ms节拍)
+
+/* 步进电机节拍计数器 (ISR 每50ms递增) */
+volatile u16 step_tick;
 
 /* 自然风随机种子 */
 u8  natural_rand;
@@ -488,6 +491,7 @@ void Fan_Start(void)
 {
     fan_state         = FAN_ON;
     LED_D1            = 0;           // D1 亮 (共阳低电平点亮)
+    step_tick         = 0;           // 步进节拍归零
     natural_tick      = 0;
     sleep_tick        = 0;
     natural_rand      = 1;
@@ -725,6 +729,9 @@ void Timer1_ISR(void) interrupt 3
     /* [1] 系统总节拍 */
     sys_tick++;
 
+    /* 步进电机节拍 (每50ms递增) */
+    step_tick++;
+
     /* [2] 定时关机倒计时 */
     if (timer_tick > 0) {
         timer_tick--;
@@ -797,7 +804,8 @@ void main(void)
     fan_state        = FAN_OFF;
     fan_mode         = MODE_NORMAL;
     speed_level      = 1;        // 默认 1 档 (微风)
-    effective_speed  = 0;        // 索引 0 → step_delay[0]=8ms/步
+    effective_speed  = 0;        // 索引 0 → step_interval[0]=10节拍/步
+    step_tick        = 0;
     sys_tick         = 0;
     natural_tick     = 0;
     sleep_tick       = 0;
@@ -930,24 +938,13 @@ void main(void)
             }
         }
 
-        /* ----- (c) 风扇运行时驱动步进电机 ----- */
+        /* ----- (c) 风扇运行时驱动步进电机 (非阻塞, 基于节拍) ----- */
         if (fan_state == FAN_ON) {
-            /*
-             * 步进电机连续旋转: 每步进一格后按档位延时
-             *
-             * 步进一格 (前移一个相位)
-             * 档位延时 (step_delay[effective_speed]) 决定转速
-             *
-             *   1档(最慢):  8ms/步
-             *   5档(最快):  1ms/步
-             *
-             * 阻塞期间定时器 ISR 仍在运行:
-             * - 系统节拍正常累加
-             * - 自然风/睡眠风定时换档正常
-             * - KEY4 长按计时基于 sys_tick, 不受影响
-             */
-            Motor_Forward();
-            Delay_ms(step_delay[effective_speed]);
+            /* 每 step_interval 个节拍步进一次 */
+            if (step_tick >= step_interval[effective_speed]) {
+                step_tick = 0;
+                Motor_Forward();
+            }
 
             /* 睡眠风模式: D2 每 0.5s 闪烁一次 (用 sys_tick 节拍) */
             if (fan_mode == MODE_SLEEP) {
@@ -960,9 +957,7 @@ void main(void)
             }
 
         } else {
-            /* 风扇关闭时停止电机, 加一个小延时防止空转 */
             Motor_Stop();
-            Delay_ms(10);
         }
 
         /* ----- (d) LCD 定时刷新 (每 0.5 秒) ----- */
