@@ -108,13 +108,18 @@
 </table>
 
 <h3>→ 步进电机 (MOTOR-STEPPER)</h3>
+<div class="note">
+<strong>MOTOR-STEPPER 引脚排列 (6线, 左3+右3):</strong><br>
+左: <code>A B C</code> &nbsp;|&nbsp; 右: <code>D COM COM</code><br>
+两个 COM 都接 +5V。
+</div>
 <table style="font-size:12px;">
-  <tr><th>AT89C52</th><th>物理引脚</th><th>电机引脚</th><th>说明</th></tr>
-  <tr><td>P1.0</td><td><span class="pnum">pin1</span></td><td>A</td><td>线圈 1</td></tr>
-  <tr><td>P1.1</td><td><span class="pnum">pin2</span></td><td>B</td><td>线圈 2</td></tr>
-  <tr><td>P1.2</td><td><span class="pnum">pin3</span></td><td>C</td><td>线圈 3</td></tr>
-  <tr><td>P1.3</td><td><span class="pnum">pin4</span></td><td>D</td><td>线圈 4</td></tr>
-  <tr><td colspan="2">+5V</td><td>COM</td><td>公共端</td></tr>
+  <tr><th>AT89C52</th><th>物理引脚</th><th>电机引脚</th><th>MOTOR-STEPPER 位置</th></tr>
+  <tr><td>P1.0</td><td><span class="pnum">pin1</span></td><td>A</td><td>左边第1脚</td></tr>
+  <tr><td>P1.1</td><td><span class="pnum">pin2</span></td><td>B</td><td>左边第2脚</td></tr>
+  <tr><td>P1.2</td><td><span class="pnum">pin3</span></td><td>C</td><td>左边第3脚</td></tr>
+  <tr><td>P1.3</td><td><span class="pnum">pin4</span></td><td>D</td><td>右边第1脚</td></tr>
+  <tr><td colspan="2">+5V</td><td>COM</td><td>右边第2、3脚（都接 +5V）</td></tr>
 </table>
 
 <h3>→ 按键 (低电平, 10K上拉)</h3>
