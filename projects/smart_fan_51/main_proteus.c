@@ -70,12 +70,12 @@
  *  5. LCD1602: 实时显示风速档位/风类模式/运行状态/定时剩余时间
  ******************************************************************************/
 
-#include <reg51.h>
-#include <intrins.h>
+#include <reg51.h>        // 51 单片机寄存器定义头文件 (含 SFR 地址和中断向量号)
+#include <intrins.h>       // 包含空操作指令 _nop_(), 用于极短延时
 
 /* ======================== 类型定义 ======================== */
-typedef unsigned int  u16;
-typedef unsigned char u8;
+typedef unsigned int  u16; // 重命名 unsigned int 为 u16 (16位无符号, 范围0~65535)
+typedef unsigned char u8;  // 重命名 unsigned char 为 u8 (8位无符号, 范围0~255)
 
 /* ======================== LCD1602 引脚 ======================== */
 /*
@@ -87,10 +87,10 @@ typedef unsigned char u8;
  *
  * 警告: P2.5 同时连接蜂鸣器, LCD 写操作时必须关中断
  */
-#define LCD_DATA  P0
-sbit LCD_RS = P2^6;
-sbit LCD_RW = P2^5;
-sbit LCD_EN = P2^7;
+#define LCD_DATA  P0       // LCD 8位数据总线接 P0 口 (P0.0~P0.7 对应 D0~D7)
+sbit LCD_RS = P2^6;        // LCD 寄存器选择: 0=指令寄存器, 1=数据寄存器
+sbit LCD_RW = P2^5;        // LCD 读写选择: 0=写, 1=读 (与蜂鸣器共用 P2.5)
+sbit LCD_EN = P2^7;        // LCD 使能信号: 上升沿锁存数据, 下降沿执行指令
 
 /* ======================== 直流电机引脚 (L298 驱动) ======================== */
 /*
@@ -114,8 +114,8 @@ sbit LCD_EN = P2^7;
  *
  * 调速方式: 软件 PWM, 通过占空比控制转速
  */
-sbit MOTOR_IN1 = P2^0;
-sbit MOTOR_IN2 = P2^4;
+sbit MOTOR_IN1 = P2^0;     // L298 输入1: 1=正转, 0=停止/刹车 (PWM 调速用)
+sbit MOTOR_IN2 = P2^4;     // L298 输入2: 1=反转, 0=停止/刹车
 
 /* ======================== 按键引脚 (P1 高四位) ======================== */
 /*
@@ -134,10 +134,10 @@ sbit MOTOR_IN2 = P2^4;
  *   每个 BUTTON 元件: 一端接单片机引脚, 另一端接地
  *   引脚处外接 10KΩ 上拉电阻到 +5V
  */
-sbit KEY1 = P1^7;    // 启动 / 停止
-sbit KEY2 = P1^6;    // 风速 +1
-sbit KEY3 = P1^5;    // 风速 -1
-sbit KEY4 = P1^4;    // 短按=切换模式, 长按2秒=设置/取消定时
+sbit KEY1 = P1^7;    // 按键1: 启动/停止风扇 (按下=低电平)
+sbit KEY2 = P1^6;    // 按键2: 风速 +1 档
+sbit KEY3 = P1^5;    // 按键3: 风速 -1 档
+sbit KEY4 = P1^4;    // 按键4: 短按=切换风类模式, 长按2秒=设置/取消定时
 
 /* ======================== LED 和蜂鸣器引脚 ======================== */
 /*
@@ -147,48 +147,35 @@ sbit KEY4 = P1^4;    // 短按=切换模式, 长按2秒=设置/取消定时
  *
  * 蜂鸣器: P2.5 (有源蜂鸣器, 拉低即发声, 与 LCD_RW 共用)
  */
-sbit LED_D1 = P3^0;
-sbit LED_D2 = P2^1;
-sbit BEEP   = P2^5;
+sbit LED_D1 = P3^0;  // 电源指示灯: 0=亮 (共阳低电平), 1=灭
+sbit LED_D2 = P2^1;  // 模式指示灯: 常风=常亮, 自然风=3秒周期闪烁, 睡眠风=0.5秒闪烁
+sbit BEEP   = P2^5;  // 蜂鸣器: 拉低发声, 与 LCD_RW 共用引脚 (写LCD必须EA=0)
 
 /* ======================== 常量定义 ======================== */
 
 /* --- 直流电机 PWM 占空比表 --- */
 /*
- * 软件 PWM 调速, 固定周期 32ms
+ * 软件 PWM 调速, 固定周期 8ms
  * pwm_on_time[i] 表示每个周期内的导通时间 (ms)
  * 值越大 → 占空比越高 → 转速越快
  *
  * 写入方式: MOTOR_IN1=1, MOTOR_IN2=0 → 电机正转
  *          MOTOR_IN1=0, MOTOR_IN2=0 → 电机停止
  *
- * 1档(微风):   1ms/8ms  ≈  12% 占空比 → 慢速
- * 5档(强风):   7ms/8ms  ≈  88% 占空比 → 快速
+ * 1档(微风):   1ms/8ms = 12.5% 占空比 → 慢速
+ * 5档(强风):   7ms/8ms = 87.5% 占空比 → 快速
  */
-u8 code pwm_on_time[5] = {1, 2, 4, 6, 7};
-#define PWM_CYCLE  8   // PWM 周期 (ms) 125Hz
+u8 code pwm_on_time[5] = {1, 2, 4, 6, 7}; // 5档PWM导通时间数组, code存入程序存储器(ROM)节省RAM
+#define PWM_CYCLE  8   // PWM 周期=8ms (125Hz), 软件PWM主循环中阻塞延时实现
 
-/* --- 风速档位对应的 PWM 占空比 --- */
-/*
- * pwm_on_time[i] 表示第 (i+1) 档的导通时间 (ms)
- * 值越大 = 占空比越高 = 转速越快
- *
- * 档位与转速 (125Hz PWM):
- *   1档(微风):  1ms/8ms =  12% → 慢速
- *   2档        :  2ms/8ms =  25%
- *   3档(中速)  :  4ms/8ms =  50%
- *   4档        :  6ms/8ms =  75%
- *   5档(强风)  :  7ms/8ms =  88% → 快速
- */
+/* --- 风类模式枚举 --- */
+#define MODE_NORMAL  0   // 常风模式: 档位恒定不变
+#define MODE_NATURAL 1   // 自然风模式: 每3秒钟风速自动波动 (模拟忽大忽小)
+#define MODE_SLEEP   2   // 睡眠风模式: 每10分钟自动降低一档直到1档
 
-/* --- 风类模式 --- */
-#define MODE_NORMAL  0   // 常风: 恒定转速
-#define MODE_NATURAL 1   // 自然风: 转速忽大忽小
-#define MODE_SLEEP   2   // 睡眠风: 逐渐降速
-
-/* --- 风扇状态 --- */
-#define FAN_OFF  0
-#define FAN_ON   1
+/* --- 风扇开关状态枚举 --- */
+#define FAN_OFF  0       // 风扇停止状态
+#define FAN_ON   1       // 风扇运行状态
 
 /* --- 系统节拍 (50ms) --- */
 /*
@@ -199,55 +186,56 @@ u8 code pwm_on_time[5] = {1, 2, 4, 6, 7};
  *   计数值   = 50ms / 1.085us ≈ 46080
  *   重装值   = 65536 - 46080 = 19456 = 0x4C00
  */
-#define T1_TH  0x4C
-#define T1_TL  0x00
+#define T1_TH  0x4C     // T1重装值高8位: 19456=0x4C00, 高字节=0x4C
+#define T1_TL  0x00     // T1重装值低8位: 低字节=0x00
 
-/* --- 定时换算 --- */
-#define TICKS_PER_SEC   20      // 1秒 = 20 × 50ms
-#define TICKS_PER_MIN   1200    // 1分钟 = 60秒 × 20
+/* --- 定时单位换算常量 --- */
+#define TICKS_PER_SEC   20      // 1秒需要的T1中断次数: 1000ms/50ms=20
+#define TICKS_PER_MIN   1200    // 1分钟需要的T1中断次数: 20次/秒×60秒=1200
 
 /* ======================== 全局变量 ======================== */
 
-/* 风扇状态 */
-u8  fan_state;          // FAN_OFF / FAN_ON
-u8  fan_mode;           // MODE_NORMAL / MODE_NATURAL / MODE_SLEEP
-u8  speed_level;        // 用户设定风速: 1~5
-u8  effective_speed;    // 实际 PWM 占空比索引: 0~4
-bit sleep_decremented;   // 睡眠风标志: 1=ISR已降过档, 0=尚未
-/* 系统计时 */
-u16 sys_tick;           // 系统 50ms 节拍累加器 (可溢出)
-u16 natural_tick;       // 自然风换档倒计时
-u16 sleep_tick;         // 睡眠风降档倒计时
-u16 timer_tick;         // 定时关机倒计时 (单位: 50ms节拍)
+/* --- 风扇状态变量 --- */
+u8  fan_state;              // 风扇启停状态: 取值 FAN_OFF=0 或 FAN_ON=1
+u8  fan_mode;               // 当前风类模式: MODE_NORMAL(0)/MODE_NATURAL(1)/MODE_SLEEP(2)
+u8  speed_level;            // 用户设定的档位: 1~5 (1最慢, 5最快)
+u8  effective_speed;        // 实际作用于PWM的档位索引: 0~4 (可能被模式算法改变)
+bit sleep_decremented;      // 睡眠风降档标记: 1表示ISR已降过档,主循环不要再降; 0表示未降
 
-/* 自然风随机种子 */
-u8  natural_rand;
+/* --- 系统计时变量 (节拍单位=50ms) --- */
+u16 sys_tick;               // 系统累计节拍数, 上电后一直递增(溢出自动回0)
+u16 natural_tick;           // 自然风模式节拍计数器: 从0数到60(3秒)后换档重置
+u16 sleep_tick;             // 睡眠风模式节拍计数器: 从0数到12000(10分钟)后降档重置
+u16 timer_tick;             // 定时关机倒计时: 设30分钟=36000节拍, 每ISR减1, 到0自动关机
 
-/* LCD 刷新控制 */
-u16 lcd_refresh_tick;
+/* --- 自然风伪随机种子 --- */
+u8  natural_rand;           // 值范围0~127, 每3秒由sys_tick更新一次, 决定风速偏移
+
+/* --- LCD刷新控制器 --- */
+u16 lcd_refresh_tick;       // 刷新间隔计数: 设10(500ms)后每ISR减1, 到0允许刷新
 
 /* ======================== 函数声明 ======================== */
 
-void Delay_ms(u16 ms);
-void Delay_10us(u16 ten_us);
-void LCD_WriteCmd(u8 cmd);
-void LCD_WriteData(u8 dat);
-void LCD_SetPos(u8 line, u8 col);
-void LCD_WriteStr(u8 *str);
-void LCD_ClearLine(u8 line);
-void LCD_Init(void);
-void Motor_Forward(void);
-void Motor_Stop(void);
-u8   Key_Scan(void);
-void Beep_Tick(void);
-void LCD_UpdateAll(void);
-void Fan_Start(void);
-void Fan_Stop(void);
-void Fan_SpeedUp(void);
-void Fan_SpeedDown(void);
-void Fan_ModeSwitch(void);
-void Fan_UpdateEffectiveSpeed(void);
-void Fan_SetTimer(void);
+void Delay_ms(u16 ms);              // 毫秒级延时函数 (软件循环 @11.0592MHz)
+void Delay_10us(u16 ten_us);        // 10微秒级延时函数
+void LCD_WriteCmd(u8 cmd);          // 向LCD1602写指令 (关中断, 写后释放P0总线)
+void LCD_WriteData(u8 dat);         // 向LCD1602写数据 (显示字符)
+void LCD_SetPos(u8 line, u8 col);   // 设置LCD光标位置 (行:0/1, 列:0~15)
+void LCD_WriteStr(u8 *str);         // 在LCD当前位置显示字符串 (以\0结尾)
+void LCD_ClearLine(u8 line);        // 清除指定行 (用16个空格覆盖)
+void LCD_Init(void);                // LCD1602初始化 (8位/2行/开显示/清屏)
+void Motor_Forward(void);           // 设置L298 IN1=1,IN2=0 → 电机正转
+void Motor_Stop(void);              // 设置L298 IN1=0,IN2=0 → 电机停止
+u8   Key_Scan(void);                // 扫描KEY1~KEY3, 返回键号(1~3)或0
+void Beep_Tick(void);               // 蜂鸣器响约100ms (2kHz方波驱动有源蜂鸣器)
+void LCD_UpdateAll(void);           // 刷新LCD两行显示 (风速/模式/状态/定时)
+void Fan_Start(void);               // 启动风扇: 设状态→亮D1→初始化计时器
+void Fan_Stop(void);                // 停止风扇: 设状态→灭D1/D2→停电机
+void Fan_SpeedUp(void);             // 用户档位+1 (不超过5档)
+void Fan_SpeedDown(void);           // 用户档位-1 (不低于1档)
+void Fan_ModeSwitch(void);          // 循环切换风类: 常风→自然风→睡眠风→常风...
+void Fan_UpdateEffectiveSpeed(void);// 根据档位+模式计算电机实际驱动索引
+void Fan_SetTimer(void);            // 切换定时: 无定时→设30分钟, 已有→取消
 
 /* ======================== 延时函数 ======================== */
 
@@ -257,9 +245,9 @@ void Fan_SetTimer(void);
  * 参数    : ten_us = 倍数 (1 ≈ 10us)
  * 返回值  : 无
  *******************************************************************************/
-void Delay_10us(u16 ten_us)
+void Delay_10us(u16 ten_us)          // 入口参数: ten_us = 延时倍数 (1≈10μs @11.0592MHz)
 {
-    while (ten_us--);
+    while (ten_us--);                // 循环递减, 每次循环约10μs (由编译优化后的汇编指令数决定)
 }
 
 /*******************************************************************************
@@ -270,11 +258,11 @@ void Delay_10us(u16 ten_us)
  * 说明    : 软件循环延时, 约 1ms/循环
  *           注意: 延时期间不能做其他事情
  *******************************************************************************/
-void Delay_ms(u16 ms)
+void Delay_ms(u16 ms)                // 入口参数: ms = 需要延时的毫秒数 (最大65535ms≈65秒)
 {
-    u16 i, j;
-    for (i = ms; i > 0; i--)
-        for (j = 120; j > 0; j--);
+    u16 i, j;                        // i外层循环(每ms循环1次), j内层循环(软件计时)
+    for (i = ms; i > 0; i--)         // 外层: 每轮循环耗时约1ms, 共执行ms轮
+        for (j = 120; j > 0; j--);   // 内层: 空循环120次, 配合晶振频率调出约1ms延时
 }
 
 /* ======================== LCD1602 驱动 ======================== */
@@ -293,19 +281,19 @@ void Delay_ms(u16 ms)
  *
  *           写完后 P0=0xFF 释放总线, 避免影响其他共用 P0 的设备
  *******************************************************************************/
-void LCD_WriteCmd(u8 cmd)
+void LCD_WriteCmd(u8 cmd)            // 入口参数: cmd = 指令码 (如 0x01=清屏, 0x38=8位模式)
 {
-    EA = 0;                      // ★关中断! 防止蜂鸣器 ISR 干扰
-    LCD_RS = 0;                  // 选择指令寄存器
-    LCD_RW = 0;                  // 选择写模式
-    LCD_EN = 0;
-    LCD_DATA = cmd;              // 指令放到 P0 总线
-    Delay_ms(1);                 // 等待数据稳定
-    LCD_EN = 1;                  // EN 拉高 → LCD 锁存数据
-    Delay_ms(1);
-    LCD_EN = 0;                  // EN 拉低 → LCD 执行指令
-    LCD_DATA = 0xFF;             // ★释放 P0 总线
-    EA = 1;                      // ★恢复中断
+    EA = 0;                          // ★关中断! P2.5蜂鸣器与LCD_RW共用, 防ISR翻转P2.5干扰LCD
+    LCD_RS = 0;                      // RS=0 → 选择指令寄存器
+    LCD_RW = 0;                      // RW=0 → 写模式 (LCD接收数据)
+    LCD_EN = 0;                      // EN先置低, 准备产生上升沿
+    LCD_DATA = cmd;                  // 将指令码放到P0总线上 (D0~D7)
+    Delay_ms(1);                     // 等待数据信号稳定 (≥几十μs即可, 1ms保险)
+    LCD_EN = 1;                      // EN上升沿 → LCD锁存P0上的指令码
+    Delay_ms(1);                     // 保持高电平使LCD正确捕获
+    LCD_EN = 0;                      // EN下降沿 → LCD开始执行该指令
+    LCD_DATA = 0xFF;                 // ★P0置全1释放总线, 防止悬空干扰其他共用P0的器件
+    EA = 1;                          // ★恢复中断
 }
 
 /*******************************************************************************
@@ -315,19 +303,19 @@ void LCD_WriteCmd(u8 cmd)
  * 返回值  : 无
  * 说明    : 与写命令的唯一区别: RS=1 (选择数据寄存器)
  *******************************************************************************/
-void LCD_WriteData(u8 dat)
+void LCD_WriteData(u8 dat)           // 入口参数: dat = 要显示的字符ASCII码
 {
-    EA = 0;
-    LCD_RS = 1;                  // 选择数据寄存器
-    LCD_RW = 0;
-    LCD_EN = 0;
-    LCD_DATA = dat;
-    Delay_ms(1);
-    LCD_EN = 1;
-    Delay_ms(1);
-    LCD_EN = 0;
-    LCD_DATA = 0xFF;
-    EA = 1;
+    EA = 0;                          // ★关中断, 与写指令函数同理
+    LCD_RS = 1;                      // RS=1 → 选择数据寄存器 (区别于指令)
+    LCD_RW = 0;                      // RW=0 → 写模式
+    LCD_EN = 0;                      // EN先低, 准备脉冲
+    LCD_DATA = dat;                  // 字符ASCII码放到P0总线
+    Delay_ms(1);                     // 数据稳定等待
+    LCD_EN = 1;                      // EN上升沿 → LCD锁存数据
+    Delay_ms(1);                     // 保持
+    LCD_EN = 0;                      // EN下降沿 → LCD将数据写入DDRAM/CGRAM
+    LCD_DATA = 0xFF;                 // ★释放P0总线
+    EA = 1;                          // ★恢复中断
 }
 
 /*******************************************************************************
@@ -337,9 +325,9 @@ void LCD_WriteData(u8 dat)
  * 返回值  : 无
  * 说明    : DDRAM 地址: 第一行 0x80, 第二行 0xC0
  *******************************************************************************/
-void LCD_SetPos(u8 line, u8 col)
+void LCD_SetPos(u8 line, u8 col)     // line: 行号0~1, col: 列号0~15 (每行16个字符位)
 {
-    LCD_WriteCmd((line == 0 ? 0x80 : 0xC0) + col);
+    LCD_WriteCmd((line == 0 ? 0x80 : 0xC0) + col);  // DDRAM地址: 行0首址0x80,行1首址0xC0, 再加列偏移
 }
 
 /*******************************************************************************
@@ -348,10 +336,10 @@ void LCD_SetPos(u8 line, u8 col)
  * 参数    : str = 字符串指针 (以 '\0' 结尾)
  * 返回值  : 无
  *******************************************************************************/
-void LCD_WriteStr(u8 *str)
+void LCD_WriteStr(u8 *str)           // str: 指向待显示字符串的指针 (字符串以'\0'结尾)
 {
-    while (*str) {
-        LCD_WriteData(*str++);
+    while (*str) {                   // 当指针指向的字符不为'\0'时继续循环
+        LCD_WriteData(*str++);       // 先取当前字符送LCD显示, 然后指针后移一位
     }
 }
 
@@ -361,12 +349,12 @@ void LCD_WriteStr(u8 *str)
  * 参数    : line = 行号 (0 或 1)
  * 返回值  : 无
  *******************************************************************************/
-void LCD_ClearLine(u8 line)
+void LCD_ClearLine(u8 line)          // line: 要清除的行号 (0=第1行, 1=第2行)
 {
-    u8 i;
-    LCD_SetPos(line, 0);
-    for (i = 0; i < 16; i++) {
-        LCD_WriteData(' ');
+    u8 i;                            // 循环计数器
+    LCD_SetPos(line, 0);             // 先将光标移到该行首 (第0列)
+    for (i = 0; i < 16; i++) {       // 连续写入16个空格覆盖整行
+        LCD_WriteData(' ');          // 空格ASCII码=0x20, 显示为空白
     }
 }
 
@@ -384,14 +372,14 @@ void LCD_ClearLine(u8 line)
  *           上电后 LCD 需要 15ms 以上的稳定时间,
  *           开头 50ms 延时确保这一点
  *******************************************************************************/
-void LCD_Init(void)
+void LCD_Init(void)                  // LCD1602 上电初始化, 无需参数
 {
-    Delay_ms(50);                // 等待 LCD 电源稳定
-    LCD_WriteCmd(0x38);          // 功能设置: 8位/2行/5×7
-    LCD_WriteCmd(0x0C);          // 显示控制: 开显示/无光标
-    LCD_WriteCmd(0x06);          // 输入模式: 地址自增
-    LCD_WriteCmd(0x01);          // 清屏
-    Delay_ms(5);                 // 清屏指令耗时较长
+    Delay_ms(50);                    // 等待LCD内部上电复位完成 (需15ms以上, 50ms保险)
+    LCD_WriteCmd(0x38);              // 0x38: 功能设置 → 8位数据接口/2行显示/5×7点阵字符
+    LCD_WriteCmd(0x0C);              // 0x0C: 显示控制 → 开显示/关光标/不闪烁
+    LCD_WriteCmd(0x06);              // 0x06: 输入模式 → 写字符后地址自动+1/画面不滚动
+    LCD_WriteCmd(0x01);              // 0x01: 清屏指令 → 清除DDRAM所有内容, 光标回左上角
+    Delay_ms(5);                     // 清屏指令执行时间约1.64ms, 等待5ms确保完成
 }
 
 /* ======================== 直流电机驱动 ======================== */
@@ -404,10 +392,10 @@ void LCD_Init(void)
  * 说明    : L298 OUT1=H, OUT2=L → 电机正转
  *           配合外部 Delay_ms 实现 PWM 调速
  *******************************************************************************/
-void Motor_Forward(void)
+void Motor_Forward(void)             // 使L298 A桥输出正向电压 → 电机正转
 {
-    MOTOR_IN1 = 1;
-    MOTOR_IN2 = 0;
+    MOTOR_IN1 = 1;                   // IN1=1, IN2=0 → L298的OUT1=H, OUT2=L → 电流正向流过电机
+    MOTOR_IN2 = 0;                   // (L298 A桥真值表: 1/0 = 正转, 0/1 = 反转, 0/0 = 停止)
 }
 
 /*******************************************************************************
@@ -417,10 +405,10 @@ void Motor_Forward(void)
  * 返回值  : 无
  * 说明    : L298 OUT1=L, OUT2=L → 电机自由停车
  *******************************************************************************/
-void Motor_Stop(void)
+void Motor_Stop(void)                // 使L298 A桥输出低电平 → 电机自由停车
 {
-    MOTOR_IN1 = 0;
-    MOTOR_IN2 = 0;
+    MOTOR_IN1 = 0;                   // IN1=0, IN2=0 → OUT1=L, OUT2=L → 电机两端无电压差
+    MOTOR_IN2 = 0;                   // 电机靠惯性继续转动, 逐渐减速停止 (自由停车)
 }
 
 /* ======================== 独立按键扫描 ======================== */
@@ -440,30 +428,30 @@ void Motor_Stop(void)
  *           注意: 一次只返回一个按键,
  *           若有多个键同时按下, 按 KEY1 > KEY2 > KEY3 > KEY4 优先级
  *******************************************************************************/
-u8 Key_Scan(void)
+u8 Key_Scan(void)                    // 返回值: 0=无按键, 1=KEY1, 2=KEY2, 3=KEY3 (KEY4不在此处理)
 {
-    if (KEY1 == 0) {
-        Delay_ms(20);            // 消抖
-        if (KEY1 == 0) {
-            while (KEY1 == 0);   // 等待释放
-            Delay_ms(20);        // 释放消抖
-            return 1;
+    if (KEY1 == 0) {                 // 检测KEY1是否按下 (低电平有效: 引脚=0表示按下)
+        Delay_ms(20);                // 延时20ms避开按键抖动 (机械触点抖动约5~15ms)
+        if (KEY1 == 0) {            // 消抖后再次确认确实按下 (防止干扰或抖动误判)
+            while (KEY1 == 0);       // 等待按键释放 (松手后引脚恢复高电平)
+            Delay_ms(20);            // 释放消抖: 松手时也有抖动, 等20ms再返回
+            return 1;               // 返回键号1, 表示KEY1被按下并释放了一次
         }
     }
-    if (KEY2 == 0) {
+    if (KEY2 == 0) {                 // KEY2扫描逻辑与KEY1完全一致
         Delay_ms(20);
         if (KEY2 == 0) {
             while (KEY2 == 0);
             Delay_ms(20);
-            return 2;
+            return 2;               // 返回键号2
         }
     }
-    if (KEY3 == 0) {
+    if (KEY3 == 0) {                 // KEY3扫描逻辑同上
         Delay_ms(20);
         if (KEY3 == 0) {
             while (KEY3 == 0);
             Delay_ms(20);
-            return 3;
+            return 3;               // 返回键号3
         }
     }
     /*
@@ -472,7 +460,7 @@ u8 Key_Scan(void)
      * 所以 KEY4 的处理逻辑放到了主循环中,
      * 使用独立的按键状态机实现
      */
-    return 0;
+    return 0;                        // 4个键都未按下, 返回0表示无按键事件
 }
 
 /*
@@ -494,14 +482,14 @@ u8 Key_Scan(void)
  *           结束时 BEEP=0 (LCD_RW=0 写模式)
  *           ★在按键/遥控操作后调用, 必须在 LCD 操作间隙调用
  *******************************************************************************/
-void Beep_Tick(void)
+void Beep_Tick(void)                 // 产生短促按键提示音 (无源蜂鸣器方波驱动)
 {
-    u8 i;
-    for (i = 0; i < 200; i++) {
-        BEEP = !BEEP;
-        Delay_10us(25);          // ~0.25ms → 2kHz
+    u8 i;                            // 循环计数器 (控制翻转次数)
+    for (i = 0; i < 200; i++) {      // 200个半周期 = 100个完整方波周期
+        BEEP = !BEEP;                // P2.5电平翻转: 每次调用取反 (0→1→0→1...)
+        Delay_10us(25);              // 延时约250μs: 半周期250μs → 周期500μs → 频率2kHz
     }
-    BEEP = 0;                    // 200次翻转(偶数)回到0 → RW=0 写模式
+    BEEP = 0;                        // 200次翻转后P2.5回到0 → LCD_RW=0(写模式), 不影响LCD操作
 }
 
 /* ======================== 风扇系统控制 ======================== */
@@ -514,15 +502,15 @@ void Beep_Tick(void)
  * 说明    : 设置状态为 ON, 点亮 D1, 初始化各计时器,
  *           计算首次有效转速
  *******************************************************************************/
-void Fan_Start(void)
+void Fan_Start(void)                 // 启动风扇: 设置运行状态, 指示灯亮, 初始化各子模块计时器
 {
-    fan_state         = FAN_ON;
-    LED_D1            = 0;           // D1 亮 (共阳低电平点亮)
-    natural_tick      = 0;
-    sleep_tick        = 0;
-    natural_rand      = 1;
-    sleep_decremented = 0;           // ★重置睡眠风降档标志
-    Fan_UpdateEffectiveSpeed();
+    fan_state         = FAN_ON;      // 风扇状态设为运行
+    LED_D1            = 0;           // 点亮电源指示灯D1: 共阳接法, 引脚=0亮
+    natural_tick      = 0;           // 自然风计时器归零
+    sleep_tick        = 0;           // 睡眠风计时器归零
+    natural_rand      = 1;           // 自然风伪随机种子初始化为1 (避0, 保证有变化)
+    sleep_decremented = 0;           // ★重置睡眠风降档标志 (ISR首次降档前必须为0)
+    Fan_UpdateEffectiveSpeed();      // 计算初始有效转速 (根据当前档位和模式)
 }
 
 /*******************************************************************************
@@ -531,12 +519,12 @@ void Fan_Start(void)
  * 参数    : 无
  * 返回值  : 无
  *******************************************************************************/
-void Fan_Stop(void)
+void Fan_Stop(void)                  // 停止风扇: 关状态, 灭所有指示灯, 电机断电
 {
-    fan_state = FAN_OFF;
-    LED_D1    = 1;
-    LED_D2    = 1;
-    Motor_Stop();
+    fan_state = FAN_OFF;             // 风扇状态设为停止
+    LED_D1    = 1;                   // 灭电源指示灯: 共阳接法, 引脚=1灭
+    LED_D2    = 1;                   // 灭模式指示灯
+    Motor_Stop();                    // 调用电机停止函数 (L298 IN1=IN2=0)
 }
 
 /*******************************************************************************
@@ -545,11 +533,11 @@ void Fan_Stop(void)
  * 参数    : 无
  * 返回值  : 无
  *******************************************************************************/
-void Fan_SpeedUp(void)
+void Fan_SpeedUp(void)               // 风速加一档 (上限5档)
 {
-    if (speed_level < 5) {
-        speed_level++;
-        Fan_UpdateEffectiveSpeed();
+    if (speed_level < 5) {           // 当前档位小于最高档(5)时才允许加档
+        speed_level++;               // 用户档位+1 (范围1~5)
+        Fan_UpdateEffectiveSpeed();  // 重新计算实际驱动索引 (模式算法可能修正)
     }
 }
 
@@ -559,11 +547,11 @@ void Fan_SpeedUp(void)
  * 参数    : 无
  * 返回值  : 无
  *******************************************************************************/
-void Fan_SpeedDown(void)
+void Fan_SpeedDown(void)             // 风速减一档 (下限1档)
 {
-    if (speed_level > 1) {
-        speed_level--;
-        Fan_UpdateEffectiveSpeed();
+    if (speed_level > 1) {           // 当前档位大于最低档(1)时才允许减档
+        speed_level--;               // 用户档位-1
+        Fan_UpdateEffectiveSpeed();  // 重新计算实际驱动索引
     }
 }
 
@@ -573,16 +561,16 @@ void Fan_SpeedDown(void)
  * 参数    : 无
  * 返回值  : 无
  *******************************************************************************/
-void Fan_ModeSwitch(void)
+void Fan_ModeSwitch(void)            // 循环切换风类: 常风(0)→自然风(1)→睡眠风(2)→常风(0)
 {
-    fan_mode++;
-    if (fan_mode > MODE_SLEEP) {
-        fan_mode = MODE_NORMAL;
+    fan_mode++;                      // 模式编号+1
+    if (fan_mode > MODE_SLEEP) {     // 如果超过最大值(2=睡眠风)则回到0
+        fan_mode = MODE_NORMAL;      // 模式重新设为常风 (循环)
     }
-    natural_tick      = 0;
-    sleep_tick        = 0;
-    sleep_decremented = 0;       // ★重置睡眠风降档标志
-    Fan_UpdateEffectiveSpeed();
+    natural_tick      = 0;           // 切换模式时重置自然风计时器
+    sleep_tick        = 0;           // 重置睡眠风计时器
+    sleep_decremented = 0;           // ★重置睡眠风降档标志 (新模式下ISR可重新降档)
+    Fan_UpdateEffectiveSpeed();      // 按新模式重新计算有效转速
 }
 
 /*******************************************************************************
@@ -593,12 +581,12 @@ void Fan_ModeSwitch(void)
  * 说明    : 如果当前无定时 → 设为 30 分钟
  *           如果已有定时   → 取消定时
  *******************************************************************************/
-void Fan_SetTimer(void)
+void Fan_SetTimer(void)              // 切换定时: 无定时→设30分钟, 已有定时→取消
 {
-    if (timer_tick == 0) {
-        timer_tick = 30 * TICKS_PER_MIN;  // 默认 30 分钟
-    } else {
-        timer_tick = 0;                   // 取消定时
+    if (timer_tick == 0) {           // 当前没有定时任务 (timer_tick=0表示不定时)
+        timer_tick = 30 * TICKS_PER_MIN;  // 设置定时: 30分钟 × 1200节拍/分钟 = 36000节拍
+    } else {                         // 已有定时任务
+        timer_tick = 0;              // timer_tick置0取消定时 (ISR检测到0不再倒计时)
     }
 }
 
@@ -620,39 +608,44 @@ void Fan_SetTimer(void)
  *           睡眠风模式: 初始同常风, 由定时器 ISR 逐步降低
  *             (只在 sleep_tick==0 时初始赋值)
  *******************************************************************************/
-void Fan_UpdateEffectiveSpeed(void)
+void Fan_UpdateEffectiveSpeed(void)  // 核心函数: 根据用户档位+风类模式→计算实际PWM索引
 {
-    u8 base = speed_level - 1;   // 转为 0-based 索引
+    u8 base = speed_level - 1;       // 将1~5档转为0~4索引 (对应pwm_on_time[0]~[4])
 
-    switch (fan_mode) {
+    switch (fan_mode) {              // 根据当前风类模式分别处理
 
-    case MODE_NORMAL:
-        effective_speed = base;
+    case MODE_NORMAL:                // ── 常风模式: 实际转速 = 用户设定 ──
+        effective_speed = base;      // 直接使用用户档位对应的索引, 不做任何修正
         break;
 
-    case MODE_NATURAL:
-        /* 用 natural_rand 低 7 位 (0~127) 决定偏移量 */
-        if (natural_rand < 51) {
-            effective_speed = base;                       // 40%: 不变
-        } else if (natural_rand < 77) {
-            effective_speed = (base >= 1) ? base - 1 : 0;  // 20%: -1档
-        } else if (natural_rand < 103) {
-            effective_speed = (base < 4) ? base + 1 : 4;    // 20%: +1档
-        } else if (natural_rand < 116) {
-            effective_speed = (base >= 2) ? base - 2 : 0;   // 10%: -2档
-        } else {
-            effective_speed = (base < 3) ? base + 2 : 4;    // 10%: +2档
-        }
-        /* 边界保护 */
-        if (effective_speed > 4) effective_speed = 4;
-        break;
-
-    case MODE_SLEEP:
-        /* ★使用 sleep_decremented 标志防止竞态:
-         *   ISR 刚降完档后 sleep_tick==0, 若此时主循环调用
-         *   Fan_UpdateEffectiveSpeed, 不应重置转速 */
-        if (!sleep_decremented && sleep_tick == 0) {
+    case MODE_NATURAL:               // ── 自然风模式: 伪随机 ±2 档波动 ──
+        /* 用 natural_rand (0~127) 按概率分布决定偏移:
+         *   0~50  (40%):  不变
+         *  51~76  (20%):  -1档
+         *  77~102 (20%):  +1档
+         * 103~115 (10%):  -2档
+         * 116~127 (10%):  +2档
+         * 边界时自动钳位在0~4之间
+         */
+        if (natural_rand < 51) {                 // 40%概率: 保持不变
             effective_speed = base;
+        } else if (natural_rand < 77) {          // 20%概率: 降低1档 (不低于0)
+            effective_speed = (base >= 1) ? base - 1 : 0;
+        } else if (natural_rand < 103) {         // 20%概率: 提高1档 (不高于4)
+            effective_speed = (base < 4) ? base + 1 : 4;
+        } else if (natural_rand < 116) {         // 10%概率: 降低2档 (不低于0)
+            effective_speed = (base >= 2) ? base - 2 : 0;
+        } else {                                 // 10%概率: 提高2档 (不高于4)
+            effective_speed = (base < 3) ? base + 2 : 4;
+        }
+        if (effective_speed > 4) effective_speed = 4;  // 再次边界保护 (防溢出)
+        break;
+
+    case MODE_SLEEP:                 // ── 睡眠风模式: 初始同常风, ISR逐步降档 ──
+        /* ★竞态保护: ISR刚降完档后sleep_tick==0 && sleep_decremented==1,
+         *   此时若主循环调用此函数, 不重置转速, 否则会把ISR降档效果覆盖掉 */
+        if (!sleep_decremented && sleep_tick == 0) {  // 仅在首次且未降档时设定初始值
+            effective_speed = base;                  // 初始化有效转速 = 用户设定
         }
         break;
     }
@@ -682,43 +675,43 @@ void Fan_UpdateEffectiveSpeed(void)
  *
  *           模式缩写: NORMAL=常风, NATURAL=自然风, SLEEP=睡眠风
  *******************************************************************************/
-void LCD_UpdateAll(void)
+void LCD_UpdateAll(void)             // 刷新LCD全部2行显示内容 (每次500ms调用一次)
 {
-    u8  min;
-    u8  *mode_str;
+    u8  min;                         // 用于存放定时剩余分钟数
+    u8  *mode_str;                   // 指向当前模式名称字符串的指针
 
-    /* --- 第 1 行: 风速 + 模式 + 状态 --- */
-    LCD_SetPos(0, 0);
+    /* --- 第 1 行: 格式 "S:3 NORMAL ON" 或 "  FAN STOPPED  " --- */
+    LCD_SetPos(0, 0);                // 将光标定位到第一行第0列
 
-    if (fan_state == FAN_OFF) {
-        LCD_WriteStr("  FAN STOPPED  ");
-    } else {
-        LCD_WriteStr("S:");           // Speed
-        LCD_WriteData('0' + speed_level);
-        LCD_WriteData(' ');
+    if (fan_state == FAN_OFF) {      // 风扇关闭时显示停止信息
+        LCD_WriteStr("  FAN STOPPED  ");  // 16个字符: 两端空格居中显示
+    } else {                         // 风扇运行时显示详细状态
+        LCD_WriteStr("S:");           // 输出 "S:" 前缀 (Speed的缩写)
+        LCD_WriteData('0' + speed_level);  // 将数字1~5转为字符'1'~'5'显示
+        LCD_WriteData(' ');           // 空格分隔
 
-        switch (fan_mode) {
-            case MODE_NORMAL:  mode_str = "NORMAL ";  break;
-            case MODE_NATURAL: mode_str = "NATURAL";  break;
-            case MODE_SLEEP:   mode_str = "SLEEP  ";  break;
-            default:           mode_str = "NORMAL ";  break;
+        switch (fan_mode) {          // 根据模式选择对应的字符串
+            case MODE_NORMAL:  mode_str = "NORMAL ";  break;  // 常风
+            case MODE_NATURAL: mode_str = "NATURAL";  break;  // 自然风
+            case MODE_SLEEP:   mode_str = "SLEEP  ";  break;  // 睡眠风
+            default:           mode_str = "NORMAL ";  break;  // 默认安全值
         }
-        LCD_WriteStr(mode_str);
-        LCD_WriteStr(" ON ");
+        LCD_WriteStr(mode_str);      // 显示模式名称 (7~8个字符)
+        LCD_WriteStr(" ON ");        // 显示运行状态 (3个字符, 含两侧空格)
     }
 
-    /* --- 第 2 行: 定时信息 --- */
-    LCD_SetPos(1, 0);
-    LCD_WriteStr("Timer:");
+    /* --- 第 2 行: 定时信息, 格式 "Timer:OFF" 或 "Timer:30m" --- */
+    LCD_SetPos(1, 0);                // 光标移到第二行第0列
+    LCD_WriteStr("Timer:");          // 输出固定前缀 "Timer:"
 
-    if (timer_tick == 0) {
-        LCD_WriteStr("OFF     ");
-    } else {
-        min = timer_tick / TICKS_PER_MIN;
-        if (min >= 10) LCD_WriteData('0' + (min / 10) % 10);
-        else           LCD_WriteData('0');
-        LCD_WriteData('0' + (min % 10));
-        LCD_WriteStr("m     ");
+    if (timer_tick == 0) {           // timer_tick=0表示无定时任务
+        LCD_WriteStr("OFF     ");    // 显示"OFF", 后面跟空格填充到16列
+    } else {                         // 有定时任务
+        min = timer_tick / TICKS_PER_MIN;  // 将节拍数转为分钟 (除1200)
+        if (min >= 10) LCD_WriteData('0' + (min / 10) % 10);  // 十位数: >=10显示, <10显示'0'
+        else           LCD_WriteData('0');                   // 个位前补0: 如"05m" "30m"
+        LCD_WriteData('0' + (min % 10));  // 个位数
+        LCD_WriteStr("m     ");      // 显示单位"m" (分钟), 剩余空格填充
     }
 }
 
@@ -740,51 +733,49 @@ void LCD_UpdateAll(void)
  *           ★中断中只做计数和标志更新,
  *           不操作 LCD、不调用耗时函数
  *******************************************************************************/
-void Timer1_ISR(void) interrupt 3
+void Timer1_ISR(void) interrupt 3    // T1中断服务程序, 中断号3 (每50ms自动触发一次)
 {
-    /* 重装定时初值 (模式 1 需手动重装) */
-    TH1 = T1_TH;
-    TL1 = T1_TL;
+    /* 重装定时初值 (模式1是16位, 不会自动重装, 必须在ISR中手动重装) */
+    TH1 = T1_TH;                     // 重装高8位: 0x4C
+    TL1 = T1_TL;                     // 重装低8位: 0x00, 初值=0x4C00=19456
 
-    /* [1] 系统总节拍 */
-    sys_tick++;
+    /* [1] 系统总节拍累加器 */
+    sys_tick++;                      // 系统运行时间节拍+1 (每50ms+1, 溢出后自动归零)
 
-    /* [2] 定时关机倒计时 */
-    if (timer_tick > 0) {
-        timer_tick--;
-        if (timer_tick == 0) {
-            Fan_Stop();          // 定时到, 自动关风扇
+    /* [2] 定时关机倒计时处理 */
+    if (timer_tick > 0) {            // 如果当前有定时任务
+        timer_tick--;                // 倒计时减1 (每50ms减1)
+        if (timer_tick == 0) {       // 倒计时归零 → 定时时间到
+            Fan_Stop();              // 自动停止风扇 (关电机, 灭指示灯)
         }
     }
 
-    /* [3] 自然风: 每 3 秒换一次风速 */
-    if (fan_state == FAN_ON && fan_mode == MODE_NATURAL) {
-        natural_tick++;
-        if (natural_tick >= 3 * TICKS_PER_SEC) {  // 3 秒
-            natural_tick = 0;
-            /* 用系统节拍低位生成 0~127 伪随机值 */
-            natural_rand = (u8)(sys_tick & 0x7F);
-            Fan_UpdateEffectiveSpeed();
+    /* [3] 自然风模式: 每3秒重新随机一次风速 */
+    if (fan_state == FAN_ON && fan_mode == MODE_NATURAL) {  // 仅运行+自然风模式时有效
+        natural_tick++;              // 自然风计时器+1 (每50ms+1)
+        if (natural_tick >= 3 * TICKS_PER_SEC) {  // 3秒 = 3×20=60节拍
+            natural_tick = 0;        // 计时器归零, 准备下一个3秒周期
+            /* 用sys_tick的低7位(0~127)作为伪随机种子, 简单但有效 */
+            natural_rand = (u8)(sys_tick & 0x7F);  // 取sys_tick低7位
+            Fan_UpdateEffectiveSpeed();  // 重新计算有效转速 (随机波动)
         }
     }
 
-    /* [4] 睡眠风: 每 10 分钟降一档 */
-    if (fan_state == FAN_ON && fan_mode == MODE_SLEEP) {
-        sleep_tick++;
-        /* 10 分钟 = 10 × 60 × 20 = 12000 节拍 */
-        if (sleep_tick >= 10 * TICKS_PER_MIN) {
-            sleep_tick = 0;
-            /* effective_speed 越小 → PWM 占空比越低 → 转速越慢 */
-            if (effective_speed > 0) {
-                effective_speed--;       // 降一档 (减小占空比)
-                sleep_decremented = 1;   // ★标记: ISR已修改转速
+    /* [4] 睡眠风模式: 每10分钟自动降一档 */
+    if (fan_state == FAN_ON && fan_mode == MODE_SLEEP) {  // 仅运行+睡眠风模式时有效
+        sleep_tick++;                // 睡眠风计时器+1
+        if (sleep_tick >= 10 * TICKS_PER_MIN) {  // 10分钟 = 10×1200=12000节拍
+            sleep_tick = 0;          // 计时器归零, 准备下一个10分钟周期
+            if (effective_speed > 0) {     // 已是最慢档(索引0)则不能再降
+                effective_speed--;         // 有效转速索引减1 → 占空比降低 → 转速变慢
+                sleep_decremented = 1;     // ★置位标记: ISR已修改转速, 主循环勿覆盖
             }
         }
     }
 
-    /* [5] LCD 刷新周期: 每 0.5 秒允许一次刷新 */
-    if (lcd_refresh_tick > 0) {
-        lcd_refresh_tick--;
+    /* [5] LCD刷新允许周期: 上次刷新后等待500ms才允许再次刷新 */
+    if (lcd_refresh_tick > 0) {      // lcd_refresh_tick>0表示刷新冷却中
+        lcd_refresh_tick--;          // 每50ms减1 → 初始值10对应500ms
     }
 }
 
@@ -807,200 +798,190 @@ void Timer1_ISR(void) interrupt 3
  *          (c) 若风扇运行 → 直流电机 PWM 驱动
  *          (d) 若 LCD 刷新时间到 → 更新显示
  *******************************************************************************/
-void main(void)
+void main(void)                      // 程序入口: 初始化硬件和变量后进入主循环
 {
-    u8  key_val;
+    u8  key_val;                     // 存储Key_Scan()的返回值: 0=无按键, 1~4对应KEY1~KEY4
 
     /* ===== ① 端口初始化 ===== */
-    P0 = 0xFF;                   // P0 释放 (LCD 数据总线)
-    P1 = 0xF0;                   // P1 高 4 位=1 (按键输入), 低 4 位=0
-    P2 = 0xFF;                   // P2 LCD/蜂鸣器就绪, 电机引脚初始高
-    P3 = 0xFF;                   // P3 全高 (D1灭, 预留 IN3 高电平)
-    MOTOR_IN1 = 0;               // L298.IN1=0, 确保启动时电机停止
-    MOTOR_IN2 = 0;               // L298.IN2=0
+    P0 = 0xFF;                       // P0全1: 释放LCD数据总线 (防止P0输出低电平影响LCD)
+    P1 = 0xF0;                       // P1.7~P1.4=1(按键输入上拉), P1.3~P1.0=0(未用)
+    P2 = 0xFF;                       // P2全1: LCD控制脚高电平, 电机引脚初始高, 蜂鸣器静音
+    P3 = 0xFF;                       // P3全1: D1(P3.0)灭, 未用引脚为高
+    MOTOR_IN1 = 0;                   // L298.IN1写入0, 确保电机上电时不意外转动
+    MOTOR_IN2 = 0;                   // L298.IN2写入0, IN1=IN2=0 → 电机停止
 
     /* ===== ② 变量初始化 ===== */
-    fan_state        = FAN_OFF;
-    fan_mode         = MODE_NORMAL;
-    speed_level      = 1;        // 默认 1 档 (微风)
-    effective_speed  = 0;        // 索引 0 → pwm_on_time[0]=1ms
-    sys_tick         = 0;
-    natural_tick     = 0;
-    sleep_tick       = 0;
-    timer_tick       = 0;
-    natural_rand     = 1;
-    lcd_refresh_tick = 0;
+    fan_state        = FAN_OFF;       // 初始状态: 停止
+    fan_mode         = MODE_NORMAL;   // 初始模式: 常风
+    speed_level      = 1;             // 初始档位: 1档 (微风)
+    effective_speed  = 0;             // 索引0 → pwm_on_time[0]=1ms, 对应PWM导通1ms
+    sys_tick         = 0;             // 系统节拍从0开始计数
+    natural_tick     = 0;             // 自然风计时器归零
+    sleep_tick       = 0;             // 睡眠风计时器归零
+    timer_tick       = 0;             // 定时关机: 0=未启用
+    natural_rand     = 1;             // 自然风随机种子初始为1 (不为0即可)
+    lcd_refresh_tick = 0;             // LCD刷新冷却: 0=可立即刷新
 
-    LED_D1 = 1;                  // D1(P3.0) 初始灭
-    LED_D2 = 1;
+    LED_D1 = 1;                      // 灭电源指示灯: 共阳接法, 1=灭
+    LED_D2 = 1;                      // 灭模式指示灯
 
     /* ===== ③ 定时器 1 初始化 ===== */
-    /*
-     * TMOD 寄存器:
-     *   bit7~4: T1 模式 (GATE=0, C/T=0, M1M0=01=模式1)
-     *   bit3~0: T0 模式 (保持默认)
-     *
-     * T1 模式 1: 16 位定时/计数器
-     * 定时时间 = (65536 - 初值) × 12 / 晶振频率
-     * 50ms = (65536 - 19456) × 12 / 11059200
-     * 初值 = 19456 = 0x4C00
-     */
-    TMOD &= 0x0F;                // 清零 T1 配置
-    TMOD |= 0x10;                // T1 = 模式 1 (16位)
-    TH1 = T1_TH;
-    TL1 = T1_TL;
-    ET1 = 1;                     // 允许 T1 中断
-    TR1 = 1;                     // 启动 T1
+    TMOD &= 0x0F;                    // TMOD高4位清零 (只影响T1配置, 保留T0低4位不变)
+    TMOD |= 0x10;                    // TMOD.4=1,TMOD.5=0 → T1工作在模式1(16位定时器)
+    TH1 = T1_TH;                     // 设置T1高8位初值: 0x4C
+    TL1 = T1_TL;                     // 设置T1低8位初值: 0x00 → 总初值0x4C00
+    ET1 = 1;                         // 使能T1中断: ET1=1允许定时器1溢出时触发中断
+    TR1 = 1;                         // 启动T1计数: TR1=1后T1开始从初值向上计数
 
     /* ===== ④ LCD 初始化 ===== */
-    LCD_Init();
+    LCD_Init();                      // 调用LCD初始化: 配置8位/2行/开显示/清屏
 
     /* ===== ⑤ 开总中断 ===== */
-    EA = 1;                      // ★最后才开中断, 防止中断干扰初始化
+    EA = 1;                          // ★开总中断使能: 至此T1中断才会真正响应
 
     /* ===== ⑥ 开机画面 ===== */
-    LCD_SetPos(0, 0);
-    LCD_WriteStr("Smart Fan v1.0 ");
-    LCD_SetPos(1, 0);
-    LCD_WriteStr("Proteus  Sim.  ");
-    Delay_ms(1500);
+    LCD_SetPos(0, 0);                // 光标到第一行开头
+    LCD_WriteStr("Smart Fan v1.0 "); // 显示软件版本
+    LCD_SetPos(1, 0);                // 光标到第二行开头
+    LCD_WriteStr("Proteus  Sim.  "); // 显示仿真版本标识
+    Delay_ms(1500);                  // 开机画面停留1.5秒
 
-    LCD_ClearLine(0);
-    LCD_ClearLine(1);
-    LCD_UpdateAll();
-    lcd_refresh_tick = 10;       // 0.5 秒后首次刷新
+    LCD_ClearLine(0);                // 清除第一行
+    LCD_ClearLine(1);                // 清除第二行
+    LCD_UpdateAll();                 // 显示初始状态 (风扇停止, 档位1, 无定时)
+    lcd_refresh_tick = 10;           // 设刷新冷却为10节拍(500ms), 首次刷新后才开始计时
 
     /* ═══════════════════════════════════════════════════
-     *  ⑦ 主循环
+     *  ⑦ 主循环 (永远运行)
      * ═══════════════════════════════════════════════════ */
-    while (1) {
+    while (1) {                      // 无限循环: 按键→执行→电机驱动→LCD刷新
 
-        /* ----- (a) 扫描按键短按 ----- */
-        key_val = Key_Scan();
+        /* ----- (a) 扫描 KEY1/KEY2/KEY3 短按 ----- */
+        key_val = Key_Scan();        // 调用按键扫描函数, 返回键号或0
 
-        switch (key_val) {
+        switch (key_val) {           // 根据键号执行对应操作
 
-        case 1:  /* KEY1: 启动 / 停止 */
-            if (fan_state == FAN_OFF)
+        case 1:                      // KEY1: 启停切换
+            if (fan_state == FAN_OFF) // 当前停止→启动
                 Fan_Start();
-            else
+            else                       // 当前运行→停止
                 Fan_Stop();
-            Beep_Tick();
-            lcd_refresh_tick = 1;    // 立即刷新
+            Beep_Tick();              // 按键提示音 (约100ms)
+            lcd_refresh_tick = 1;     // ★设1表示下次主循环立即刷新LCD (不等待500ms)
             break;
 
-        case 2:  /* KEY2: 风速 +1 */
+        case 2:                      // KEY2: 风速+1档
             Fan_SpeedUp();
             Beep_Tick();
             lcd_refresh_tick = 1;
             break;
 
-        case 3:  /* KEY3: 风速 -1 */
+        case 3:                      // KEY3: 风速-1档
             Fan_SpeedDown();
             Beep_Tick();
             lcd_refresh_tick = 1;
             break;
 
-        default:
+        default:                     // 无按键或无效键号, 不做操作
             break;
         }
 
-        /* ----- (b) KEY4 处理: 短按切换模式 / 长按设置定时 ----- */
+        /* ----- (b) KEY4 处理: 短按=切换模式 / 长按2秒=设置/取消定时 ----- */
         /*
-         * KEY4 使用独立的状态机, 不经过 Key_Scan(),
-         * 因为需要区分短按和长按:
+         * KEY4 不经过 Key_Scan(), 而是用独立状态机在主循环中直接检测。
+         * 原因: Key_Scan() 只能检测"按下→释放"的短按事件,
+         * 而 KEY4 需要同时区分短按(<2秒)和长按(≥2秒)。
          *
-         * - 短按 (<2秒): 切换风类模式 (常风→自然风→睡眠风)
-         * - 长按 (≥2秒): 设置/取消定时关机
+         * 状态机逻辑:
+         *   ① KEY4刚被按下(下降沿) → 记录key4_down_start = 当前sys_tick
+         *   ② KEY4持续按下 → 每轮检测时间差:
+         *      - 若 (sys_tick - key4_down_start) >= 40 (2秒)
+         *        → 触发长按动作(setTimer), 两声响提示, 等待释放
+         *   ③ KEY4释放且长按未触发 → 触发短按动作(ModeSwitch)
          *
-         * 状态机使用 sys_tick 计时, 不受主循环速度影响:
-         *   ① KEY4 按下 → 记录按下时刻 key4_down_start
-         *   ② KEY4 持续按下 → 检查 sys_tick - key4_down_start ≥ 40 (2秒)
-         *      → 是: 触发长按动作, 等待释放后返回
-         *   ③ KEY4 释放且未达 2 秒 → 触发短按动作
-         *
-         * key4_was_down: 记录上一轮 KEY4 的状态, 用于检测边沿
-         * key4_down_start: KEY4 按下时的 sys_tick 快照
-         * key4_long_done: 防止长按触发后释放时又触发短按
+         * 关键: 用sys_tick计时(每50ms递增), 即使主循环中的阻塞PWM延时
+         *       也不会影响计时准确性。
          */
         {
-            static u16  key4_down_start = 0;  // 按下时刻的 sys_tick
-            static bit  key4_was_down  = 0;   // 上一轮是否按下
-            static bit  key4_long_done = 0;   // 本次长按是否已处理
+            static u16  key4_down_start = 0;  // 静态局部变量: 记录KEY4按下瞬间的sys_tick值
+            static bit  key4_was_down  = 0;   // 静态位变量: 上一轮主循环KEY4是否为按下状态
+            static bit  key4_long_done = 0;   // 静态位变量: 本轮按下是否已处理过长按
 
-            if (KEY4 == 0) {                   // KEY4 当前被按下
-                if (!key4_was_down) {          // 刚按下 (下降沿)
-                    key4_down_start = sys_tick;
-                    key4_long_done  = 0;
-                    key4_was_down   = 1;
+            if (KEY4 == 0) {                   // KEY4当前被按下 (低电平有效)
+                if (!key4_was_down) {          // 上一轮KEY4=高且本轮=低 → 检测到下降沿(刚按下)
+                    key4_down_start = sys_tick;  // 记录当前系统节拍作为按下时刻
+                    key4_long_done  = 0;         // 清零长按处理标志 (准备判定)
+                    key4_was_down   = 1;         // 标记KEY4已被按下
                 }
-                /* 检查是否达到长按阈值 (2秒 = 40节拍) */
-                if (!key4_long_done &&
-                    (u16)(sys_tick - key4_down_start) >= 40) {
-                    key4_long_done = 1;
-                    Fan_SetTimer();            // ★长按: 设置/取消定时
-                    Beep_Tick();
-                    Beep_Tick();               // 两声提示表示长按
-                    lcd_refresh_tick = 1;
-                    while (KEY4 == 0);         // 等待释放
-                    key4_was_down = 0;
+                /* 持续按下检测: 判断是否达到长按阈值 */
+                if (!key4_long_done &&              // 尚未处理过长按
+                    (u16)(sys_tick - key4_down_start) >= 40) {  // sys_tick差值≥40 → 已过2秒
+                    key4_long_done = 1;             // 标记长按已处理 (防止重复触发)
+                    Fan_SetTimer();                 // ★长按操作: 设置/取消定时关机
+                    Beep_Tick();                    // 第一声提示
+                    Beep_Tick();                    // 第二声提示 (两声表示长按确认)
+                    lcd_refresh_tick = 1;           // 立即刷新LCD显示定时状态
+                    while (KEY4 == 0);              // 等待KEY4释放 (阻塞, 防止反复触发)
+                    key4_was_down = 0;              // 标记KEY4已释放 (因为刚等待到释放)
                 }
-            } else {                           // KEY4 当前已释放
+            } else {                               // KEY4当前已释放 (高电平)
                 if (key4_was_down && !key4_long_done) {
-                    /* 释放时未达到长按阈值 → 短按 */
-                    Fan_ModeSwitch();          // ★短按: 切换模式
-                    Beep_Tick();               // 一声提示表示短按
-                    lcd_refresh_tick = 1;
+                    /* 已经按过且未触发长按 → 判定为短按 */
+                    Fan_ModeSwitch();               // ★短按操作: 切换风类模式
+                    Beep_Tick();                    // 一声提示表示短按
+                    lcd_refresh_tick = 1;           // 立即刷新LCD显示新模式
                 }
-                key4_was_down = 0;
+                key4_was_down = 0;                  // 清除按下标记, 准备下次检测
             }
         }
 
-        /* ----- (c) 风扇运行时驱动直流电机 (PWM) ----- */
-        if (fan_state == FAN_ON) {
+        /* ----- (c) 风扇运行时驱动直流电机 (软件PWM) ----- */
+        if (fan_state == FAN_ON) {   // 仅在风扇运行状态下驱动电机
             /*
-             * 软件 PWM 调速: 固定周期 8ms (125Hz)
-             * 导通时间 = pwm_on_time[effective_speed]
-             * 占空比越高 → 转速越快
+             * 软件 PWM (脉冲宽度调制) 调速原理:
              *
-             *   1档: 1ms/8ms = 12% → 慢速
-             *   5档: 7ms/8ms = 88% → 快速
+             * 在一个固定的周期(8ms)内:
+             *   ① Motor_Forward(): IN1=1,IN2=0 → 电机通电正转
+             *   ② Delay_ms(pwm_on_time[...]): 保持正转持续一定时间(导通时间)
+             *   ③ Motor_Stop(): IN1=0,IN2=0 → 电机断电自由停车
+             *   ④ Delay_ms(PWM_CYCLE - ...): 保持停止持续剩余时间(关断时间)
              *
-             * 阻塞期间定时器 ISR 仍在运行:
-             * - 系统节拍(sys_tick)正常累加
-             * - 自然风/睡眠风定时换档正常
-             * - KEY4 长按计时基于 sys_tick, 不受影响
+             * 导通时间越长 → 平均电压越高 → 转速越快
+             * PWM频率 = 1/8ms = 125Hz > 人耳可听范围下限(约20Hz), 无噪音
+             *
+             * 阻塞延时期间T1中断仍在正常响应:
+             *   - sys_tick继续累加 (用于KEY4长按计时)
+             *   - 自然风/睡眠风定时不受影响
              */
-            Motor_Forward();
-            Delay_ms(pwm_on_time[effective_speed]);
-            Motor_Stop();
-            Delay_ms(PWM_CYCLE - pwm_on_time[effective_speed]);
+            Motor_Forward();                                          // 开启电机正转
+            Delay_ms(pwm_on_time[effective_speed]);                    // 保持导通: 1~7ms
+            Motor_Stop();                                              // 关闭电机停止
+            Delay_ms(PWM_CYCLE - pwm_on_time[effective_speed]);        // 保持关断: 剩余ms
 
-            /* 睡眠风模式: D2 每 0.5s 闪烁一次 (用 sys_tick 节拍) */
+            /* 睡眠风模式: D2每0.5秒闪烁一次 (提示正在缓慢降速) */
             if (fan_mode == MODE_SLEEP) {
-                LED_D2 = (sys_tick / 10) % 2 ? 0 : 1;
+                LED_D2 = (sys_tick / 10) % 2 ? 0 : 1;  // sys_tick/10取整每500ms变化一次, %2交替亮灭
             }
 
-            /* 自然风模式: D2 随风速变化闪烁, 每秒亮1秒/周期3秒 */
+            /* 自然风模式: D2在第一秒亮, 后两秒灭 (3秒周期对应自然风节奏) */
             if (fan_mode == MODE_NATURAL) {
-                LED_D2 = (natural_tick < TICKS_PER_SEC) ? 0 : 1;
+                LED_D2 = (natural_tick < TICKS_PER_SEC) ? 0 : 1;  // natural_tick<20(前1秒)亮, 后2秒灭
             }
 
-        } else {
-            /* 风扇关闭时加延时, 防止主循环空转 */
-            Delay_ms(10);
+        } else {                     // 风扇停止状态
+            Delay_ms(10);            // 主循环加10ms延时, 防止空转占用太多CPU时间
         }
 
-        /* ----- (d) LCD 定时刷新 (每 0.5 秒) ----- */
-        if (lcd_refresh_tick == 0) {
-            LCD_UpdateAll();
-            lcd_refresh_tick = 10;    // 10 × 50ms = 0.5 秒
+        /* ----- (d) LCD定时刷新 (每500ms刷新一次) ----- */
+        if (lcd_refresh_tick == 0) { // lcd_refresh_tick减到0 → 允许刷新
+            LCD_UpdateAll();          // 调用刷新函数更新LCD两行显示
+            lcd_refresh_tick = 10;    // 重置冷却计数器: 10节拍 × 50ms = 500ms后再次刷新
         }
 
-        /* 常风模式下 D2 常亮 */
+        /* 常风模式下: D2持续点亮 (恒亮表示恒定转速) */
         if (fan_state == FAN_ON && fan_mode == MODE_NORMAL) {
-            LED_D2 = 0;
+            LED_D2 = 0;              // 共阳: 0=亮
         }
 
-    } /* end while(1) */
+    } /* end while(1) — 主循环到此结束, 返回while继续下一轮 */
 }
