@@ -1,2 +1,0 @@
-﻿詟_s詟_t嗉€Tch.xml釀€TG_ADDIN啶€name釋€SEPARATOR釀€SLIDEOUT軃鍛戒护缁勦type啶€灞傚彔鎸夐挳啶佷笅鎷夋寜閽寔GroupName嗉€FixItem啶€Hide啶€涓嬫媺鍒楄〃啶両con啶€Tips啶€鍛戒护缁勨€溹磥鈥濆姞杞藉け璐ャ€傑佸懡浠も€溙亁虁y啶€.bmp啶€.png \tgKeyboardShortcuts.xml釡€澶╂蹇嵎閿枃浠舵湭鎵惧埌锛氞紒瀵煎叆澶╂蹇嵎閿渷璇ュ懡浠や細鑷姩灏嗗ぉ姝ｅ揩鎹烽敭瀵煎叆Revit
----
