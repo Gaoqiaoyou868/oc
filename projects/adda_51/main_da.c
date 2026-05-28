@@ -169,26 +169,66 @@ void TLC5615_Write(u16 dat)
  *           写入 TLC5615 后延时一小段时间控制波形频率.
  *           每完成约 150 个完整波形周期后自动切换到下一种波形.
  *
- *           波形频率 (12MHz, 每步 ~130us):
- *             锯齿波/三角波/方波: 1024 步/周期 → ~60Hz
- *             正弦波: 128 步/周期 → ~60Hz
+ *           波形频率 (12MHz):
+ *             锯齿波/三角波/方波: ~7Hz
+ *             正弦波: ~55Hz
  ******************************************************************************/
 void main(void)
 {
-    u8  wave_type = WAVE_SAWTOOTH;  // 当前波形类型, 初始为锯齿波
-    u16 step      = 0;              // 当前步进位置 (采样点序号)
-    u16 val       = 0;              // 当前 DAC 输出值
-    u16 cycle_cnt = 0;              // 当前波形已完成周期数
+    u8  wave_type = WAVE_SAWTOOTH;
+    u16 step      = 0;
+    u16 val       = 0;
+    u16 cycle_cnt = 0;
 
-    /* ===== 端口初始化 ===== */
-    P1 = 0xFF;                // P1 全 1: TLC_DIN/SCLK/CS 初始高电平
-    P3 = 0xFF;                // P3 未用, 全部拉高
-
-    /* CS 初始为高, TLC5615 未选通 */
+    P1 = 0xFF;
+    P3 = 0xFF;
     TLC_CS = 1;
-
-    /* 短暂等待 TLC5615 上电稳定 */
     Delay_ms(10);
+
+    while (1) {
+        switch (wave_type) {
+
+        case WAVE_SAWTOOTH:
+            val = step;
+            step++;
+            if (step >= 1024) { step = 0; cycle_cnt++; }
+            break;
+
+        case WAVE_TRIANGLE:
+            if (step < 512)
+                val = step << 1;
+            else
+                val = (1023 - step) << 1;
+            step++;
+            if (step >= 1024) { step = 0; cycle_cnt++; }
+            break;
+
+        case WAVE_SQUARE:
+            val = (step < 512) ? 0 : 1023;
+            step++;
+            if (step >= 1024) { step = 0; cycle_cnt++; }
+            break;
+
+        case WAVE_SINE:
+            val = sin_table[step];
+            step++;
+            if (step >= 128) { step = 0; cycle_cnt++; }
+            break;
+        }
+
+        TLC5615_Write(val);
+
+        Delay_10us(13);
+
+        if (cycle_cnt >= 150) {
+            cycle_cnt = 0;
+            wave_type++;
+            if (wave_type >= WAVE_COUNT)
+                wave_type = WAVE_SAWTOOTH;
+            step = 0;
+        }
+    }
+}
 
     /* ===== 主循环 ===== */
     while (1) {
