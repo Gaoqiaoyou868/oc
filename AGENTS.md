@@ -89,3 +89,11 @@ typedef unsigned char u8;
 - git 已配置全局代理 `socks5://127.0.0.1:10808`（V2Ray），开 VPN 后终端自动走代理
 - 每次用户开 VPN 时，运行 `git push` 即可推送到 GitHub
 - 如果由我提交了代码且检测到网络可达，我会自动执行 `git push`
+
+## 图片识别规则
+
+- 本模型（deepseek-v4-flash-free）不支持接收图片附件，只能用文件路径调用 MCP 工具
+- 用户发图片时，先**在桌面或截图目录查找**对应的 `PixPin_*.png` 文件
+- 如果找不到图片文件，提示用户**先用 PixPin/截图工具保存图片到桌面**，再发给我
+- 找到图片文件后，调用 `mimo-vision_recognize_image` 工具（小米 MIMO v2.5 模型）分析
+- **禁止**调用 OCR/OpenCV/Python 脚本识别图片，必须走 MIMO vision MCP

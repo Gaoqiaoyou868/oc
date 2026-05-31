@@ -3,8 +3,8 @@
 
   "command": {
     "analyze-image": {
-      "template": "Analyze the image at {{.Args.path}}",
-      "description": "Analyze an image file using Python (Pillow + OpenCV + EasyOCR) — extracts metadata, colors, edge analysis, and Chinese/English OCR text."
+      "template": "Use mimo-vision_recognize_image to analyze the image at {{.Args.path}}",
+      "description": "Analyze an image file using Xiaomi MIMO vision model (mimo-v2.5) via MCP — recognizes objects, text, and scene content."
     }
   },
 
